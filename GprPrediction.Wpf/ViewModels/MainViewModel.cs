@@ -1041,7 +1041,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     /// RefreshMapBitmapForViewportAsync 처리 수행
     /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
-    public async Task RefreshMapBitmapForViewportAsync(
+    public async Task<bool> RefreshMapBitmapForViewportAsync(
         double zoomScale,
         double panX,
         double panY,
@@ -1051,15 +1051,16 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         var figures = mapBackgroundFigures;
         if (figures is null || figures.Count == 0)
         {
-            return;
+            return false;
         }
 
         if (viewportWidth <= 1 || viewportHeight <= 1)
         {
-            return;
+            return false;
         }
 
         var renderVersion = ++mapBitmapRenderVersion;
+        var applied = false;
 
         await Application.Current.Dispatcher.InvokeAsync(() =>
         {
@@ -1075,7 +1076,23 @@ public sealed class MainViewModel : ObservableObject, IDisposable
                 panY,
                 viewportWidth,
                 viewportHeight);
+            applied = true;
         }, DispatcherPriority.Background);
+
+        return applied;
+    }
+
+    /// <summary>
+    /// 비동기 화면 작업의 복구 가능한 오류를 상태와 로그에 기록
+    /// 반복 팝업 없이 사용자에게 실패 위치를 알리고 후속 조작을 허용
+    /// </summary>
+    public void ReportNonFatalError(string operation, Exception exception)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(operation);
+        ArgumentNullException.ThrowIfNull(exception);
+
+        StatusText = $"{operation} 실패";
+        AppendLog($"{operation} failed: {exception}");
     }
 
     /// <summary>

@@ -135,6 +135,15 @@ public partial class MergeWindow : Window
         catch (OperationCanceledException) when (lifetimeCts.IsCancellationRequested)
         {
         }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(ex);
+            loadErrors.Add($"병합 목록 구성: {ex.Message}");
+            if (IsVisible)
+            {
+                ShowLoadErrorsIfNeeded();
+            }
+        }
         finally
         {
             loading = false;
@@ -175,6 +184,15 @@ public partial class MergeWindow : Window
         }
         catch (OperationCanceledException) when (lifetimeCts.IsCancellationRequested)
         {
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(ex);
+            loadErrors.Add($"파일 추가: {ex.Message}");
+            if (IsVisible)
+            {
+                ShowLoadErrorsIfNeeded();
+            }
         }
         finally
         {
@@ -375,7 +393,19 @@ public partial class MergeWindow : Window
             return;
         }
 
-        await AddBrowsedFilesAsync(dialog.FileNames);
+        try
+        {
+            await AddBrowsedFilesAsync(dialog.FileNames);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(ex);
+            CustomMessageBox.Show(
+                $"SEN 파일을 추가하지 못했습니다.\n{ex.Message}",
+                "GPR 병합",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+        }
     }
 
     /// <summary>
@@ -431,6 +461,15 @@ public partial class MergeWindow : Window
             await viewModel.LoadMergedSelectionRowsAsync(selectedRows);
             DialogResult = true;
             Close();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(ex);
+            CustomMessageBox.Show(
+                $"병합 결과를 적용하지 못했습니다.\n{ex.Message}",
+                "GPR 병합",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
         }
         finally
         {

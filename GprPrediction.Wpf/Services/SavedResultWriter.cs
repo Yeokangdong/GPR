@@ -44,7 +44,6 @@ public sealed class SavedResultWriter
         Directory.CreateDirectory(outputDirectory);
 
         var timestamp = DateTime.Now.ToString("yyyyMMddHHmmssfff", CultureInfo.InvariantCulture);
-        var senPath = GetUniquePath(outputDirectory, timestamp);
         var builder = new StringBuilder();
 
         // 결과를 순번 기준으로 고정 정렬해 저장 파일의 재현성을 유지
@@ -79,11 +78,11 @@ public sealed class SavedResultWriter
             builder.AppendLine();
         }
 
-        var tempPath = $"{senPath}.{Guid.NewGuid():N}.tmp";
+        var tempPath = Path.Combine(outputDirectory, $".gpr-{Guid.NewGuid():N}.tmp");
         try
         {
             File.WriteAllText(tempPath, builder.ToString(), Utf8NoBom);
-            File.Move(tempPath, senPath);
+            return MoveToUniquePath(tempPath, outputDirectory, timestamp);
         }
         finally
         {
@@ -93,22 +92,27 @@ public sealed class SavedResultWriter
             }
         }
 
-        return senPath;
     }
 
     /// <summary>
-    /// GetUniquePath 데이터 조회
-    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// 완성된 임시 SEN 파일을 충돌 없는 최종 경로로 원자적 이동
+    /// 동시 저장이 같은 타임스탬프를 선택해도 데이터 손실과 실행 실패 방지
     /// </summary>
-    private static string GetUniquePath(string outputDirectory, string timestamp)
+    private static string MoveToUniquePath(string tempPath, string outputDirectory, string timestamp)
     {
         for (var suffix = 0; suffix < 10_000; suffix++)
         {
             var fileName = suffix == 0 ? $"{timestamp}.sen" : $"{timestamp}-{suffix:000}.sen";
             var candidate = Path.Combine(outputDirectory, fileName);
-            if (!File.Exists(candidate))
+            try
             {
+                // overwrite 없이 이동해 파일명 선점을 운영체제 수준에서 원자적으로 처리
+                File.Move(tempPath, candidate);
                 return candidate;
+            }
+            catch (IOException) when (File.Exists(candidate))
+            {
+                // 다른 저장 작업이 먼저 같은 이름을 선점한 경우 다음 접미사로 재시도
             }
         }
 

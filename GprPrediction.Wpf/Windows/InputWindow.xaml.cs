@@ -46,6 +46,7 @@ public partial class InputWindow : Window
     private bool isPanArmed;
     private bool hasUserNavigated;
     private bool showLoadingOnRefresh;
+    private int mapBitmapRefreshRequestVersion;
     private double committedScale = 1;
     private double committedPanX;
     private double committedPanY;
@@ -414,9 +415,11 @@ public partial class InputWindow : Window
     private void OnClosed(object? sender, EventArgs e)
     {
         mapBitmapRefreshTimer.Stop();
+        mapBitmapRefreshRequestVersion++;
 
         if (subscribedViewModel is not null)
         {
+            subscribedViewModel.HideTransientMapLoading();
             subscribedViewModel.PropertyChanged -= ViewModel_PropertyChanged;
             subscribedViewModel = null;
         }
@@ -786,6 +789,7 @@ public partial class InputWindow : Window
     private void ScheduleMapBitmapRefresh(bool showLoading = false)
     {
         showLoadingOnRefresh |= showLoading;
+        mapBitmapRefreshRequestVersion++;
 
         if (showLoading && DataContext is MainViewModel viewModel)
         {
@@ -803,6 +807,7 @@ public partial class InputWindow : Window
     private async void MapBitmapRefreshTimer_Tick(object? sender, EventArgs e)
     {
         mapBitmapRefreshTimer.Stop();
+        var requestVersion = mapBitmapRefreshRequestVersion;
 
         if (DataContext is not MainViewModel viewModel)
         {
@@ -811,16 +816,25 @@ public partial class InputWindow : Window
 
         try
         {
-            await viewModel.RefreshMapBitmapForViewportAsync(
+            var applied = await viewModel.RefreshMapBitmapForViewportAsync(
                 scaleTransform.ScaleX,
                 panTransform.X,
                 panTransform.Y,
                 MapSurface.ActualWidth,
                 MapSurface.ActualHeight);
+            if (!applied || requestVersion != mapBitmapRefreshRequestVersion)
+            {
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            viewModel.ReportNonFatalError("입력 지도 비트맵 갱신", ex);
+            return;
         }
         finally
         {
-            if (showLoadingOnRefresh)
+            if (showLoadingOnRefresh && requestVersion == mapBitmapRefreshRequestVersion)
             {
                 viewModel.HideTransientMapLoading();
                 showLoadingOnRefresh = false;

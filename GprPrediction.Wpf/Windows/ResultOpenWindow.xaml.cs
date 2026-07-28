@@ -116,6 +116,18 @@ public partial class ResultOpenWindow : Window
         catch (OperationCanceledException) when (lifetimeCts.IsCancellationRequested)
         {
         }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(ex);
+            if (IsVisible)
+            {
+                CustomMessageBox.Show(
+                    $"저장 결과 목록을 불러오지 못했습니다.\n{ex.Message}",
+                    "측정결과 열기",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+            }
+        }
         finally
         {
             ResultList.IsEnabled = true;
@@ -151,6 +163,15 @@ public partial class ResultOpenWindow : Window
             await viewModel.LoadMergedSavedResultsAsync(selectedPaths);
             DialogResult = true;
             Close();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(ex);
+            CustomMessageBox.Show(
+                $"선택한 결과를 적용하지 못했습니다.\n{ex.Message}",
+                "측정결과 열기",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
         }
         finally
         {
