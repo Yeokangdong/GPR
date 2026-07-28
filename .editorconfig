@@ -1,0 +1,7 @@
+root = true
+
+[*.{cs,xaml,csproj,props,targets}]
+charset = utf-8-bom
+
+[*.{py,jl,json,txt,md,csv}]
+charset = utf-8

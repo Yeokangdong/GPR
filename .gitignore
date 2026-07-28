@@ -1,0 +1,43 @@
+# Visual Studio / .NET build outputs
+.vs/
+**/bin/
+**/obj/
+artifacts/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+
+# User-specific IDE files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build and installer logs/packages
+*.log
+*.msi
+*.msix
+*.cab
+*.zip
+
+# Python caches and generated analysis data
+**/__pycache__/
+*.py[cod]
+GprPrediction.Wpf/algorithm/data/
+GprPrediction.Wpf/algorithm/results/
+GprPrediction.Wpf/algorithm/cropped_data/
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+*.pfx
+*.p12
+*.pem
+*.key
+
+# OS metadata
+.DS_Store
+Thumbs.db
+Desktop.ini

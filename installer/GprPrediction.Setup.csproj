@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>GprPrediction.Setup</AssemblyName>
+    <RootNamespace>GprPrediction.Setup</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <PublishDir>$(MSBuildThisFileDirectory)..\artifacts\publish\win-x64\</PublishDir>
+    <InstallerProjectPath>$(MSBuildThisFileDirectory)GprPrediction.Setup.wixproj</InstallerProjectPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="GprPrediction.Setup.wixproj" />
+    <None Include="Package.wxs" />
+    <None Include="License.rtf" />
+  </ItemGroup>
+
+  <Target Name="BuildInstallerProject"
+          AfterTargets="Build"
+          Condition="'$(DesignTimeBuild)' != 'true'">
+    <MSBuild
+      Projects="$(InstallerProjectPath)"
+      Targets="Build"
+      Properties="Configuration=$(Configuration);PublishDir=$(PublishDir)" />
+  </Target>
+</Project>

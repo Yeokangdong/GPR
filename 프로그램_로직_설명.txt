@@ -1,0 +1,207 @@
+GPR 프로그램 로직 설명
+
+1. 참고 CSV 사용 여부
+
+all_predictions_tda_HBC.csv 파일은 결과 비교용 참고 파일
+프로그램 실행 중 이 파일에서 결과를 찾지 않음
+
+실제 결과 파일은 main_2.py 실행 후 새로 생성되는 prediction_results.csv
+
+2. 전체 실행 순서
+
+사용자 입력
+-> input_info.txt 생성
+-> model_info.txt 생성
+-> main_1.py 실행
+-> TDA 분석 실행
+-> main_2.py 실행
+-> prediction_results.csv 생성
+-> 화면 표시
+
+알고리즘 실행 순서는 main_1 -> TDA -> main_2
+
+3. input_info.txt 역할
+
+사용자가 화면에서 스캔 파일과 분석 조건을 입력하면,
+프로그램이 main_1.py 실행 전에 algorithm/data/input_info.txt 생성
+
+input_info.txt에 들어가는 값
+
+- file_name
+- scan range x
+- scan range y
+- x scale
+- y scale
+- threshold
+
+예시
+
+- file_name: 02.sgy
+- scan range x: 20
+- scan range y: 3
+- x scale: 6
+- y scale: 1
+- threshold: 0.5
+
+main_1.py와 main_2.py는 이 input_info.txt를 읽어서 현재 입력값 기준으로 동작
+
+4. model_info.txt 역할
+
+model_info.txt는 main_2.py가 어떤 분석 모드와 모델을 사용할지 정하는 설정 파일
+
+model_info.txt에 들어가는 값
+
+- model_mode
+- tda_threshold
+- normal_weights_file
+- tda_weights_file
+
+예시
+
+- model_mode: tda
+- tda_threshold: 0.35
+- normal_weights_file: ./Best_V1.260522.pt
+- tda_weights_file: ./Best_Tda_V1.260522.pt
+
+각 항목 의미
+
+- model_mode: tda
+  TDA 분석 사용 모드
+
+- model_mode: normal
+  일반 분석 사용 모드
+
+- tda_threshold
+  TDA 분석 기준값
+
+- normal_weights_file
+  일반 분석에서 사용하는 YOLO 모델 파일
+
+- tda_weights_file
+  TDA 분석에서 사용하는 YOLO 모델 파일
+
+TDA 사용 시 main_2.py는 tda_weights_file 모델 사용
+TDA 미사용 시 main_2.py는 normal_weights_file 모델 사용
+
+5. main_1.py 역할
+
+main_1.py는 전처리 단계
+
+main_1.py가 input_info.txt에서 읽는 값
+
+- file_name
+- scan range x
+- scan range y
+- x scale
+- y scale
+- threshold
+
+main_1.py에서 실제 전처리에 직접 사용하는 값
+
+- file_name
+- x scale
+- y scale
+
+main_1.py 처리 내용
+
+- 선택한 스캔 파일 읽기
+- X Scale, Y Scale 적용
+- AGC 전처리 수행
+- 분석용 data.jpg 생성
+- TDA 분석용으로 C:/TDA/data.jpg 복사
+
+6. TDA 분석 역할
+
+TDA 사용 모드일 때 Julia의 tda.jl 실행
+
+tda.jl 처리 내용
+
+- C:/TDA/data.jpg 읽기
+- tda_threshold 적용
+- TDA 특징 분석
+- C:/TDA/data.png 생성
+
+TDA 사용 모드에서는 C:/TDA/data.png 생성 필수
+C:/TDA/data.png가 없으면 main_2.py로 넘어가지 않음
+
+7. main_2.py 역할
+
+main_2.py는 최종 탐지 단계
+
+main_2.py가 읽는 파일
+
+- input_info.txt
+- model_info.txt
+
+main_2.py가 input_info.txt에서 읽는 값
+
+- file_name
+- scan range x
+- scan range y
+- x scale
+- y scale
+- threshold
+
+main_2.py가 model_info.txt에서 읽는 값
+
+- model_mode
+- normal_weights_file
+- tda_weights_file
+
+main_2.py 동작 방식
+
+- model_mode가 tda인 경우 C:/TDA/data.png 사용
+- model_mode가 tda인데 C:/TDA/data.png가 없으면 중단
+- model_mode가 normal인 경우 main_1.py가 만든 data.jpg 사용
+- 선택된 모델로 YOLO 탐지 수행
+- 탐지 박스 좌표를 실제 거리와 심도 값으로 변환
+- algorithm/results/prediction_results.csv 생성
+
+8. 결과 표시 방식
+
+프로그램 화면은 prediction_results.csv를 읽어서 결과 표시
+
+prediction_results.csv 주요 값
+
+- confidence
+- x1_m
+- x2_m
+- y1_m
+- y2_m
+
+화면 표시 계산 방식
+
+- 거리 = (x1_m + x2_m) / 2
+- 심도 = (y1_m + y2_m) / 2
+- 신뢰도 = confidence * 100
+
+예시
+
+- x1_m = 3.66
+- x2_m = 4.30
+- y1_m = 1.18
+- y2_m = 1.76
+- confidence = 0.86551
+
+화면 표시값
+
+- 거리 = 3.98m
+- 심도 = 1.47m
+- 신뢰도 = 86.55%
+
+9. 핵심 정리
+
+프로그램은 참고 CSV에서 결과를 가져오지 않음
+
+사용자 입력값은 input_info.txt에 저장
+분석 모드와 모델 정보는 model_info.txt에 저장
+
+main_1.py가 input_info.txt 기준으로 전처리
+TDA 사용 시 tda.jl이 C:/TDA/data.png 생성
+main_2.py가 model_info.txt 기준으로 일반 모델 또는 TDA 모델 선택
+main_2.py가 prediction_results.csv 생성
+프로그램이 prediction_results.csv를 읽어서 화면에 표시
+
+TDA 사용 모드에서 C:/TDA/data.png가 생성되지 않으면 분석 중단
+TDA 결과 없이 일반 모델로 자동 전환하지 않음
+

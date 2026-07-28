@@ -1,0 +1,27 @@
+<Project Sdk="WixToolset.Sdk/5.0.2">
+  <PropertyGroup>
+    <OutputType>Package</OutputType>
+    <Platform>x64</Platform>
+    <InstallerPlatform>x64</InstallerPlatform>
+    <Cultures>ko-KR</Cultures>
+    <OutputName>GPR-Setup-x64</OutputName>
+    <PublishDir Condition="'$(PublishDir)' == ''">..\artifacts\publish\win-x64\</PublishDir>
+    <DefineConstants>$(DefineConstants);PublishDir=$(PublishDir)</DefineConstants>
+    <SuppressIces>ICE61</SuppressIces>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="WixToolset.UI.wixext" Version="5.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <BindVariable Include="WixUILicenseRtf=$(MSBuildThisFileDirectory)License.rtf" />
+  </ItemGroup>
+
+  <Target Name="PublishApplication" BeforeTargets="BeforeBuild">
+    <MSBuild
+      Projects="..\GprPrediction.Wpf\GprPrediction.Wpf.csproj"
+      Targets="Restore;Publish"
+      Properties="Configuration=$(Configuration);RuntimeIdentifier=win-x64;SelfContained=true;PublishSingleFile=false;DebugType=None;DebugSymbols=false;PublishDir=$(PublishDir)" />
+  </Target>
+</Project>

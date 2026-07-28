@@ -1,0 +1,718 @@
+﻿<Window x:Class="GprPrediction.Wpf.Windows.InputWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="자료 입력"
+        Height="940"
+        Width="1280"
+        MinHeight="760"
+        MinWidth="1060"
+        Background="{StaticResource BackgroundBrush}"
+        Foreground="{StaticResource TextPrimaryBrush}"
+        WindowStartupLocation="CenterOwner">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="46" ResizeBorderThickness="5"
+                      GlassFrameThickness="0" UseAeroCaptionButtons="False" />
+    </WindowChrome.WindowChrome>
+
+    <Window.CommandBindings>
+        <CommandBinding Command="{x:Static SystemCommands.MinimizeWindowCommand}" Executed="MinimizeWindow" />
+        <CommandBinding Command="{x:Static SystemCommands.MaximizeWindowCommand}" Executed="MaximizeRestoreWindow" />
+        <CommandBinding Command="{x:Static SystemCommands.RestoreWindowCommand}" Executed="MaximizeRestoreWindow" />
+        <CommandBinding Command="{x:Static SystemCommands.CloseWindowCommand}" Executed="CloseWindow" />
+    </Window.CommandBindings>
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Styles/Theme.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+
+            <Style x:Key="SectionHeaderText" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="FontWeight" Value="Bold" />
+                <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+            </Style>
+
+            <Style x:Key="SectionHelpText" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}" />
+                <Setter Property="TextWrapping" Value="Wrap" />
+            </Style>
+
+            <Style x:Key="StepBadge" TargetType="Border">
+                <Setter Property="Width" Value="30" />
+                <Setter Property="Height" Value="30" />
+                <Setter Property="CornerRadius" Value="15" />
+                <Setter Property="Background" Value="{StaticResource AccentBrush}" />
+                <Setter Property="Margin" Value="0,0,10,0" />
+            </Style>
+
+            <Style x:Key="FieldLabel" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}" />
+                <Setter Property="Margin" Value="0,0,0,6" />
+            </Style>
+
+            <Style x:Key="FieldValueBox" TargetType="TextBox" BasedOn="{StaticResource ModernTextBox}">
+                <Setter Property="Height" Value="38" />
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="Padding" Value="9,4" />
+            </Style>
+
+            <Style x:Key="MiniValueBox" TargetType="TextBox" BasedOn="{StaticResource ModernTextBox}">
+                <Setter Property="Height" Value="36" />
+                <Setter Property="FontSize" Value="13" />
+                <Setter Property="Padding" Value="9,4" />
+                <Setter Property="HorizontalContentAlignment" Value="Right" />
+            </Style>
+
+            <Style x:Key="CompactActionButton" TargetType="Button" BasedOn="{StaticResource SecondaryButton}">
+                <Setter Property="Height" Value="36" />
+                <Setter Property="FontSize" Value="12" />
+            </Style>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        <RowDefinition Height="0" />
+        </Grid.RowDefinitions>
+
+        <Border Background="{StaticResource TitleBarBackgroundBrush}"
+                BorderThickness="0">
+            <Grid Height="46">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="18,0,0,0">
+                    <Image Source="pack://application:,,,/Assets/GprRadar.png"
+                           Width="24"
+                           Height="24"
+                           Margin="0,-1,10,0"
+                           VerticalAlignment="Center" />
+                    <TextBlock Text="GPR"
+                               FontSize="17"
+                               FontWeight="Black"
+                               Foreground="{StaticResource AccentBrush}"
+                               Margin="0,-1,0,0"
+                               VerticalAlignment="Center" />
+                    <Rectangle Width="1"
+                               Height="18"
+                               Fill="{StaticResource BorderBrush1}"
+                               Margin="12,0"
+                               VerticalAlignment="Center"
+                               Opacity="0.5" />
+                    <TextBlock Text="{Binding Title, RelativeSource={RelativeSource AncestorType=Window}}"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource TextPrimaryBrush}"
+                               VerticalAlignment="Center" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Stretch">
+                    <Button Command="{x:Static SystemCommands.MinimizeWindowCommand}"
+                            Style="{StaticResource TitleBarButton}"
+                            Content="&#xE921;"
+                            WindowChrome.IsHitTestVisibleInChrome="True" />
+                    <Button Command="{x:Static SystemCommands.MaximizeWindowCommand}"
+                            Style="{StaticResource TitleBarButton}"
+                            WindowChrome.IsHitTestVisibleInChrome="True">
+                        <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="10">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Text" Value="&#xE922;" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                     Value="Maximized">
+                                            <Setter Property="Text" Value="&#xE923;" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Button>
+                    <Button Command="{x:Static SystemCommands.CloseWindowCommand}"
+                            Style="{StaticResource TitleBarCloseButton}"
+                            Content="&#xE8BB;"
+                            WindowChrome.IsHitTestVisibleInChrome="True" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="1" Margin="14" Background="{StaticResource BackgroundBrush}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="12" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Style="{StaticResource Card}" Padding="18,12">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Border Width="4"
+                                    Height="16"
+                                    Background="{StaticResource AccentBrush}"
+                                    CornerRadius="2"
+                                    Margin="0,0,10,0"
+                                    VerticalAlignment="Center" />
+                            <TextBlock Text="자료 입력"
+                                       FontSize="19"
+                                       FontWeight="Bold"
+                                       Foreground="{StaticResource TextPrimaryBrush}" />
+                        </StackPanel>
+                        <TextBlock Margin="14,6,0,0"
+                                   Text="파일을 고르고, 측선 위치를 확인하고, 분석 버튼을 누르면 바로 실행됩니다."
+                                   Style="{StaticResource SectionHelpText}" />
+                    </StackPanel>
+
+                    <Border Grid.Column="0"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center"
+                            Margin="0,0,16,0"
+                            Padding="12,7"
+                            CornerRadius="8"
+                            Background="#243F5F"
+                            BorderBrush="#4D78B8"
+                            BorderThickness="1"
+                            Visibility="{Binding IsLastAlgorithmResultVisible, Converter={StaticResource BoolToVisibility}}">
+                        <TextBlock Text="{Binding LastAlgorithmResultText}"
+                                   FontSize="12"
+                                   FontWeight="Bold"
+                                   Foreground="#DDEBFF" />
+                    </Border>
+
+                    <Button Grid.Column="1"
+                            Width="120"
+                            Content="바로 분석"
+                            Style="{StaticResource PrimaryButton}"
+                            Height="36"
+                            VerticalAlignment="Center"
+                            Command="{Binding RunAlgorithmCommand}" />
+                </Grid>
+            </Border>
+
+            <Grid Grid.Row="2" MinHeight="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2.2*" />
+                    <ColumnDefinition Width="12" />
+                    <ColumnDefinition Width="1.15*" />
+                </Grid.ColumnDefinitions>
+
+                <Grid Grid.Column="0" MinHeight="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="12" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Border Style="{StaticResource Card}" Padding="16">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="12" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Orientation="Horizontal">
+                                <Border Style="{StaticResource StepBadge}">
+                                    <TextBlock Text="1"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               FontWeight="Bold"
+                                               Foreground="White" />
+                                </Border>
+                                <StackPanel>
+                                    <TextBlock Text="분석 파일 선택" Style="{StaticResource SectionHeaderText}" />
+                                    <TextBlock Text="예측에 사용할 GPR 스캔 파일을 선택합니다."
+                                               Style="{StaticResource SectionHelpText}"
+                                               Margin="0,4,0,0" />
+                                </StackPanel>
+                            </StackPanel>
+
+                            <Grid Grid.Row="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="110" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox Grid.Column="0"
+                                         Style="{StaticResource FieldValueBox}"
+                                         Text="{Binding ScanFileDisplayName, Mode=OneWay}"
+                                         ToolTip="{Binding ScanFilePath}"
+                                         IsReadOnly="True" />
+                                <Button Grid.Column="1"
+                                        Margin="10,0,0,0"
+                                        Height="38"
+                                        Content="찾아보기"
+                                        Style="{StaticResource CompactActionButton}"
+                                        Command="{Binding BrowseScanFileCommand}" />
+                            </Grid>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Row="2" Style="{StaticResource Card}" Padding="0">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+                            <Border Grid.Row="0"
+                                    BorderBrush="{StaticResource BorderBrush1}"
+                                    BorderThickness="0,0,0,1"
+                                    Padding="16,14">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Border Style="{StaticResource StepBadge}" Background="#00D4AA">
+                                            <TextBlock Text="2"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       FontWeight="Bold"
+                                                       Foreground="#07101C" />
+                                        </Border>
+                                        <StackPanel>
+                                            <TextBlock Text="측선 위치 확인" Style="{StaticResource SectionHeaderText}" />
+                                            <TextBlock Text="시작점과 방향점을 기준으로 측선이 어떻게 놓이는지 미리 봅니다."
+                                                       Style="{StaticResource SectionHelpText}"
+                                                       Margin="0,4,0,0" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Button Height="28"
+                                                Padding="10,3"
+                                                Margin="0,0,6,0"
+                                                Style="{StaticResource CompactActionButton}"
+                                                FontSize="11"
+                                                Content="초기화"
+                                                Click="ResetMapView_Click" />
+                                        <Button x:Name="BtnPickStart"
+                                                Height="28"
+                                                Padding="10,3"
+                                                Margin="0,0,6,0"
+                                                Style="{StaticResource CompactActionButton}"
+                                                FontSize="11"
+                                                Click="BtnPickStart_Click" />
+                                        <Button x:Name="BtnPickDirection"
+                                                Height="28"
+                                                Padding="10,3"
+                                                Style="{StaticResource CompactActionButton}"
+                                                FontSize="11"
+                                                Click="BtnPickDirection_Click" />
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <Grid Grid.Row="1" Margin="10" MinHeight="0">
+                                <Border x:Name="MapSurface"
+                                        Background="#151515"
+                                        Cursor="SizeAll"
+                                        ClipToBounds="True"
+                                        MouseLeftButtonDown="MapSurface_MouseLeftButtonDown"
+                                        MouseRightButtonDown="MapSurface_MouseRightButtonDown"
+                                        MouseLeftButtonUp="MapSurface_MouseLeftButtonUp"
+                                        MouseMove="MapSurface_MouseMove"
+                                        MouseLeave="MapSurface_MouseLeave"
+                                        MouseWheel="MapSurface_MouseWheel">
+                                    <Grid>
+                                        <Image x:Name="BackgroundImageLayer"
+                                               Source="{Binding MapBackgroundImage}"
+                                               Stretch="None"
+                                               HorizontalAlignment="Left"
+                                               VerticalAlignment="Top"
+                                               SnapsToDevicePixels="True"
+                                               IsHitTestVisible="False"
+                                               RenderOptions.BitmapScalingMode="LowQuality" />
+
+                                        <Grid x:Name="MapCanvasRoot"
+                                              Width="800"
+                                              Height="580"
+                                              HorizontalAlignment="Left"
+                                              VerticalAlignment="Top"
+                                              Background="Transparent">
+                                            <Line X1="{Binding SurveyLineX1}"
+                                                  Y1="{Binding SurveyLineY1}"
+                                                  X2="{Binding SurveyLineX2}"
+                                                  Y2="{Binding SurveyLineY2}"
+                                                  Stroke="{StaticResource DangerBrush}"
+                                                  StrokeThickness="{Binding SurveyLineStrokeThickness, RelativeSource={RelativeSource AncestorType=Window}}" />
+
+                                            <Canvas Width="120"
+                                                    Height="28"
+                                                    HorizontalAlignment="Left"
+                                                    VerticalAlignment="Top"
+                                                    IsHitTestVisible="False">
+                                                <Canvas.RenderTransform>
+                                                    <TransformGroup>
+                                                        <ScaleTransform ScaleX="{Binding InverseMapScale, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                        ScaleY="{Binding InverseMapScale, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                                        <TranslateTransform X="{Binding SurveyLineX1}"
+                                                                            Y="{Binding SurveyLineY1}" />
+                                                    </TransformGroup>
+                                                </Canvas.RenderTransform>
+                                                <Ellipse Canvas.Left="-6"
+                                                         Canvas.Top="-6"
+                                                         Width="12"
+                                                         Height="12"
+                                                         Fill="{StaticResource DangerBrush}"
+                                                         Stroke="White"
+                                                         StrokeThickness="1.2" />
+                                                <TextBlock Canvas.Left="10"
+                                                           Canvas.Top="-7"
+                                                           Text="측정 시작점"
+                                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                                           FontSize="20"
+                                                           FontWeight="SemiBold" />
+                                            </Canvas>
+
+                                            <Canvas Width="120"
+                                                    Height="28"
+                                                    HorizontalAlignment="Left"
+                                                    VerticalAlignment="Top"
+                                                    IsHitTestVisible="False">
+                                                <Canvas.RenderTransform>
+                                                    <TransformGroup>
+                                                        <ScaleTransform ScaleX="{Binding InverseMapScale, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                        ScaleY="{Binding InverseMapScale, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                                        <TranslateTransform X="{Binding DirectionPreviewX}"
+                                                                            Y="{Binding DirectionPreviewY}" />
+                                                    </TransformGroup>
+                                                </Canvas.RenderTransform>
+                                                <Ellipse Canvas.Left="-6"
+                                                         Canvas.Top="-6"
+                                                         Width="12"
+                                                         Height="12"
+                                                         Fill="#00D4AA"
+                                                         Stroke="White"
+                                                         StrokeThickness="1.2" />
+                                                <TextBlock Canvas.Left="10"
+                                                           Canvas.Top="-7"
+                                                           Text="측선 방향"
+                                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                                           FontSize="20"
+                                                           FontWeight="SemiBold" />
+                                            </Canvas>
+                                        </Grid>
+
+                                        <Border x:Name="CoordinateOverlay"
+                                                HorizontalAlignment="Right"
+                                                VerticalAlignment="Top"
+                                                Margin="12"
+                                                Padding="10,8"
+                                                Background="#CC111821"
+                                                BorderBrush="{StaticResource BorderBrush1}"
+                                                BorderThickness="1"
+                                                CornerRadius="8"
+                                                MaxWidth="330"
+                                                IsHitTestVisible="False">
+                                            <StackPanel>
+                                                <TextBlock FontSize="11"
+                                                           Foreground="{StaticResource AccentBrush}"
+                                                           Text="{Binding CoordinateReferenceText}" />
+                                                <TextBlock x:Name="CursorCoordinateText"
+                                                           Margin="0,4,0,0"
+                                                           FontSize="11"
+                                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                                           Text="커서  X : -    Y : -" />
+                                                <TextBlock x:Name="CursorGeographicText"
+                                                           Margin="0,2,0,0"
+                                                           FontSize="11"
+                                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                                           Text="커서  위도 : -    경도 : -" />
+                                                <TextBlock x:Name="StartCoordinateText"
+                                                           Margin="0,4,0,0"
+                                                           FontSize="11"
+                                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                                           Text="시작점  X : -    Y : -" />
+                                                <TextBlock x:Name="StartGeographicText"
+                                                           Margin="0,2,0,0"
+                                                           FontSize="11"
+                                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                                           Text="시작점  위도 : -    경도 : -" />
+                                                <TextBlock x:Name="DirectionCoordinateText"
+                                                           Margin="0,4,0,0"
+                                                           FontSize="11"
+                                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                                           Text="방향점  X : -    Y : -" />
+                                                <TextBlock x:Name="DirectionGeographicText"
+                                                           Margin="0,2,0,0"
+                                                           FontSize="11"
+                                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                                           Text="방향점  위도 : -    경도 : -" />
+                                            </StackPanel>
+                                        </Border>
+
+                                        <Border x:Name="PickModeOverlay"
+                                                Visibility="Collapsed"
+                                                Background="#55000000"
+                                                IsHitTestVisible="False">
+                                            <TextBlock x:Name="PickModeText"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Top"
+                                                       Margin="0,24,0,0"
+                                                       Padding="16,8"
+                                                       Background="#CC1F2329"
+                                                       FontSize="15"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="White" />
+                                        </Border>
+
+                                        <Border Background="#90020308"
+                                                Visibility="{Binding IsMapLoading, Converter={StaticResource BoolToVisibility}}"
+                                                IsHitTestVisible="False">
+                                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding MapLoadingText}"
+                                                           HorizontalAlignment="Center"
+                                                           FontSize="14"
+                                                           FontWeight="Bold"
+                                                           Margin="0,0,0,10" />
+                                                <ProgressBar Width="180"
+                                                             Height="8"
+                                                             IsIndeterminate="True" />
+                                            </StackPanel>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <ScrollViewer Grid.Column="2"
+                              MinHeight="0"
+                              VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel>
+                        <Border Style="{StaticResource Card}" Padding="16">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Border Style="{StaticResource StepBadge}">
+                                        <TextBlock Text="A"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"
+                                                   FontWeight="Bold"
+                                                   Foreground="White" />
+                                    </Border>
+                                    <StackPanel>
+                                        <TextBlock Text="측선 좌표" Style="{StaticResource SectionHeaderText}" />
+                                        <TextBlock Text="시작점과 방향점 좌표를 입력합니다."
+                                                   Style="{StaticResource SectionHelpText}"
+                                                   Margin="0,4,0,0" />
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <UniformGrid Columns="2" Margin="0,14,0,0">
+                                    <StackPanel Margin="0,0,10,10">
+                                        <TextBlock Text="시작점 X" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Style="{StaticResource MiniValueBox}" Text="{Binding StartPointX, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                    <StackPanel Margin="0,0,0,10">
+                                        <TextBlock Text="시작점 Y" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Style="{StaticResource MiniValueBox}" Text="{Binding StartPointY, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                    <StackPanel Margin="0,0,10,0">
+                                        <TextBlock Text="방향점 X" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Style="{StaticResource MiniValueBox}" Text="{Binding DirectionPointX, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                    <StackPanel>
+                                        <TextBlock Text="방향점 Y" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Style="{StaticResource MiniValueBox}" Text="{Binding DirectionPointY, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                </UniformGrid>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource Card}" Padding="16" Margin="0,12,0,0">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Border Style="{StaticResource StepBadge}" Background="#00D4AA">
+                                        <TextBlock Text="B"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"
+                                                   FontWeight="Bold"
+                                                   Foreground="#07101C" />
+                                    </Border>
+                                    <StackPanel>
+                                        <TextBlock Text="범위 및 스케일" Style="{StaticResource SectionHeaderText}" />
+                                        <TextBlock Text="측정 길이, 깊이, 화면 스케일 값을 설정합니다."
+                                                   Style="{StaticResource SectionHelpText}"
+                                                   Margin="0,4,0,0" />
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <UniformGrid Columns="2" Margin="0,14,0,0">
+                                    <StackPanel Margin="0,0,10,10">
+                                        <TextBlock Text="측정 범위 X (m)" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Style="{StaticResource MiniValueBox}" Text="{Binding ScanRangeX, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                    <StackPanel Margin="0,0,0,10">
+                                        <TextBlock Text="측정 범위 Z (m)" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Style="{StaticResource MiniValueBox}" Text="{Binding ScanRangeY, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                    <StackPanel Margin="0,0,10,0">
+                                        <TextBlock Text="X Scale" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Style="{StaticResource MiniValueBox}" Text="{Binding XScale, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                    <StackPanel>
+                                        <TextBlock Text="Y Scale" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Style="{StaticResource MiniValueBox}" Text="{Binding YScale, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                </UniformGrid>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource Card}" Padding="16" Margin="0,12,0,0">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Border Style="{StaticResource StepBadge}" Background="#FFB300">
+                                        <TextBlock Text="C"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"
+                                                   FontWeight="Bold"
+                                                   Foreground="#2F2200" />
+                                    </Border>
+                                    <StackPanel>
+                                        <TextBlock Text="분석 옵션" Style="{StaticResource SectionHeaderText}" />
+                                        <TextBlock Text="신뢰도 기준과 TDA 전처리 사용 여부를 설정합니다."
+                                                   Style="{StaticResource SectionHelpText}"
+                                                   Margin="0,4,0,0" />
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <TextBlock Text="신뢰도 Threshold"
+                                           Style="{StaticResource FieldLabel}"
+                                           Margin="0,14,0,6" />
+                                <TextBox Style="{StaticResource MiniValueBox}"
+                                         Text="{Binding Threshold, UpdateSourceTrigger=PropertyChanged}" />
+
+                                <StackPanel Orientation="Horizontal"
+                                            Margin="0,14,0,0"
+                                            VerticalAlignment="Center">
+                                    <TextBlock Text="TDA 전처리 사용"
+                                               Style="{StaticResource FieldLabel}"
+                                               Margin="0"
+                                               VerticalAlignment="Center" />
+                                    <ToggleButton Style="{StaticResource ModernToggleSwitch}"
+                                                  IsChecked="{Binding UseTda, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                  Margin="10,0,0,0"
+                                                  VerticalAlignment="Center" />
+                                </StackPanel>
+
+                                <TextBlock Text="TDA Threshold"
+                                           Style="{StaticResource FieldLabel}"
+                                           Margin="0,10,0,6" />
+                                <TextBox Style="{StaticResource MiniValueBox}"
+                                         Text="{Binding TdaThreshold, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                        </Border>
+
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+
+            <Border Grid.RowSpan="3"
+                    Background="#B0000000"
+                    Visibility="{Binding IsAlgorithmRunning, Converter={StaticResource BoolToVisibility}}"
+                    IsHitTestVisible="True">
+                <Border Width="520"
+                        Padding="28,24"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        CornerRadius="12"
+                        Background="#1F252E"
+                        BorderBrush="#4D78B8"
+                        BorderThickness="1">
+                    <StackPanel>
+                        <TextBlock Text="분석 중"
+                                   FontSize="22"
+                                   FontWeight="Bold"
+                                   HorizontalAlignment="Center"
+                                   Foreground="{StaticResource TextPrimaryBrush}" />
+                        <TextBlock Text="{Binding AlgorithmRunMessage}"
+                                   Margin="0,10,0,18"
+                                   FontSize="13"
+                                   Width="464"
+                                   MinHeight="38"
+                                   TextAlignment="Center"
+                                   TextWrapping="Wrap"
+                                   Foreground="{StaticResource TextSecondaryBrush}" />
+                        <ProgressBar Height="8"
+                                     IsIndeterminate="True" />
+                        <Button Content="취소"
+                                Command="{Binding CancelAlgorithmCommand}"
+                                Style="{StaticResource SecondaryButton}"
+                                Width="96"
+                                Height="34"
+                                Margin="0,18,0,0"
+                                HorizontalAlignment="Center" />
+                    </StackPanel>
+                </Border>
+            </Border>
+
+        </Grid>
+
+        <Border Grid.Row="2"
+                Visibility="Collapsed"
+                Style="{StaticResource Card}"
+                Margin="14,0,14,14"
+                Padding="14,10">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Text="Command"
+                           Style="{StaticResource SectionHeaderText}" />
+
+                <TextBox x:Name="CommandOutputTextBox"
+                         Grid.Row="1"
+                         Margin="0,7,0,7"
+                         Padding="8,6"
+                         IsReadOnly="True"
+                         IsReadOnlyCaretVisible="False"
+                         AcceptsReturn="True"
+                         TextWrapping="Wrap"
+                         VerticalScrollBarVisibility="Auto"
+                         Background="#12161C"
+                         Foreground="{StaticResource TextSecondaryBrush}"
+                         BorderBrush="#343B46"
+                         BorderThickness="1" />
+
+                <Grid Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="86" />
+                    </Grid.ColumnDefinitions>
+                    <TextBox x:Name="CommandInputTextBox"
+                             Margin="0,0,8,0"
+                             Padding="9,6"
+                             VerticalContentAlignment="Center"
+                             KeyDown="CommandInputTextBox_KeyDown"
+                             ToolTip="help를 입력하면 사용 가능한 명령을 확인할 수 있습니다." />
+                    <Button Grid.Column="1"
+                            Content="실행"
+                            Style="{StaticResource PrimaryButton}"
+                            Click="ExecuteCommand_Click" />
+                </Grid>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
+

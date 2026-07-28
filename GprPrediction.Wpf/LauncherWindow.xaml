@@ -1,0 +1,244 @@
+﻿<Window x:Class="GprPrediction.Wpf.LauncherWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:GprPrediction.Wpf"
+        Title="GPR 준비 중"
+        SizeToContent="Height"
+        Width="580"
+        MinHeight="360"
+        WindowStyle="None"
+        ResizeMode="NoResize"
+        Background="{StaticResource BackgroundBrush}"
+        WindowStartupLocation="CenterScreen">
+
+    <Window.Resources>
+        
+        <Style x:Key="ModernProgress" TargetType="ProgressBar">
+            <Setter Property="Height" Value="12" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ProgressBar">
+                        <Border Background="#1A3050" CornerRadius="6" ClipToBounds="True">
+                            <Grid>
+                                <Border x:Name="PART_Track" />
+                                
+                                <Rectangle x:Name="PART_Indicator"
+                                           Fill="{TemplateBinding Foreground}"
+                                           HorizontalAlignment="Left"
+                                           Visibility="Collapsed" />
+                                
+                                <Grid x:Name="IndRoot" ClipToBounds="True">
+                                    <Rectangle Fill="{TemplateBinding Foreground}"
+                                               Width="200" HorizontalAlignment="Left">
+                                        <Rectangle.RenderTransform>
+                                            <TranslateTransform x:Name="Slide" X="-200" />
+                                        </Rectangle.RenderTransform>
+                                    </Rectangle>
+                                </Grid>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                                <BeginStoryboard>
+                                    <Storyboard RepeatBehavior="Forever">
+                                        <DoubleAnimation Storyboard.TargetName="Slide"
+                                                         Storyboard.TargetProperty="X"
+                                                         From="-200" To="600" Duration="0:0:1.4" />
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                            <Trigger Property="IsIndeterminate" Value="False">
+                                <Setter TargetName="PART_Indicator" Property="Visibility" Value="Visible" />
+                                <Setter TargetName="IndRoot" Property="Visibility" Value="Collapsed" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Border Style="{StaticResource Card}" Margin="0" CornerRadius="0">
+        <Grid Margin="30,28,30,24">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />  
+                <RowDefinition Height="14" />
+                <RowDefinition Height="1" />     
+                <RowDefinition Height="18" />
+                <RowDefinition Height="Auto" />  
+                <RowDefinition Height="16" />
+                <RowDefinition Height="Auto" />  
+                <RowDefinition Height="14" />
+                <RowDefinition Height="Auto" />  
+                <RowDefinition Height="12" />
+                <RowDefinition Height="Auto" />  
+            </Grid.RowDefinitions>
+
+            
+            <StackPanel Grid.Row="0">
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="pack://application:,,,/Assets/GprRadar.png"
+                           Width="42"
+                           Height="42"
+                           Margin="0,-2,12,0"
+                           VerticalAlignment="Center" />
+                    <TextBlock Text="GPR"
+                               FontSize="28"
+                               FontWeight="Black"
+                               Foreground="{StaticResource AccentBrush}"
+                               Margin="0,-1,0,0"
+                               VerticalAlignment="Center" />
+                </StackPanel>
+                <TextBlock Text="지하매설물 제원 예측 소프트웨어"
+                           Margin="2,5,0,0"
+                           Foreground="{StaticResource TextSecondaryBrush}"
+                           FontSize="12" />
+            </StackPanel>
+
+            
+            <Border Grid.Row="2" Background="#3D4A6B" Opacity="0.5" />
+
+            
+            <ItemsControl Grid.Row="4" ItemsSource="{Binding Components}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        
+                        <Border Margin="0,4" CornerRadius="8"
+                                Background="{StaticResource SurfaceAltBrush}"
+                                ClipToBounds="True">
+                            <Grid Height="54">
+
+                                
+                                <Rectangle Width="4" HorizontalAlignment="Left">
+                                    <Rectangle.Style>
+                                        <Style TargetType="Rectangle">
+                                            <Setter Property="Fill" Value="#3D4A6B" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding State}"
+                                                             Value="{x:Static local:ComponentState.Ok}">
+                                                    <Setter Property="Fill" Value="#4CAF50" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding State}"
+                                                             Value="{x:Static local:ComponentState.Checking}">
+                                                    <Setter Property="Fill" Value="#4F8CFF" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding State}"
+                                                             Value="{x:Static local:ComponentState.Warning}">
+                                                    <Setter Property="Fill" Value="#FFA000" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding State}"
+                                                             Value="{x:Static local:ComponentState.Fail}">
+                                                    <Setter Property="Fill" Value="#FF5470" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Rectangle.Style>
+                                </Rectangle>
+
+                                
+                                <Grid Margin="20,0,16,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="30" />    
+                                        <ColumnDefinition Width="*" />     
+                                        <ColumnDefinition Width="Auto" />  
+                                        <ColumnDefinition Width="110" />   
+                                    </Grid.ColumnDefinitions>
+
+                                    
+                                    <TextBlock Grid.Column="0"
+                                               Text="{Binding Icon}"
+                                               Foreground="{Binding IconBrush}"
+                                               FontSize="19" FontWeight="Bold"
+                                               VerticalAlignment="Center" />
+
+                                    
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding Name}"
+                                               FontSize="14" FontWeight="SemiBold"
+                                               Foreground="{StaticResource TextPrimaryBrush}"
+                                               VerticalAlignment="Center" />
+
+                                    
+                                    <Border Grid.Column="2"
+                                            CornerRadius="4" Padding="9,3"
+                                            Margin="10,0" VerticalAlignment="Center"
+                                            Background="{StaticResource SurfaceBrush}"
+                                            Visibility="{Binding VersionVisible}">
+                                        <TextBlock Text="{Binding VersionText}"
+                                                   FontSize="11"
+                                                   FontFamily="Consolas, Courier New"
+                                                   Foreground="{StaticResource AccentBrush}" />
+                                    </Border>
+
+                                    
+                                    <TextBlock Grid.Column="3"
+                                               Text="{Binding StatusText}"
+                                               FontSize="12"
+                                               Foreground="{StaticResource TextPrimaryBrush}"
+                                               VerticalAlignment="Center"
+                                               HorizontalAlignment="Right"
+                                               TextWrapping="Wrap" />
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            
+            <Border Grid.Row="6"
+                    Visibility="{Binding ProgressRowVisibility}"
+                    Background="{StaticResource BackgroundBrush}"
+                    CornerRadius="8" Padding="18,10">
+                <StackPanel>
+                     
+                    <Grid Margin="0,0,0,8"
+                          Visibility="{Binding DownloadDetailsVisibility}">
+                        <TextBlock Text="{Binding DownloadLabel}"
+                                   FontSize="13" FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextPrimaryBrush}"
+                                   TextWrapping="Wrap"
+                                   VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding DownloadPercentText}"
+                                   FontSize="22" FontWeight="Bold"
+                                   Foreground="{StaticResource AccentBrush}"
+                                   HorizontalAlignment="Right"
+                                   VerticalAlignment="Center" />
+                    </Grid>
+                    
+                    <ProgressBar Style="{StaticResource ModernProgress}"
+                                 Value="{Binding DownloadProgress, Mode=OneWay}"
+                                 IsIndeterminate="{Binding IsIndeterminateProgress, Mode=OneWay}" />
+                </StackPanel>
+            </Border>
+
+            
+            <TextBlock Grid.Row="8"
+                       Text="{Binding StatusText}"
+                       FontSize="12"
+                       Foreground="{StaticResource TextPrimaryBrush}"
+                       TextWrapping="Wrap" />
+
+            
+            <StackPanel Grid.Row="10"
+                        Orientation="Horizontal" HorizontalAlignment="Right"
+                        Visibility="{Binding ErrorButtonsVisibility}">
+                <Button Content="Julia 없이 계속"
+                        Style="{StaticResource SecondaryButton}"
+                        Visibility="{Binding SkipJuliaVisibility}"
+                        Click="SkipJulia_Click"
+                        Margin="0,0,8,0" />
+                <Button Content="다시 시도"
+                        Style="{StaticResource PrimaryButton}"
+                        Click="Retry_Click"
+                        Margin="0,0,8,0" />
+                <Button Content="닫기"
+                        Style="{StaticResource SecondaryButton}"
+                        Click="CloseApp_Click" />
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>
+

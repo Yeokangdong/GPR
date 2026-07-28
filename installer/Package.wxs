@@ -1,0 +1,77 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+  <Package
+    Name="GPR"
+    Manufacturer="HBC"
+    Version="1.0.1"
+    ProductCode="*"
+    UpgradeCode="A8F8DA65-8B23-4D24-93E2-4A5A06B899A2"
+    Language="1042"
+    Scope="perMachine">
+
+    <SummaryInformation
+      Description="GPR 분석 프로그램 설치 패키지"
+      Manufacturer="HBC" />
+
+    <MajorUpgrade
+      AllowSameVersionUpgrades="yes"
+      DowngradeErrorMessage="더 최신 버전의 GPR이 이미 설치되어 있습니다." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <Icon Id="AppIcon.ico" SourceFile="..\GprPrediction.Wpf\Assets\GprRadar.ico" />
+    <Property Id="ARPPRODUCTICON" Value="AppIcon.ico" />
+    <Property Id="ARPCONTACT" Value="HBC" />
+    <Property Id="ARPURLINFOABOUT" Value="https://example.invalid/gpr" />
+
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="INSTALLFOLDER" Name="GPR" />
+    </StandardDirectory>
+
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="ProgramMenuDir" Name="GPR" />
+    </StandardDirectory>
+
+    <StandardDirectory Id="DesktopFolder" />
+
+    <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
+    <UIRef Id="WixUI_ErrorProgressText" />
+
+    <Files Include="$(var.PublishDir)**" Directory="INSTALLFOLDER">
+      <Exclude Files="$(var.PublishDir)**\*.pdb" />
+      <Exclude Files="$(var.PublishDir)**\*.xml" />
+    </Files>
+
+    <Component Directory="ProgramMenuDir">
+      <Shortcut
+        Id="StartMenuShortcut"
+        Name="GPR"
+        Description="GPR 분석 프로그램"
+        Target="[INSTALLFOLDER]GPR.exe"
+        WorkingDirectory="INSTALLFOLDER" />
+      <RemoveFolder Id="RemoveProgramMenuDir" On="uninstall" />
+      <RegistryValue
+        Root="HKCU"
+        Key="Software\HBC\GPR"
+        Name="StartMenuShortcut"
+        Type="integer"
+        Value="1"
+        KeyPath="yes" />
+    </Component>
+
+    <Component Directory="DesktopFolder">
+      <Shortcut
+        Id="DesktopShortcut"
+        Name="GPR"
+        Description="GPR 분석 프로그램"
+        Target="[INSTALLFOLDER]GPR.exe"
+        WorkingDirectory="INSTALLFOLDER" />
+      <RegistryValue
+        Root="HKCU"
+        Key="Software\HBC\GPR"
+        Name="DesktopShortcut"
+        Type="integer"
+        Value="1"
+        KeyPath="yes" />
+    </Component>
+  </Package>
+</Wix>

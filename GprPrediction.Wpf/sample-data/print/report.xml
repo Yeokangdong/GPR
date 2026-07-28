@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<NCReport version="2.10.0" name="Untitled" type="report">
+    <options>
+        <encoding>UTF-8</encoding>
+        <language>00</language>
+        <langrole>0</langrole>
+        <orientation>portrait</orientation>
+        <pagesize width="210.000" height="297.000">A4</pagesize>
+        <topmargin>10</topmargin>
+        <bottommargin>0</bottommargin>
+        <leftmargin>20</leftmargin>
+        <rightmargin>20</rightmargin>
+        <fontname>Arial</fontname>
+        <fontsize>10</fontsize>
+        <backcolor>#ffffff</backcolor>
+        <columns>0</columns>
+        <columnspace>0</columnspace>
+        <zoneSpacing>0</zoneSpacing>
+        <zoneBreak>false</zoneBreak>
+    </options>
+    <datasources>
+        <datasource id="DataSource1" type="custom" openRole="begin" source="static"></datasource>
+    </datasources>
+    <variables/>
+    <pageheader id="PH" height="2.650"/>
+    <details>
+        <detail id="Detail1" height="280.458" datasource="DataSource1">
+            <items>
+                <image id="Y4HSU" zValue="0" posX="30.162" posY="92.075" width="136.525" height="90.487" resource="datasource" aspectRatio="ignore" format="1" alignment="132">imagedvi</image>
+                <image id="ZY4HS" zValue="1" posX="30.162" posY="185.737" width="136.525" height="93.662" resource="datasource" aspectRatio="ignore" format="1" alignment="132">imagedvg</image>
+                <label id="A3N7X" zValue="97" posX="1.587" posY="92.075" width="17.462" height="4.762" fontName="Arial" fontSize="9" alignment="130">Top View</label>
+                <label id="DBXF5" zValue="98" posX="3.175" posY="185.737" width="18.256" height="4.762" fontName="Arial" fontSize="9" alignment="130">Front View</label>
+                <image id="5ZY4H" zValue="116" posX="30.162" posY="3.175" width="136.525" height="85.725" resource="datasource" aspectRatio="ignore" format="1" alignment="132">imagedvf</image>
+                <label id="SUIYK" zValue="117" posX="0.000" posY="3.175" width="28.046" height="4.762" fontName="Arial" fontSize="9" alignment="130">GPR Data Labeling</label>
+            </items>
+        </detail>
+    </details>
+</NCReport>

@@ -1,0 +1,4 @@
+model_mode: tda
+tda_threshold: 0.35
+normal_weights_file: ./Best_V1.260522.pt
+tda_weights_file: ./Best_Tda_V1.260522.pt

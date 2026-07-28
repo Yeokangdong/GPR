@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <ApplicationIcon>Assets\GprRadar.ico</ApplicationIcon>
+    <AssemblyName>GPR</AssemblyName>
+    <Product>GPR</Product>
+    <Company>HBC</Company>
+    <Version>1.0.1</Version>
+    <AssemblyVersion>1.0.1.0</AssemblyVersion>
+    <FileVersion>1.0.1.0</FileVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\GprRadar.png" />
+    <Resource Include="Fonts\NanumGothicExtraBold.ttf" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="runtime\**\*" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="algorithm\**\*"
+          Exclude="algorithm\data\**\*;algorithm\results\**\*;algorithm\cropped_data\**\*;algorithm\__pycache__\**\*"
+          CopyToOutputDirectory="PreserveNewest" />
+    <None Include="maps\**\*" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="manual\**\*" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="sample-data\**\*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ACadSharp" Version="3.6.12" />
+    <PackageReference Include="ProjNET" Version="2.1.0" />
+  </ItemGroup>
+
+</Project>
