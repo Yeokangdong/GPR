@@ -7,6 +7,7 @@ namespace GprPrediction.Wpf.Services;
 
 /// <summary>
 /// 현재 분석 결과를 원본 프로그램과 호환되는 SEN 형식으로 저장
+/// 관련 책임을 한곳에 모아 구조와 수명 경계 명확화
 /// </summary>
 public sealed class SavedResultWriter
 {
@@ -14,6 +15,7 @@ public sealed class SavedResultWriter
 
     /// <summary>
     /// 분석 결과 목록을 지도 좌표로 투영한 뒤 타임스탬프 기반 파일명으로 SEN 파일을 작성
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     public string Write(
         string outputDirectory,
@@ -94,6 +96,10 @@ public sealed class SavedResultWriter
         return senPath;
     }
 
+    /// <summary>
+    /// GetUniquePath 데이터 조회
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static string GetUniquePath(string outputDirectory, string timestamp)
     {
         for (var suffix = 0; suffix < 10_000; suffix++)

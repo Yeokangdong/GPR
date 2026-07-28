@@ -7,11 +7,13 @@ namespace GprPrediction.Wpf.Services;
 
 /// <summary>
 /// prediction_results.csv를 읽어 거리(X), 심도(Z), 신뢰도 값을 추출
+/// 관련 책임을 한곳에 모아 구조와 수명 경계 명확화
 /// </summary>
 public sealed class PredictionResultReader
 {
     /// <summary>
     /// prediction_results.csv를 동기식으로 읽어 분석 결과 컬렉션으로 변환
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     public ObservableCollection<PredictionResult> Read(string csvPath)
     {
@@ -27,6 +29,7 @@ public sealed class PredictionResultReader
 
     /// <summary>
     /// prediction_results.csv를 비동기식으로 읽어 분석 결과 컬렉션으로 변환
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     public async Task<ObservableCollection<PredictionResult>> ReadAsync(string csvPath, CancellationToken cancellationToken)
     {
@@ -43,6 +46,7 @@ public sealed class PredictionResultReader
 
     /// <summary>
     /// 서로 다른 CSV 스키마를 공통 PredictionResult 형식으로 정규화
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static ObservableCollection<PredictionResult> ParseLines(string[] lines)
     {
@@ -162,6 +166,7 @@ public sealed class PredictionResultReader
 
     /// <summary>
     /// 지정된 컬럼 인덱스에서 실수 값을 읽고 실패 시 0을 반환
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static double ParseRequiredDouble(string[] values, int index, int lineNumber)
     {
@@ -185,6 +190,7 @@ public sealed class PredictionResultReader
 
     /// <summary>
     /// 지정된 컬럼 인덱스에서 정수 값을 읽고 실패 시 fallback 값을 반환
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static int ParseInt(string[] values, int index, int fallback)
     {
@@ -198,6 +204,10 @@ public sealed class PredictionResultReader
             : fallback;
     }
 
+    /// <summary>
+    /// ParseCsvLine 입력 구문 분석
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static string[] ParseCsvLine(string line)
     {
         var values = new List<string>();

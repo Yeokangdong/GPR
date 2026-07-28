@@ -2,11 +2,13 @@ namespace GprPrediction.Wpf.Services;
 
 /// <summary>
 /// 측정 시작점과 방향점을 기준으로 거리 값을 실제 지도 좌표로 투영하는 계산 유틸리티
+/// 관련 책임을 한곳에 모아 구조와 수명 경계 명확화
 /// </summary>
 public static class SurveyLineProjector
 {
     /// <summary>
     /// 시작점과 방향점을 기준으로 주어진 거리만큼 진행한 실제 좌표를 계산
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     public static (double X, double Y) ProjectAlongLine(
         double startX,

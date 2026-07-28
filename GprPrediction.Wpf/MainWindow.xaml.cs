@@ -13,19 +13,45 @@ namespace GprPrediction.Wpf;
 
 /// <summary>
 /// 메인 분석 화면을 표시하고 Top View와 Front View의 상호작용 및 렌더링을 담당
+/// 관련 책임을 한곳에 모아 구조와 수명 경계 명확화
 /// </summary>
 public partial class MainWindow : Window
 {
     /// <summary>
     /// 개별 뷰 캔버스의 확대, 이동, 드래그 상태를 묶어 관리
+    /// 관련 책임을 한곳에 모아 구조와 수명 경계 명확화
     /// </summary>
     private sealed class ViewInteractionState
     {
+        /// <summary>
+        /// Surface 값 제공
+        /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+        /// </summary>
         public required FrameworkElement Surface { get; init; }
+        /// <summary>
+        /// Canvas 상태 노출
+        /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+        /// </summary>
         public required Canvas Canvas { get; init; }
+        /// <summary>
+        /// Scale 값 제공
+        /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+        /// </summary>
         public required ScaleTransform Scale { get; init; }
+        /// <summary>
+        /// Pan 값 제공
+        /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+        /// </summary>
         public required TranslateTransform Pan { get; init; }
+        /// <summary>
+        /// DragStart 값 제공
+        /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+        /// </summary>
         public Point DragStart { get; set; }
+        /// <summary>
+        /// IsPanning 상태 노출
+        /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+        /// </summary>
         public bool IsPanning { get; set; }
     }
 
@@ -44,6 +70,7 @@ public partial class MainWindow : Window
 
     /// <summary>
     /// 메인 화면과 ViewModel을 초기화하고 보조 뷰 상호작용을 연결
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     public MainWindow()
     {
@@ -57,6 +84,7 @@ public partial class MainWindow : Window
 
     /// <summary>
     /// 확대와 패닝에 필요한 RenderTransform과 상태 객체를 준비
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void InitializeViewInteraction(FrameworkElement surface, Canvas canvas)
     {
@@ -78,6 +106,7 @@ public partial class MainWindow : Window
 
     /// <summary>
     /// 결과나 측선 정보 변경 시 보조 뷰를 다시 그리도록 ViewModel 이벤트를 구독
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
     {
@@ -93,6 +122,10 @@ public partial class MainWindow : Window
         }
     }
 
+    /// <summary>
+    /// ViewModel_PropertyChanged 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName is nameof(MainViewModel.Results)
@@ -107,6 +140,10 @@ public partial class MainWindow : Window
         }
     }
 
+    /// <summary>
+    /// OnClosed 이벤트 처리
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void OnClosed(object? sender, EventArgs e)
     {
         if (subscribedViewModel is not null)
@@ -118,12 +155,14 @@ public partial class MainWindow : Window
 
     /// <summary>
     /// 사용자 정의 타이틀바의 최소화 명령을 처리
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void MinimizeWindow(object sender, ExecutedRoutedEventArgs e)
         => WindowState = WindowState.Minimized;
 
     /// <summary>
     /// 사용자 정의 타이틀바의 최대화 또는 복원 명령을 처리
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void MaximizeRestoreWindow(object sender, ExecutedRoutedEventArgs e)
         => WindowState = WindowState == WindowState.Maximized
@@ -132,18 +171,21 @@ public partial class MainWindow : Window
 
     /// <summary>
     /// 사용자 정의 타이틀바의 닫기 명령을 처리
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void CloseWindow(object sender, ExecutedRoutedEventArgs e)
         => Close();
 
     /// <summary>
     /// 캔버스 크기가 바뀌면 보조 뷰를 현재 크기에 맞춰 다시 그리기
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void ViewCanvas_SizeChanged(object sender, SizeChangedEventArgs e)
         => RedrawViews();
 
     /// <summary>
     /// 드래그 패닝 시작 지점을 기록하고 마우스를 캡처
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void ViewSurface_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
@@ -159,6 +201,7 @@ public partial class MainWindow : Window
 
     /// <summary>
     /// 드래그 중인 거리만큼 뷰를 평행 이동
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void ViewSurface_MouseMove(object sender, MouseEventArgs e)
     {
@@ -175,6 +218,7 @@ public partial class MainWindow : Window
 
     /// <summary>
     /// 패닝 드래그를 종료하고 마우스 캡처를 해제
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void ViewSurface_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
@@ -189,6 +233,7 @@ public partial class MainWindow : Window
 
     /// <summary>
     /// 뷰 영역을 벗어나면 패닝 상태를 정리
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void ViewSurface_MouseLeave(object sender, MouseEventArgs e)
     {
@@ -203,6 +248,7 @@ public partial class MainWindow : Window
 
     /// <summary>
     /// 마우스 위치를 기준으로 Top/Front 뷰를 확대 또는 축소
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void ViewSurface_MouseWheel(object sender, MouseWheelEventArgs e)
     {
@@ -227,18 +273,21 @@ public partial class MainWindow : Window
 
     /// <summary>
     /// Top View의 확대와 이동 상태를 초기화
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void ResetTopView_Click(object sender, RoutedEventArgs e)
         => ResetViewState(TopViewSurface);
 
     /// <summary>
     /// Front View의 확대와 이동 상태를 초기화
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void ResetFrontView_Click(object sender, RoutedEventArgs e)
         => ResetViewState(FrontViewSurface);
 
     /// <summary>
     /// 지정한 뷰의 패닝/줌 상태를 기본값으로 되돌리기
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void ResetViewState(FrameworkElement surface)
     {
@@ -257,6 +306,7 @@ public partial class MainWindow : Window
 
     /// <summary>
     /// Top View와 Front View를 현재 결과 기준으로 다시 렌더링
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void RedrawViews()
     {
@@ -271,6 +321,7 @@ public partial class MainWindow : Window
 
     /// <summary>
     /// 거리 결과를 측선 방향과 직교 방향 기준으로 Top View에 그리기
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void RedrawTopViewWithSurveyAngle(MainViewModel vm)
     {
@@ -400,6 +451,7 @@ public partial class MainWindow : Window
 
     /// <summary>
     /// 거리와 심도 결과를 Front View 프로파일 형태로 그리기
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void RedrawFrontView(MainViewModel vm)
     {
@@ -503,6 +555,7 @@ public partial class MainWindow : Window
 
     /// <summary>
     /// 입력된 측정 범위를 숫자로 파싱해 뷰 계산에 사용
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static bool TryGetRanges(MainViewModel vm, out double rangeX, out double rangeY)
     {
@@ -514,6 +567,7 @@ public partial class MainWindow : Window
 
     /// <summary>
     /// 정면 보기의 기준선을 단순 수평선으로 그리기
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static void DrawBaseline(Canvas canvas, double x1, double x2, double y)
     {
@@ -531,6 +585,7 @@ public partial class MainWindow : Window
 
     /// <summary>
     /// 측선 방향을 가진 기준선을 캔버스에 그리기
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static void DrawBaselineDirectional(Canvas canvas, double x1, double y1, double x2, double y2)
     {
@@ -548,6 +603,7 @@ public partial class MainWindow : Window
 
     /// <summary>
     /// 실선 안내선을 지정된 색과 두께로 그리기
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static void DrawSolidGuideLine(Canvas canvas, Point start, Point end, string hexColor, double thickness)
     {
@@ -565,6 +621,7 @@ public partial class MainWindow : Window
 
     /// <summary>
     /// 진행 방향을 보여주는 화살표 도형을 그리기
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static void DrawDirectionArrow(Canvas canvas, Point start, Point end, string hexColor)
     {
@@ -592,6 +649,7 @@ public partial class MainWindow : Window
 
     /// <summary>
     /// 거리 범위를 설명하는 브래킷과 텍스트를 그리기
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static void DrawDistanceBracket(Canvas canvas, Point start, Point end, Vector sideOffset, string text)
     {
@@ -647,6 +705,7 @@ public partial class MainWindow : Window
 
     /// <summary>
     /// 브래킷 양 끝에 화살촉을 추가
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static void DrawBracketArrowHead(Canvas canvas, Point point, Vector direction, Vector normal, string hexColor)
     {
@@ -668,6 +727,7 @@ public partial class MainWindow : Window
 
     /// <summary>
     /// 결과 점 또는 기준 점을 원형 마커로 캔버스에 추가
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static void AddPoint(Canvas canvas, double x, double y, Color color, double size)
     {
@@ -686,12 +746,14 @@ public partial class MainWindow : Window
 
     /// <summary>
     /// 문자열 색상을 16진수로 받아 캔버스 텍스트를 배치
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static void AddCanvasText(Canvas canvas, string text, double x, double y, double offsetX, double offsetY, string hexColor, double fontSize, FontWeight? weight = null)
         => AddCanvasText(canvas, text, x, y, offsetX, offsetY, (Color)ColorConverter.ConvertFromString(hexColor)!, fontSize, weight);
 
     /// <summary>
     /// 캔버스 좌표와 오프셋을 기준으로 분석 뷰의 텍스트 라벨을 배치
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static void AddCanvasText(Canvas canvas, string text, double x, double y, double offsetX, double offsetY, Color color, double fontSize, FontWeight? weight = null)
     {
@@ -710,6 +772,7 @@ public partial class MainWindow : Window
 
     /// <summary>
     /// 방향 화살표 근처에 좌우 안내 라벨을 배치
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static void AddArrowLabel(Canvas canvas, string label, double x, double y)
     {
@@ -727,6 +790,7 @@ public partial class MainWindow : Window
 
     /// <summary>
     /// 신뢰도 순 결과 목록 오버레이 패널을 갱신
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static void UpdateRankedOverlay(Panel panel, IReadOnlyList<PredictionResult> ranked, Func<PredictionResult, string> valueSelector, string title)
     {
@@ -759,6 +823,7 @@ public partial class MainWindow : Window
 
     /// <summary>
     /// 시작점과 방향점을 이용해 Top View의 진행 단위 벡터를 구
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static Vector GetTopViewDirection(MainViewModel vm)
     {
@@ -781,10 +846,15 @@ public partial class MainWindow : Window
 
     /// <summary>
     /// 순위 인덱스에 맞는 결과 표시 색상을 반환
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static Color GetRankColor(int rank)
         => rank < RankColors.Length ? RankColors[rank] : Colors.White;
 
+    /// <summary>
+    /// TryParseDouble 처리 가능 여부 확인
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static bool TryParseDouble(string value, out double result)
     {
         var parsed = double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out result) ||

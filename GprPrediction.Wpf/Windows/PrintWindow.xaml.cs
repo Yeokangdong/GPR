@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -17,7 +17,8 @@ using IOPath = System.IO.Path;
 namespace GprPrediction.Wpf.Windows;
 
 /// <summary>
-//
+/// PrintWindow 관련 상태와 동작 관리
+/// 관련 책임을 한곳에 모아 구조와 수명 경계 명확화
 /// </summary>
 public partial class PrintWindow : Window
 {
@@ -35,7 +36,8 @@ public partial class PrintWindow : Window
     private MainViewModel? subscribedViewModel;
 
     /// <summary>
-//
+    /// PrintWindow 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     public PrintWindow()
     {
@@ -46,13 +48,15 @@ public partial class PrintWindow : Window
     }
 
     /// <summary>
-//
+    /// MinimizeWindow 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void MinimizeWindow(object sender, ExecutedRoutedEventArgs e)
         => WindowState = WindowState.Minimized;
 
     /// <summary>
-//
+    /// MaximizeRestoreWindow 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void MaximizeRestoreWindow(object sender, ExecutedRoutedEventArgs e)
         => WindowState = WindowState == WindowState.Maximized
@@ -60,13 +64,15 @@ public partial class PrintWindow : Window
             : WindowState.Maximized;
 
     /// <summary>
-//
+    /// CloseWindow 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void CloseWindow(object sender, ExecutedRoutedEventArgs e)
         => Close();
 
     /// <summary>
-//
+    /// OnClosed 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void OnClosed(object? sender, EventArgs e)
     {
@@ -78,7 +84,8 @@ public partial class PrintWindow : Window
     }
 
     /// <summary>
-//
+    /// OnDataContextChanged 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
     {
@@ -98,7 +105,8 @@ public partial class PrintWindow : Window
     }
 
     /// <summary>
-//
+    /// ViewModel_PropertyChanged 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
@@ -115,13 +123,15 @@ public partial class PrintWindow : Window
     }
 
     /// <summary>
-//
+    /// ReportCanvas_SizeChanged 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void ReportCanvas_SizeChanged(object sender, SizeChangedEventArgs e)
         => RedrawReportViews();
 
     /// <summary>
-//
+    /// RedrawReportViews 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void RedrawReportViews()
     {
@@ -137,7 +147,8 @@ public partial class PrintWindow : Window
     }
 
     /// <summary>
-//
+    /// Print_Click 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void Print_Click(object sender, RoutedEventArgs e)
     {
@@ -176,7 +187,8 @@ public partial class PrintWindow : Window
     }
 
     /// <summary>
-//
+    /// SaveReport_Click 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void SaveReport_Click(object sender, RoutedEventArgs e)
     {
@@ -222,7 +234,8 @@ public partial class PrintWindow : Window
     }
 
     /// <summary>
-//
+    /// RedrawTopView 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void RedrawTopView(MainViewModel vm)
     {
@@ -307,7 +320,8 @@ public partial class PrintWindow : Window
     }
 
     /// <summary>
-//
+    /// RedrawFrontView 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void RedrawFrontView(MainViewModel vm)
     {
@@ -374,11 +388,12 @@ public partial class PrintWindow : Window
     }
 
     /// <summary>
-//
+    /// WriteResultsCsv 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static void WriteResultsCsv(MainViewModel viewModel, string csvPath)
     {
-//
+        // 결과 필드 순서를 고정해 외부 도구에서 동일한 CSV 스키마 사용
         var builder = new StringBuilder();
         builder.AppendLine("index,source_index,distance_m,depth_m,confidence_pct,raw");
 
@@ -401,7 +416,8 @@ public partial class PrintWindow : Window
     }
 
     /// <summary>
-//
+    /// SaveElementAsPng 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static void SaveElementAsPng(FrameworkElement element, string outputPath)
     {
@@ -423,11 +439,12 @@ public partial class PrintWindow : Window
     }
 
     /// <summary>
-//
+    /// BuildReportHtml 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static string BuildReportHtml(MainViewModel viewModel, string? previewImageFileName)
     {
-//
+        // 미리보기 이미지를 포함한 독립 실행형 HTML 보고서 구성
         var builder = new StringBuilder();
         builder.AppendLine("<!doctype html>");
         builder.AppendLine("<html lang=\"ko\"><head><meta charset=\"utf-8\"><title>GPR Report</title>");
@@ -446,7 +463,8 @@ public partial class PrintWindow : Window
     }
 
     /// <summary>
-//
+    /// TryGetRanges 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static bool TryGetRanges(MainViewModel vm, out double rangeX, out double rangeY)
     {
@@ -457,7 +475,8 @@ public partial class PrintWindow : Window
     }
 
     /// <summary>
-//
+    /// DrawBaseline 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static void DrawBaseline(Canvas canvas, double x1, double x2, double y)
     {
@@ -474,7 +493,8 @@ public partial class PrintWindow : Window
     }
 
     /// <summary>
-//
+    /// DrawBaselineDirectional 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static void DrawBaselineDirectional(Canvas canvas, double x1, double y1, double x2, double y2)
     {
@@ -491,7 +511,8 @@ public partial class PrintWindow : Window
     }
 
     /// <summary>
-//
+    /// DrawSolidGuideLine 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static void DrawSolidGuideLine(Canvas canvas, Point start, Point end, string hexColor, double thickness)
     {
@@ -508,7 +529,8 @@ public partial class PrintWindow : Window
     }
 
     /// <summary>
-//
+    /// DrawDirectionArrow 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static void DrawDirectionArrow(Canvas canvas, Point start, Point end, string hexColor)
     {
@@ -535,7 +557,8 @@ public partial class PrintWindow : Window
     }
 
     /// <summary>
-//
+    /// DrawDistanceBracket 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static void DrawDistanceBracket(Canvas canvas, Point start, Point end, Vector sideOffset, string text)
     {
@@ -580,7 +603,8 @@ public partial class PrintWindow : Window
     }
 
     /// <summary>
-//
+    /// DrawBracketArrowHead 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static void DrawBracketArrowHead(Canvas canvas, Point point, Vector direction, Vector normal, string hexColor)
     {
@@ -601,7 +625,8 @@ public partial class PrintWindow : Window
     }
 
     /// <summary>
-//
+    /// AddPoint 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static void AddPoint(Canvas canvas, double x, double y, Color color, double size)
     {
@@ -619,13 +644,15 @@ public partial class PrintWindow : Window
     }
 
     /// <summary>
-//
+    /// AddCanvasText 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static void AddCanvasText(Canvas canvas, string text, double x, double y, double offsetX, double offsetY, string hexColor, double fontSize, FontWeight? weight = null)
         => AddCanvasText(canvas, text, x, y, offsetX, offsetY, (Color)ColorConverter.ConvertFromString(hexColor)!, fontSize, weight);
 
     /// <summary>
-//
+    /// AddCanvasText 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static void AddCanvasText(Canvas canvas, string text, double x, double y, double offsetX, double offsetY, Color color, double fontSize, FontWeight? weight = null)
     {
@@ -643,7 +670,8 @@ public partial class PrintWindow : Window
     }
 
     /// <summary>
-//
+    /// AddArrowLabel 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static void AddArrowLabel(Canvas canvas, string label, double x, double y)
     {
@@ -660,7 +688,8 @@ public partial class PrintWindow : Window
     }
 
     /// <summary>
-//
+    /// GetTopViewDirection 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static Vector GetTopViewDirection(MainViewModel vm)
     {
@@ -682,11 +711,16 @@ public partial class PrintWindow : Window
     }
 
     /// <summary>
-//
+    /// GetRankColor 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static Color GetRankColor(int rank)
         => rank < RankColors.Length ? RankColors[rank] : Colors.White;
 
+    /// <summary>
+    /// TryParseDouble 처리 가능 여부 확인
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static bool TryParseDouble(string value, out double result)
     {
         var parsed = double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out result) ||

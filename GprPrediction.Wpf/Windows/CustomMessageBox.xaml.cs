@@ -5,11 +5,19 @@ using System.Windows.Media;
 
 namespace GprPrediction.Wpf.Windows;
 
+/// <summary>
+/// CustomMessageBox 관련 상태와 동작 관리
+/// 관련 책임을 한곳에 모아 구조와 수명 경계 명확화
+/// </summary>
 public partial class CustomMessageBox : Window
 {
     private MessageBoxResult _result = MessageBoxResult.None;
     private MessageBoxResult _closeResult = MessageBoxResult.OK;
 
+    /// <summary>
+    /// CustomMessageBox 인스턴스 초기화
+    /// 필수 의존성과 초기 상태를 생성 시점에 확정
+    /// </summary>
     private CustomMessageBox(string message, string caption, MessageBoxButton buttons, MessageBoxImage image)
     {
         InitializeComponent();
@@ -20,6 +28,10 @@ public partial class CustomMessageBox : Window
         PreviewKeyDown += OnPreviewKeyDown;
     }
 
+    /// <summary>
+    /// Show 화면 표시
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     public static MessageBoxResult Show(
         string message,
         string caption,
@@ -40,6 +52,10 @@ public partial class CustomMessageBox : Window
         return dialog._result == MessageBoxResult.None ? dialog._closeResult : dialog._result;
     }
 
+    /// <summary>
+    /// ConfigureIcon 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void ConfigureIcon(MessageBoxImage image)
     {
         (IconText.Text, IconBackground.Background) = image switch
@@ -52,6 +68,10 @@ public partial class CustomMessageBox : Window
         };
     }
 
+    /// <summary>
+    /// ConfigureButtons 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void ConfigureButtons(MessageBoxButton buttons)
     {
         switch (buttons)
@@ -79,6 +99,10 @@ public partial class CustomMessageBox : Window
         }
     }
 
+    /// <summary>
+    /// AddButton 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void AddButton(string text, MessageBoxResult result, bool primary)
     {
         var button = new Button
@@ -95,26 +119,46 @@ public partial class CustomMessageBox : Window
         ButtonPanel.Children.Add(button);
     }
 
+    /// <summary>
+    /// BrushFrom 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static Brush BrushFrom(string color) =>
         new SolidColorBrush((Color)ColorConverter.ConvertFromString(color));
 
+    /// <summary>
+    /// ResultButton_Click 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void ResultButton_Click(object sender, RoutedEventArgs e)
     {
         _result = (MessageBoxResult)((Button)sender).Tag;
         Close();
     }
 
+    /// <summary>
+    /// Copy_Click 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void Copy_Click(object sender, RoutedEventArgs e)
     {
         Clipboard.SetText(MessageText.Text);
     }
 
+    /// <summary>
+    /// Close_Click 화면 닫기
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void Close_Click(object sender, RoutedEventArgs e)
     {
         _result = _closeResult;
         Close();
     }
 
+    /// <summary>
+    /// TitleBar_MouseLeftButtonDown 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
         if (e.LeftButton == MouseButtonState.Pressed)
@@ -123,6 +167,10 @@ public partial class CustomMessageBox : Window
         }
     }
 
+    /// <summary>
+    /// OnPreviewKeyDown 이벤트 처리
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void OnPreviewKeyDown(object sender, KeyEventArgs e)
     {
         if (e.Key == Key.Escape)

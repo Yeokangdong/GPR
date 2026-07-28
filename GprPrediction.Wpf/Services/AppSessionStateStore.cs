@@ -7,6 +7,7 @@ namespace GprPrediction.Wpf.Services;
 
 /// <summary>
 /// 앱 작업 상태를 로컬 AppData에 JSON으로 저장하고 복원
+/// 관련 책임을 한곳에 모아 구조와 수명 경계 명확화
 /// </summary>
 public sealed class AppSessionStateStore
 {
@@ -16,6 +17,7 @@ public sealed class AppSessionStateStore
 
     /// <summary>
     /// 상태 파일 JSON 직렬화 옵션
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -24,6 +26,7 @@ public sealed class AppSessionStateStore
 
     /// <summary>
     /// 사용자별 로컬 AppData에 저장하는 세션 상태 파일 경로
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private readonly string stateFilePath = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
@@ -33,6 +36,7 @@ public sealed class AppSessionStateStore
 
     /// <summary>
     /// 저장된 작업 상태를 읽어 반환
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     public AppSessionState? Load()
     {
@@ -69,6 +73,7 @@ public sealed class AppSessionStateStore
 
     /// <summary>
     /// 현재 작업 상태를 JSON 파일로 저장
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     public void Save(AppSessionState state)
     {
@@ -100,6 +105,10 @@ public sealed class AppSessionStateStore
         }
     }
 
+    /// <summary>
+    /// NormalizePaths 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static List<string> NormalizePaths(IEnumerable<string>? paths) =>
         paths?
             .Where(static path => !string.IsNullOrWhiteSpace(path))

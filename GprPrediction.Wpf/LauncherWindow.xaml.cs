@@ -1,4 +1,4 @@
-﻿using GprPrediction.Wpf.Windows;
+using GprPrediction.Wpf.Windows;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
@@ -10,12 +10,14 @@ namespace GprPrediction.Wpf;
 // Component status helpers
 
 /// <summary>
-//
+/// ComponentState 상태 선택지 정의
+/// 허용 상태를 제한해 분기 기준의 일관성 확보
 /// </summary>
 public enum ComponentState { Pending, Checking, Ok, Warning, Fail }
 
 /// <summary>
-//
+/// ComponentStatus 관련 상태와 동작 관리
+/// 관련 책임을 한곳에 모아 구조와 수명 경계 명확화
 /// </summary>
 public sealed class ComponentStatus : INotifyPropertyChanged
 {
@@ -31,26 +33,46 @@ public sealed class ComponentStatus : INotifyPropertyChanged
     private static readonly SolidColorBrush BrushChecking = new(Color.FromRgb(0x4F, 0x8C, 0xFF));
     private static readonly SolidColorBrush BrushPending  = new(Color.FromRgb(0x8A, 0x93, 0xA6));
 
+    /// <summary>
+    /// Name 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public required string Name { get; init; }
 
+    /// <summary>
+    /// State 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public ComponentState State
     {
         get => _state;
         set { _state = value; Fire(); Fire(nameof(Icon)); Fire(nameof(IconBrush)); }
     }
 
+    /// <summary>
+    /// VersionText 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public string VersionText
     {
         get => _versionText;
         set { _versionText = value; Fire(); Fire(nameof(VersionVisible)); }
     }
 
+    /// <summary>
+    /// StatusText 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public string StatusText
     {
         get => _statusText;
         set { _statusText = value; Fire(); }
     }
 
+    /// <summary>
+    /// Icon 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public string Icon => _state switch
     {
         ComponentState.Ok => "O",
@@ -60,6 +82,10 @@ public sealed class ComponentStatus : INotifyPropertyChanged
         _ => "-"
     };
 
+    /// <summary>
+    /// IconBrush 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public SolidColorBrush IconBrush => _state switch
     {
         ComponentState.Ok       => BrushOk,
@@ -69,11 +95,16 @@ public sealed class ComponentStatus : INotifyPropertyChanged
         _                       => BrushPending
     };
 
+    /// <summary>
+    /// VersionVisible 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public Visibility VersionVisible =>
         string.IsNullOrEmpty(_versionText) ? Visibility.Collapsed : Visibility.Visible;
 
     /// <summary>
-//
+    /// Reset 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     public void Reset()
     {
@@ -83,7 +114,8 @@ public sealed class ComponentStatus : INotifyPropertyChanged
     }
 
     /// <summary>
-//
+    /// Fire 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void Fire([CallerMemberName] string? name = null)
         => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
@@ -92,7 +124,8 @@ public sealed class ComponentStatus : INotifyPropertyChanged
 // Launcher window
 
 /// <summary>
-//
+/// LauncherWindow 관련 상태와 동작 관리
+/// 관련 책임을 한곳에 모아 구조와 수명 경계 명확화
 /// </summary>
 public partial class LauncherWindow : Window, INotifyPropertyChanged
 {
@@ -110,6 +143,10 @@ public partial class LauncherWindow : Window, INotifyPropertyChanged
     private bool _retrying;
     private bool _proceeding;
 
+    /// <summary>
+    /// Components 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public List<ComponentStatus> Components { get; } =
     [
         new() { Name = ".NET 8 Runtime" },
@@ -117,12 +154,25 @@ public partial class LauncherWindow : Window, INotifyPropertyChanged
         new() { Name = "Julia 1.10"     }
     ];
 
+    /// <summary>
+    /// DotNetComp 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     private ComponentStatus DotNetComp => Components[0];
+    /// <summary>
+    /// PythonComp 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     private ComponentStatus PythonComp => Components[1];
+    /// <summary>
+    /// JuliaComp 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     private ComponentStatus JuliaComp  => Components[2];
 
     /// <summary>
-//
+    /// StatusText 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
     /// </summary>
     public string StatusText
     {
@@ -130,6 +180,10 @@ public partial class LauncherWindow : Window, INotifyPropertyChanged
         private set { _statusText = value; Notify(); }
     }
 
+    /// <summary>
+    /// DownloadProgress 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public double DownloadProgress
     {
         get => _downloadProgress;
@@ -142,6 +196,10 @@ public partial class LauncherWindow : Window, INotifyPropertyChanged
         }
     }
 
+    /// <summary>
+    /// IsIndeterminateProgress 상태 노출
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public bool IsIndeterminateProgress
     {
         get => _isIndeterminate;
@@ -154,6 +212,10 @@ public partial class LauncherWindow : Window, INotifyPropertyChanged
         }
     }
 
+    /// <summary>
+    /// DownloadLabel 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public string DownloadLabel
     {
         get => _downloadLabel;
@@ -165,22 +227,42 @@ public partial class LauncherWindow : Window, INotifyPropertyChanged
         }
     }
 
-//
+    /// <summary>
+    /// DownloadPercentText 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public string DownloadPercentText =>
         (_isIndeterminate || _downloadProgress <= 0) ? "" : $"{_downloadProgress:0}%";
 
+    /// <summary>
+    /// DownloadDetailsVisibility 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public Visibility DownloadDetailsVisibility =>
         string.IsNullOrWhiteSpace(DownloadLabel) &&
         string.IsNullOrWhiteSpace(DownloadPercentText)
             ? Visibility.Collapsed
             : Visibility.Visible;
 
+    /// <summary>
+    /// ProgressRowVisibility 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public Visibility ProgressRowVisibility  => _downloading ? Visibility.Visible : Visibility.Collapsed;
+    /// <summary>
+    /// ErrorButtonsVisibility 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public Visibility ErrorButtonsVisibility => _hasError    ? Visibility.Visible : Visibility.Collapsed;
+    /// <summary>
+    /// SkipJuliaVisibility 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public Visibility SkipJuliaVisibility    => _juliaFailed ? Visibility.Visible : Visibility.Collapsed;
 
     /// <summary>
-//
+    /// LauncherWindow 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     public LauncherWindow()
     {
@@ -194,16 +276,15 @@ public partial class LauncherWindow : Window, INotifyPropertyChanged
         };
     }
 
-//
-
     /// <summary>
-//
+    /// RunAsync 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private async Task RunAsync(CancellationToken ct)
     {
         ResetAll();
 
-//
+        // 필수 .NET 런타임 버전을 먼저 확인해 이후 구성 요소 검사 기준 확보
         DotNetComp.State = ComponentState.Checking;
         DotNetComp.StatusText = "확인 중";
         StatusText = ".NET Runtime 확인 중...";
@@ -337,8 +418,7 @@ public partial class LauncherWindow : Window, INotifyPropertyChanged
         }
         else
         {
-//
-//
+            // Julia 준비 실패 시 번들 런타임 존재 여부에 따라 경고와 중단 경로 분리
             if (JuliaRuntimeLocator.GetBundledJuliaExecutable() is not null)
             {
                 JuliaComp.StatusText = "경고";
@@ -361,12 +441,13 @@ public partial class LauncherWindow : Window, INotifyPropertyChanged
     // Helper methods
 
     /// <summary>
-//
+    /// MakeProgress 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private Progress<(string Message, double Percent)> MakeProgress(ComponentStatus comp)
         => new(x =>
         {
-//
+            // 비동기 다운로드 진행률을 상태 카드와 공통 진행 표시줄에 동시 반영
             comp.StatusText = x.Percent >= 0 ? $"{x.Percent:0}%" : "다운로드 중...";
             if (!_downloading)
             {
@@ -380,7 +461,8 @@ public partial class LauncherWindow : Window, INotifyPropertyChanged
         });
 
     /// <summary>
-//
+    /// BeginDownload 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void BeginDownload()
     {
@@ -391,7 +473,8 @@ public partial class LauncherWindow : Window, INotifyPropertyChanged
     }
 
     /// <summary>
-//
+    /// EndDownload 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void EndDownload()
     {
@@ -403,7 +486,8 @@ public partial class LauncherWindow : Window, INotifyPropertyChanged
     }
 
     /// <summary>
-//
+    /// SetError 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void SetError(bool julia)
     {
@@ -414,7 +498,8 @@ public partial class LauncherWindow : Window, INotifyPropertyChanged
     }
 
     /// <summary>
-//
+    /// ResetAll 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void ResetAll()
     {
@@ -427,14 +512,14 @@ public partial class LauncherWindow : Window, INotifyPropertyChanged
         Notify(nameof(ProgressRowVisibility));
     }
 
-//
     /// <summary>
-//
+    /// ShortError 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static string ShortError(Exception ex)
     {
         var msg = ex.Message;
-//
+        // 오류 메시지의 절대 경로를 파일명으로 축약해 화면 노출 범위 제한
         var pathStart = msg.IndexOfAny(['\'', '/']);
         if (pathStart >= 0)
         {
@@ -449,7 +534,8 @@ public partial class LauncherWindow : Window, INotifyPropertyChanged
     }
 
     /// <summary>
-//
+    /// ProceedToMain 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void ProceedToMain()
     {
@@ -500,7 +586,8 @@ public partial class LauncherWindow : Window, INotifyPropertyChanged
     // Button handlers
 
     /// <summary>
-//
+    /// Retry_Click 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private async void Retry_Click(object sender, RoutedEventArgs e)
     {
@@ -526,7 +613,8 @@ public partial class LauncherWindow : Window, INotifyPropertyChanged
     }
 
     /// <summary>
-//
+    /// SkipJulia_Click 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void SkipJulia_Click(object sender, RoutedEventArgs e)
     {
@@ -537,7 +625,8 @@ public partial class LauncherWindow : Window, INotifyPropertyChanged
     }
 
     /// <summary>
-//
+    /// CloseApp_Click 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void CloseApp_Click(object sender, RoutedEventArgs e)
     {
@@ -546,7 +635,8 @@ public partial class LauncherWindow : Window, INotifyPropertyChanged
     }
 
     /// <summary>
-//
+    /// Notify 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void Notify([CallerMemberName] string? name = null)
         => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));

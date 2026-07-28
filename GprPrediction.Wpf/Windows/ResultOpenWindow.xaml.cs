@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -12,7 +12,8 @@ using GprPrediction.Wpf.ViewModels;
 namespace GprPrediction.Wpf.Windows;
 
 /// <summary>
-//
+/// ResultOpenWindow 관련 상태와 동작 관리
+/// 관련 책임을 한곳에 모아 구조와 수명 경계 명확화
 /// </summary>
 public partial class ResultOpenWindow : Window
 {
@@ -23,7 +24,8 @@ public partial class ResultOpenWindow : Window
     private bool applying;
 
     /// <summary>
-//
+    /// ResultOpenWindow 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     public ResultOpenWindow(MainViewModel viewModel)
     {
@@ -48,31 +50,36 @@ public partial class ResultOpenWindow : Window
     }
 
     /// <summary>
-//
+    /// MinimizeWindow 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void MinimizeWindow(object sender, ExecutedRoutedEventArgs e)
         => WindowState = WindowState.Minimized;
 
     /// <summary>
-//
+    /// MaximizeRestoreWindow 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void MaximizeRestoreWindow(object sender, ExecutedRoutedEventArgs e)
         => WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
 
     /// <summary>
-//
+    /// CloseWindow 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void CloseWindow(object sender, ExecutedRoutedEventArgs e)
         => Close();
 
     /// <summary>
-//
+    /// Close_Click 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void Close_Click(object sender, RoutedEventArgs e)
         => Close();
 
     /// <summary>
-//
+    /// LoadFilesAsync 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private async Task LoadFilesAsync()
     {
@@ -117,7 +124,8 @@ public partial class ResultOpenWindow : Window
     }
 
     /// <summary>
-//
+    /// Apply_Click 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private async void Apply_Click(object sender, RoutedEventArgs e)
     {
@@ -151,13 +159,15 @@ public partial class ResultOpenWindow : Window
     }
 
     /// <summary>
-//
+    /// SelectionChanged_Update 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void SelectionChanged_Update(object sender, RoutedEventArgs e)
         => UpdateSummary();
 
     /// <summary>
-//
+    /// SelectAll_Click 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void SelectAll_Click(object sender, RoutedEventArgs e)
     {
@@ -170,7 +180,8 @@ public partial class ResultOpenWindow : Window
     }
 
     /// <summary>
-//
+    /// ClearSelection_Click 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void ClearSelection_Click(object sender, RoutedEventArgs e)
     {
@@ -183,7 +194,8 @@ public partial class ResultOpenWindow : Window
     }
 
     /// <summary>
-//
+    /// UpdateSummary 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void UpdateSummary()
     {
@@ -192,7 +204,8 @@ public partial class ResultOpenWindow : Window
     }
 
     /// <summary>
-//
+    /// OpenFolder_Click 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void OpenFolder_Click(object sender, RoutedEventArgs e)
     {
@@ -219,7 +232,8 @@ public partial class ResultOpenWindow : Window
     }
 
     /// <summary>
-//
+    /// ResultItemCard_MouseLeftButtonUp 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void ResultItemCard_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
@@ -236,7 +250,8 @@ public partial class ResultOpenWindow : Window
     }
 
     /// <summary>
-//
+    /// BuildDisplayPath 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static string BuildDisplayPath(string filePath)
     {
@@ -253,7 +268,8 @@ public partial class ResultOpenWindow : Window
     }
 
     /// <summary>
-//
+    /// ToReadableSize 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static string ToReadableSize(long bytes)
     {
@@ -277,7 +293,9 @@ public partial class ResultOpenWindow : Window
     }
 
     /// <summary>
-//
+    /// FindVisualParent 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static T? FindVisualParent<T>(DependencyObject? child)
         where T : DependencyObject
     {

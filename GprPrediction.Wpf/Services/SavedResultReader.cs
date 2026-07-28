@@ -6,11 +6,13 @@ namespace GprPrediction.Wpf.Services;
 
 /// <summary>
 /// 원본 프로그램의 SEN 저장 결과 파일을 읽어 지도 표시용 점 목록으로 변환
+/// 관련 책임을 한곳에 모아 구조와 수명 경계 명확화
 /// </summary>
 public sealed class SavedResultReader
 {
     /// <summary>
     /// SEN 파일을 한 줄씩 파싱해 저장 결과 점 목록을 반환
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     public async Task<IReadOnlyList<SavedResultPoint>> ReadAsync(string senPath, CancellationToken cancellationToken)
     {

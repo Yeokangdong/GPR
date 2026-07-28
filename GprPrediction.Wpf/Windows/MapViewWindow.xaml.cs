@@ -11,6 +11,7 @@ namespace GprPrediction.Wpf.Windows;
 
 /// <summary>
 /// 지도 배경, 측선, 저장 결과와 병합선을 확대/이동 가능한 전용 맵 창에 표시
+/// 관련 책임을 한곳에 모아 구조와 수명 경계 명확화
 /// </summary>
 public partial class MapViewWindow : Window
 {
@@ -45,18 +46,30 @@ public partial class MapViewWindow : Window
     private bool showLoadingOnRefresh;
     private MainViewModel? subscribedViewModel;
 
+    /// <summary>
+    /// InverseMapScale 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public double InverseMapScale
     {
         get => (double)GetValue(InverseMapScaleProperty);
         private set => SetValue(InverseMapScaleProperty, value);
     }
 
+    /// <summary>
+    /// SurveyLineStrokeThickness 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public double SurveyLineStrokeThickness
     {
         get => (double)GetValue(SurveyLineStrokeThicknessProperty);
         private set => SetValue(SurveyLineStrokeThicknessProperty, value);
     }
 
+    /// <summary>
+    /// MergeLineStrokeThickness 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public double MergeLineStrokeThickness
     {
         get => (double)GetValue(MergeLineStrokeThicknessProperty);
@@ -65,6 +78,7 @@ public partial class MapViewWindow : Window
 
     /// <summary>
     /// 맵 뷰 창을 초기화하고 비트맵 캐시 타이머와 이벤트를 연결
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     public MapViewWindow()
     {
@@ -102,6 +116,7 @@ public partial class MapViewWindow : Window
 
     /// <summary>
     /// 타이머와 이벤트 구독을 정리해 창 종료 후 잔여 작업을 방지
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void OnClosed(object? sender, EventArgs e)
     {
@@ -116,6 +131,7 @@ public partial class MapViewWindow : Window
 
     /// <summary>
     /// ViewModel 교체 시 속성 변경 이벤트를 다시 연결
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
     {
@@ -142,6 +158,7 @@ public partial class MapViewWindow : Window
 
     /// <summary>
     /// 맵 관련 속성이 바뀌면 좌표와 비트맵 갱신을 반영
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
@@ -179,6 +196,7 @@ public partial class MapViewWindow : Window
 
     /// <summary>
     /// 레이아웃 완료 뒤 초기 맵 뷰와 비트맵 캐시를 맞춤
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void QueueMapViewReset(bool showLoading)
     {
@@ -195,12 +213,14 @@ public partial class MapViewWindow : Window
 
     /// <summary>
     /// 사용자 정의 타이틀바의 최소화 명령을 처리
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void MinimizeWindow(object sender, ExecutedRoutedEventArgs e)
         => WindowState = WindowState.Minimized;
 
     /// <summary>
     /// 사용자 정의 타이틀바의 최대화 또는 복원 명령을 처리
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void MaximizeRestoreWindow(object sender, ExecutedRoutedEventArgs e)
         => WindowState = WindowState == WindowState.Maximized
@@ -209,12 +229,14 @@ public partial class MapViewWindow : Window
 
     /// <summary>
     /// 사용자 정의 타이틀바의 닫기 명령을 처리
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void CloseWindow(object sender, ExecutedRoutedEventArgs e)
         => Close();
 
     /// <summary>
     /// 상단 맵 선택 버튼 클릭 시 해당 지도를 활성화
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void MapChipButton_Click(object sender, RoutedEventArgs e)
     {
@@ -226,6 +248,7 @@ public partial class MapViewWindow : Window
 
     /// <summary>
     /// GPR 병합 창을 열어 병합선 선택 작업을 시작
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void OpenMergeWindow_Click(object sender, RoutedEventArgs e)
     {
@@ -244,6 +267,7 @@ public partial class MapViewWindow : Window
 
     /// <summary>
     /// 저장 결과 열기 창을 열어 SEN 파일을 지도에 불러오기
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void OpenSavedResults_Click(object sender, RoutedEventArgs e)
     {
@@ -262,6 +286,7 @@ public partial class MapViewWindow : Window
 
     /// <summary>
     /// 현재 맵 뷰의 확대와 이동 상태를 초기화
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void ResetMapView_Click(object sender, RoutedEventArgs e)
     {
@@ -271,6 +296,7 @@ public partial class MapViewWindow : Window
 
     /// <summary>
     /// 패닝 드래그 시작 위치를 기록하고 마우스를 캡처
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void MapSurface_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
@@ -283,6 +309,7 @@ public partial class MapViewWindow : Window
 
     /// <summary>
     /// 패닝 중인 거리만큼 화면을 이동하고 커서 좌표를 갱신
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void MapSurface_MouseMove(object sender, MouseEventArgs e)
     {
@@ -315,6 +342,7 @@ public partial class MapViewWindow : Window
 
     /// <summary>
     /// 패닝 드래그를 종료
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void MapSurface_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
@@ -325,6 +353,7 @@ public partial class MapViewWindow : Window
 
     /// <summary>
     /// 맵 영역을 벗어나면 드래그와 커서 좌표 상태를 정리
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void MapSurface_MouseLeave(object sender, MouseEventArgs e)
     {
@@ -339,6 +368,7 @@ public partial class MapViewWindow : Window
 
     /// <summary>
     /// 마우스 위치를 기준으로 맵을 확대 또는 축소
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void MapSurface_MouseWheel(object sender, MouseWheelEventArgs e)
     {
@@ -364,6 +394,7 @@ public partial class MapViewWindow : Window
 
     /// <summary>
     /// 배경 맵 비트맵 재생성을 타이머로 지연 예약
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void ScheduleMapBitmapRefresh(bool showLoading = false)
     {
@@ -381,6 +412,7 @@ public partial class MapViewWindow : Window
 
     /// <summary>
     /// 예약된 시점에 현재 뷰포트 기준의 맵 비트맵을 다시 만들기
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private async void MapBitmapRefreshTimer_Tick(object? sender, EventArgs e)
     {
@@ -417,6 +449,7 @@ public partial class MapViewWindow : Window
 
     /// <summary>
     /// 배경 비트맵 미리보기 변환을 현재 줌/패닝 상태와 맞춤
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void UpdateBitmapPreviewTransform()
     {
@@ -437,6 +470,7 @@ public partial class MapViewWindow : Window
 
     /// <summary>
     /// 화면 좌표를 내부 캔버스 좌표계로 변환
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private Point ConvertSurfaceToCanvas(Point surfacePoint)
     {
@@ -448,6 +482,7 @@ public partial class MapViewWindow : Window
 
     /// <summary>
     /// 캔버스 전체 또는 측선 초점 기준으로 맵 뷰를 초기 배치
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void ResetMapView(bool showLoading = false)
     {
@@ -475,6 +510,7 @@ public partial class MapViewWindow : Window
 
     /// <summary>
     /// 측선 시작점과 방향점을 중심으로 적절한 확대/센터 값을 계산
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private bool TryFitToSurveyFocus()
     {
@@ -512,6 +548,7 @@ public partial class MapViewWindow : Window
 
     /// <summary>
     /// 캔버스 전체가 보이도록 기본 맞춤 배율을 적용
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void FitToCanvasBounds()
     {
@@ -528,6 +565,7 @@ public partial class MapViewWindow : Window
 
     /// <summary>
     /// 실제 확대/이동 Transform과 관련 의존 속성을 한 번에 갱신
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void ApplyViewTransform(double scale, double panX, double panY)
     {
@@ -540,6 +578,7 @@ public partial class MapViewWindow : Window
 
     /// <summary>
     /// 줌 비율에 따라 오버레이 선 두께와 라벨 보정값을 계산
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void UpdateOverlayScaleMetrics(double scale)
     {
@@ -551,12 +590,14 @@ public partial class MapViewWindow : Window
 
     /// <summary>
     /// 지정 좌표가 캔버스 범위 안에 있는지 검사
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static bool IsInsideCanvas(Point point)
         => point.X >= 0 && point.X <= PreviewWidth && point.Y >= 0 && point.Y <= PreviewHeight;
 
     /// <summary>
     /// 좌표가 NaN이나 무한대가 아닌 유효한 캔버스 점인지 검사
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static bool IsCanvasPointValid(Point point)
         => !double.IsNaN(point.X) &&
@@ -567,6 +608,7 @@ public partial class MapViewWindow : Window
 
     /// <summary>
     /// 마우스 위치의 투영 좌표와 위경도 텍스트를 갱신
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void UpdateCursorCoordinateText(Point surfacePosition)
     {
@@ -590,6 +632,7 @@ public partial class MapViewWindow : Window
 
     /// <summary>
     /// 커서 좌표 표시 문자열을 기본 안내 상태로 되돌리기
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void ResetCursorCoordinateTexts()
     {
@@ -599,6 +642,7 @@ public partial class MapViewWindow : Window
 
     /// <summary>
     /// 측정 시작점과 방향점 좌표 표시 문자열을 다시 계산
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void RefreshPointCoordinateTexts()
     {
@@ -625,6 +669,7 @@ public partial class MapViewWindow : Window
 
     /// <summary>
     /// 문자열 X/Y 좌표를 안전하게 숫자로 파싱
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static bool TryParsePoint(string xText, string yText, out double x, out double y)
     {
@@ -638,6 +683,7 @@ public partial class MapViewWindow : Window
 
     /// <summary>
     /// 투영 좌표 텍스트 한 줄을 일관된 형식으로 만들기
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static string FormatProjectedLine(string label, string xText, string yText)
         => TryParsePoint(xText, yText, out var x, out var y)
@@ -646,6 +692,7 @@ public partial class MapViewWindow : Window
 
     /// <summary>
     /// 투영 좌표를 위경도로 변환해 보조 텍스트 한 줄로 만들기
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static string FormatLatLonLine(string label, MainViewModel vm, double x, double y)
         => vm.TryConvertToLatLon(x, y, out var latitude, out var longitude)

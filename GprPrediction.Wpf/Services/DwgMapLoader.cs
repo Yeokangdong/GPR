@@ -7,11 +7,13 @@ namespace GprPrediction.Wpf.Services;
 
 /// <summary>
 /// 원본 GPR 프로그램이 사용하는 DWG 지도를 화면 배경용 폴리라인 데이터로 변환
+/// 관련 책임을 한곳에 모아 구조와 수명 경계 명확화
 /// </summary>
 public static class DwgMapLoader
 {
     /// <summary>
     /// DWG에서 선, 폴리라인, 원을 읽어 화면 렌더링용 점 목록으로 변환
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     public static List<List<(double X, double Y)>> LoadPolylines(string dwgPath)
     {
@@ -94,6 +96,7 @@ public static class DwgMapLoader
 
     /// <summary>
     /// 폴리라인 전체의 최소/최대 좌표를 계산해 화면 맞춤 렌더링 기준을 제공
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     public static (double MinX, double MinY, double MaxX, double MaxY)? GetBounds(List<List<(double X, double Y)>> polylines)
     {
@@ -121,10 +124,15 @@ public static class DwgMapLoader
         return any ? (minX, minY, maxX, maxY) : null;
     }
 
+    /// <summary>
+    /// AreFinite 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static bool AreFinite(params double[] values) => values.All(double.IsFinite);
 
     /// <summary>
     /// 원 엔티티를 다각형 점 목록으로 근사해 일반 폴리라인처럼 그릴 수 있게 만들기
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static List<(double X, double Y)> BuildCirclePoints(double centerX, double centerY, double radius)
     {

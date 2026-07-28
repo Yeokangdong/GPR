@@ -5,6 +5,7 @@ namespace GprPrediction.Wpf.Services;
 
 /// <summary>
 /// DWG 원좌표를 위경도(WGS84)로 변환하는 좌표계 정의와 변환기를 제공
+/// 관련 책임을 한곳에 모아 구조와 수명 경계 명확화
 /// </summary>
 public static class CoordinateTransformService
 {
@@ -27,11 +28,16 @@ public static class CoordinateTransformService
 
     private static readonly Lazy<MathTransform?> ProjectedToWgs84Transform = new(CreateTransform);
 
+    /// <summary>
+    /// CoordinateReferenceText 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public static string CoordinateReferenceText
         => "좌표계: DWG 원좌표 (중부원점 TM 계열)  |  위경도: WGS84";
 
     /// <summary>
     /// 투영 좌표를 위도/경도로 변환하고 실패 시 false를 반환
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     public static bool TryConvertProjectedToWgs84(double x, double y, out double latitude, out double longitude)
     {
@@ -71,6 +77,7 @@ public static class CoordinateTransformService
 
     /// <summary>
     /// Korean 1985 Modified Central Belt와 WGS84 사이의 수학 변환기를 생성
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static MathTransform? CreateTransform()
     {

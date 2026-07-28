@@ -10,11 +10,13 @@ namespace GprPrediction.Wpf.Services;
 
 /// <summary>
 /// Python 준비 상태 점검 결과를 담는 값 객체
+/// 관련 책임을 한곳에 모아 구조와 수명 경계 명확화
 /// </summary>
 public sealed record PythonCheckResult(bool IsValid, string ExecutablePath, Version? Version);
 
 /// <summary>
 /// 번들 Python 3.11 런타임을 점검하고, 없으면 embeddable zip을 내려받아 runtime/python 아래에 준비
+/// 관련 책임을 한곳에 모아 구조와 수명 경계 명확화
 /// </summary>
 public static class PythonProvisioner
 {
@@ -49,6 +51,7 @@ public static class PythonProvisioner
 
     /// <summary>
     /// 번들 Python 실행 파일이 존재하는지와 버전이 요구 조건을 만족하는지 검사
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     public static async Task<PythonCheckResult> CheckAsync(CancellationToken cancellationToken)
     {
@@ -66,6 +69,7 @@ public static class PythonProvisioner
 
     /// <summary>
     /// python --version 결과를 읽어 Version 객체로 파싱
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     public static async Task<Version?> TryGetVersionAsync(string pythonExecutable, CancellationToken cancellationToken)
     {
@@ -137,6 +141,7 @@ public static class PythonProvisioner
 
     /// <summary>
     /// Python embeddable zip을 내려받아 runtime/python 폴더에 압축 해제
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     public static async Task DownloadAndInstallAsync(
         IProgress<(string Message, double Percent)>? progress,
@@ -246,6 +251,7 @@ public static class PythonProvisioner
 
     /// <summary>
     /// 알고리즘 실행에 필요한 Python 패키지를 확인하고 누락 시 자동 설치
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     public static async Task EnsureAlgorithmDependenciesAsync(
         string pythonExecutable,
@@ -297,6 +303,7 @@ public static class PythonProvisioner
 
     /// <summary>
     /// embeddable Python의 격리 경로 파일에 site-packages 사용 설정 추가
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static void PrepareEmbeddablePythonPathFile(string pythonExecutable)
     {
@@ -331,6 +338,7 @@ public static class PythonProvisioner
 
     /// <summary>
     /// 줄 목록에 값이 없을 때만 추가
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static bool AddLineIfMissing(List<string> lines, string value)
     {
@@ -345,6 +353,7 @@ public static class PythonProvisioner
 
     /// <summary>
     /// 알고리즘 필수 모듈이 현재 Python에서 import 가능한지 확인
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static Task<PythonCommandResult> CheckRequiredModulesAsync(string pythonExecutable, CancellationToken cancellationToken)
     {
@@ -355,6 +364,7 @@ public static class PythonProvisioner
 
     /// <summary>
     /// pip이 없을 때 공식 bootstrap 스크립트를 받아 설치
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static async Task InstallPipAsync(
         string pythonExecutable,
@@ -386,12 +396,14 @@ public static class PythonProvisioner
 
     /// <summary>
     /// Python 명령을 실행하고 종료 코드 성공 여부만 반환
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static async Task<bool> RunPythonAsync(string pythonExecutable, string arguments, CancellationToken cancellationToken)
         => (await RunPythonDetailedAsync(pythonExecutable, arguments, cancellationToken)).Success;
 
     /// <summary>
     /// Python 명령을 실행하고 종료 코드와 출력 내용을 함께 반환
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static async Task<PythonCommandResult> RunPythonDetailedAsync(string pythonExecutable, string arguments, CancellationToken cancellationToken)
     {
@@ -447,6 +459,10 @@ public static class PythonProvisioner
         }
     }
 
+    /// <summary>
+    /// ConfigurePythonProcessEnvironment 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static void ConfigurePythonProcessEnvironment(ProcessStartInfo startInfo, string pythonExecutable)
     {
         var pythonDirectory = Path.GetDirectoryName(pythonExecutable);
@@ -478,6 +494,7 @@ public static class PythonProvisioner
 
     /// <summary>
     /// 임시 폴더에 압축 해제한 런타임 파일을 재시도하며 실제 런타임 폴더로 복사
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static void CopyDirectory(string sourceDir, string destinationDir, CancellationToken cancellationToken)
     {
@@ -506,6 +523,7 @@ public static class PythonProvisioner
 
     /// <summary>
     /// 현재 사용할 Python 버전 폴더 이름을 marker 파일로 기록
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static void WriteCurrentPythonMarker(string runtimeRootDir, string installFolderName)
     {
@@ -521,6 +539,10 @@ public static class PythonProvisioner
         File.Move(tempMarkerPath, markerPath, overwrite: true);
     }
 
+    /// <summary>
+    /// KillProcess 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static void KillProcess(Process? process)
     {
         if (process is null)
@@ -542,11 +564,20 @@ public static class PythonProvisioner
 
     /// <summary>
     /// Python 명령 실행 결과와 사용자에게 보여줄 짧은 오류 문구
+    /// 관련 책임을 한곳에 모아 구조와 수명 경계 명확화
     /// </summary>
     private sealed record PythonCommandResult(int ExitCode, string StandardOutput, string StandardError)
     {
+        /// <summary>
+        /// Success 값 제공
+        /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+        /// </summary>
         public bool Success => ExitCode == 0;
 
+        /// <summary>
+        /// GetShortError 데이터 조회
+        /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+        /// </summary>
         public string GetShortError()
         {
             var text = string.IsNullOrWhiteSpace(StandardError) ? StandardOutput : StandardError;

@@ -14,6 +14,10 @@ using GprPrediction.Wpf.ViewModels;
 
 namespace GprPrediction.Wpf.Windows;
 
+/// <summary>
+/// CommandWindow 관련 상태와 동작 관리
+/// 관련 책임을 한곳에 모아 구조와 수명 경계 명확화
+/// </summary>
 public partial class CommandWindow : Window
 {
     private const int MaximumVisibleLogLines = 20_000;
@@ -36,23 +40,43 @@ public partial class CommandWindow : Window
     private double outputVerticalOffset;
     private double outputScrollableHeight;
 
+    /// <summary>
+    /// CommandWindow 인스턴스 초기화
+    /// 필수 의존성과 초기 상태를 생성 시점에 확정
+    /// </summary>
     public CommandWindow()
     {
         InitializeComponent();
         WindowState = WindowState.Maximized;
     }
 
+    /// <summary>
+    /// MinimizeWindow 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void MinimizeWindow(object sender, ExecutedRoutedEventArgs e)
         => WindowState = WindowState.Minimized;
 
+    /// <summary>
+    /// CloseWindow 화면 닫기
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void CloseWindow(object sender, ExecutedRoutedEventArgs e)
         => Close();
 
+    /// <summary>
+    /// MaximizeRestore_Click 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void MaximizeRestore_Click(object sender, RoutedEventArgs e)
         => WindowState = WindowState == WindowState.Maximized
             ? WindowState.Normal
             : WindowState.Maximized;
 
+    /// <summary>
+    /// Window_StateChanged 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void Window_StateChanged(object? sender, EventArgs e)
     {
         if (MaximizeButton is null)
@@ -65,6 +89,10 @@ public partial class CommandWindow : Window
         MaximizeButton.ToolTip = maximized ? "복원" : "최대화";
     }
 
+    /// <summary>
+    /// TitleBar_MouseLeftButtonDown 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
         if (e.ClickCount == 2)
@@ -79,6 +107,10 @@ public partial class CommandWindow : Window
         }
     }
 
+    /// <summary>
+    /// Window_Loaded 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void Window_Loaded(object sender, RoutedEventArgs e)
     {
         viewModel = DataContext as MainViewModel;
@@ -120,6 +152,10 @@ public partial class CommandWindow : Window
         RestartWizard();
     }
 
+    /// <summary>
+    /// ApplyCommandScrollBarStyle 설정 반영
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void ApplyCommandScrollBarStyle()
     {
         OutputTextBox.ApplyTemplate();
@@ -136,6 +172,10 @@ public partial class CommandWindow : Window
         }
     }
 
+    /// <summary>
+    /// FindVisualChildren 대상 검색
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static IEnumerable<T> FindVisualChildren<T>(DependencyObject root)
         where T : DependencyObject
     {
@@ -154,6 +194,10 @@ public partial class CommandWindow : Window
         }
     }
 
+    /// <summary>
+    /// Window_Closed 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void Window_Closed(object? sender, EventArgs e)
     {
         if (viewModel is not null)
@@ -163,6 +207,10 @@ public partial class CommandWindow : Window
         }
     }
 
+    /// <summary>
+    /// InputTextBox_KeyDown 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void InputTextBox_KeyDown(object sender, KeyEventArgs e)
     {
         if (e.Key != Key.Enter)
@@ -174,6 +222,10 @@ public partial class CommandWindow : Window
         Submit();
     }
 
+    /// <summary>
+    /// Window_PreviewKeyDown 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
     {
         var modifiers = Keyboard.Modifiers;
@@ -206,8 +258,16 @@ public partial class CommandWindow : Window
         }
     }
 
+    /// <summary>
+    /// Submit_Click 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void Submit_Click(object sender, RoutedEventArgs e) => Submit();
 
+    /// <summary>
+    /// Submit 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void Submit()
     {
         if (viewModel is null)
@@ -255,6 +315,10 @@ public partial class CommandWindow : Window
         InputTextBox.Focus();
     }
 
+    /// <summary>
+    /// ProcessAnswer 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void ProcessAnswer(string answer)
     {
         if (viewModel is null)
@@ -414,6 +478,10 @@ public partial class CommandWindow : Window
         }
     }
 
+    /// <summary>
+    /// RestartWizard 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void RestartWizard()
     {
         if (viewModel is null || viewModel.IsAlgorithmRunning)
@@ -426,6 +494,10 @@ public partial class CommandWindow : Window
             @"D:\GPR_DATA\GAP_SEC01_0001.DZT");
     }
 
+    /// <summary>
+    /// AskMap 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void AskMap(string? prefix = null)
     {
         if (viewModel is null)
@@ -445,6 +517,10 @@ public partial class CommandWindow : Window
         Ask($"지도 번호 [{CurrentMapIndex()}]", "1");
     }
 
+    /// <summary>
+    /// CurrentMapIndex 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private int CurrentMapIndex()
     {
         if (viewModel is null)
@@ -455,6 +531,10 @@ public partial class CommandWindow : Window
         return index >= 0 ? index + 1 : 1;
     }
 
+    /// <summary>
+    /// AskConfirmation 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void AskConfirmation()
     {
         if (viewModel is null)
@@ -474,6 +554,10 @@ public partial class CommandWindow : Window
             "y (분석 시작) 또는 n (처음부터 다시 입력)");
     }
 
+    /// <summary>
+    /// StartAnalysis 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void StartAnalysis()
     {
         if (viewModel is null || !viewModel.RunAlgorithmCommand.CanExecute(null))
@@ -522,6 +606,10 @@ public partial class CommandWindow : Window
         viewModel.RunAlgorithmCommand.Execute(null);
     }
 
+    /// <summary>
+    /// ViewModel_PropertyChanged 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (viewModel is null || !trackingAnalysis)
@@ -569,6 +657,10 @@ public partial class CommandWindow : Window
         }
     }
 
+    /// <summary>
+    /// ShowAnalysisResultOverlay 화면 표시
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void ShowAnalysisResultOverlay(string resultText)
     {
         var message = string.IsNullOrWhiteSpace(resultText)
@@ -601,12 +693,20 @@ public partial class CommandWindow : Window
         AnalysisResultOverlay.Visibility = Visibility.Visible;
     }
 
+    /// <summary>
+    /// CloseAnalysisResultOverlay_Click 화면 닫기
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void CloseAnalysisResultOverlay_Click(object sender, RoutedEventArgs e)
     {
         AnalysisResultOverlay.Visibility = Visibility.Collapsed;
         InputTextBox.Focus();
     }
 
+    /// <summary>
+    /// Ask 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void Ask(string text, string? example = null)
     {
         Write($"\n{CurrentQuestionNumber()}. {text}");
@@ -618,6 +718,10 @@ public partial class CommandWindow : Window
         InputTextBox.Focus();
     }
 
+    /// <summary>
+    /// CurrentQuestionNumber 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private int CurrentQuestionNumber() => step switch
     {
         WizardStep.ScanFile => 1,
@@ -633,6 +737,10 @@ public partial class CommandWindow : Window
         _ => 1
     };
 
+    /// <summary>
+    /// GetProgressStage 데이터 조회
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static int GetProgressStage(string message)
     {
         for (var stage = 1; stage <= 7; stage++)
@@ -645,6 +753,10 @@ public partial class CommandWindow : Window
         return 0;
     }
 
+    /// <summary>
+    /// GetProgressDescription 데이터 조회
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static string GetProgressDescription(int stage, bool useTda) => stage switch
     {
         1 => "선택한 스캔 파일이 존재하는지 확인하고 Python, Julia, 모델 및 알고리즘 파일의 실행 경로를 검사하는 단계",
@@ -661,6 +773,10 @@ public partial class CommandWindow : Window
         _ => string.Empty
     };
 
+    /// <summary>
+    /// GetStageVerification 데이터 조회
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static string GetStageVerification(int stage, bool useTda) => stage switch
     {
         1 => "필수 파일 누락, 실행 프로그램 버전 및 접근 권한 오류가 있으면 즉시 [오류]로 표시",
@@ -675,6 +791,10 @@ public partial class CommandWindow : Window
         _ => string.Empty
     };
 
+    /// <summary>
+    /// ClassifyProgress 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static string ClassifyProgress(string message)
     {
         if (HasErrorMeaning(message))
@@ -688,11 +808,19 @@ public partial class CommandWindow : Window
         return GetProgressStage(message) > 0 ? $"[단계] {message}" : $"[정보] {message}";
     }
 
+    /// <summary>
+    /// ClassifyCompletion 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static string ClassifyCompletion(string message) =>
         HasErrorMeaning(message)
             ? "[분석 실패]"
             : "[분석 완료]";
 
+    /// <summary>
+    /// ClassifyReportLine 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static string ClassifyReportLine(string line)
     {
         if (HasErrorMeaning(line) || ContainsAny(line, "누락"))
@@ -706,9 +834,17 @@ public partial class CommandWindow : Window
         return line;
     }
 
+    /// <summary>
+    /// ContainsAny 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static bool ContainsAny(string value, params string[] terms) =>
         terms.Any(term => value.Contains(term, StringComparison.OrdinalIgnoreCase));
 
+    /// <summary>
+    /// IsExplicitNoErrorMessage 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static bool IsExplicitNoErrorMessage(string value)
     {
         if (Regex.IsMatch(
@@ -730,6 +866,10 @@ public partial class CommandWindow : Window
             "error: none");
     }
 
+    /// <summary>
+    /// HasErrorMeaning 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static bool HasErrorMeaning(string value)
     {
         if (IsExplicitNoErrorMessage(value))
@@ -740,6 +880,10 @@ public partial class CommandWindow : Window
         return ContainsAny(value, "오류", "에러", "실패", "error", "exception", "exit code");
     }
 
+    /// <summary>
+    /// IsErrorLine 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static bool IsErrorLine(string line)
     {
         if (line.TrimStart().StartsWith("확인:", StringComparison.Ordinal))
@@ -770,6 +914,10 @@ public partial class CommandWindow : Window
             "실패");
     }
 
+    /// <summary>
+    /// GetApplicationVersion 데이터 조회
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static string GetApplicationVersion()
     {
         var assembly = Assembly.GetExecutingAssembly();
@@ -778,16 +926,28 @@ public partial class CommandWindow : Window
             ?? "unknown";
     }
 
+    /// <summary>
+    /// Write 데이터 기록
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void Write(string text)
     {
         Write(text, false);
     }
 
+    /// <summary>
+    /// WriteError 데이터 기록
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void WriteError(string text)
     {
         Write(text, true);
     }
 
+    /// <summary>
+    /// Write 데이터 기록
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void Write(string text, bool forceError)
     {
         var normalized = (text ?? string.Empty).Replace("\r\n", "\n", StringComparison.Ordinal);
@@ -824,10 +984,18 @@ public partial class CommandWindow : Window
         UpdateLogStatus();
     }
 
+    /// <summary>
+    /// IsOutputAtBottom 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private bool IsOutputAtBottom() =>
         outputScrollableHeight <= 0 ||
         outputVerticalOffset >= outputScrollableHeight - 2;
 
+    /// <summary>
+    /// OutputTextBox_ScrollChanged 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void OutputTextBox_ScrollChanged(object sender, ScrollChangedEventArgs e)
     {
         outputVerticalOffset = e.VerticalOffset;
@@ -844,6 +1012,10 @@ public partial class CommandWindow : Window
         UpdateLogStatus();
     }
 
+    /// <summary>
+    /// AutoScrollCheckBox_Changed 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void AutoScrollCheckBox_Changed(object sender, RoutedEventArgs e)
     {
         if (AutoScrollCheckBox.IsChecked == true && IsLoaded)
@@ -854,9 +1026,17 @@ public partial class CommandWindow : Window
         UpdateLogStatus();
     }
 
+    /// <summary>
+    /// ScrollToLatest_Click 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void ScrollToLatest_Click(object sender, RoutedEventArgs e)
         => ScrollToLatest();
 
+    /// <summary>
+    /// ScrollToLatest 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void ScrollToLatest()
     {
         AutoScrollCheckBox.IsChecked = true;
@@ -864,9 +1044,17 @@ public partial class CommandWindow : Window
         UpdateLogStatus();
     }
 
+    /// <summary>
+    /// CopyAllLog_Click 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void CopyAllLog_Click(object sender, RoutedEventArgs e)
         => CopyAllLog();
 
+    /// <summary>
+    /// CopyAllLog 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void CopyAllLog()
     {
         var range = new TextRange(
@@ -880,9 +1068,17 @@ public partial class CommandWindow : Window
         }
     }
 
+    /// <summary>
+    /// ToggleAutoFollow_Click 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void ToggleAutoFollow_Click(object sender, RoutedEventArgs e)
         => ToggleAutoFollow();
 
+    /// <summary>
+    /// ToggleAutoFollow 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void ToggleAutoFollow()
     {
         AutoScrollCheckBox.IsChecked = AutoScrollCheckBox.IsChecked != true;
@@ -894,6 +1090,10 @@ public partial class CommandWindow : Window
         UpdateLogStatus();
     }
 
+    /// <summary>
+    /// UpdateLogStatus 상태 갱신
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void UpdateLogStatus()
     {
         if (LogStatusText is null || OutputTextBox is null)
@@ -905,6 +1105,10 @@ public partial class CommandWindow : Window
         LogStatusText.Text = $"{logLineCount:N0}줄 · {location}";
     }
 
+    /// <summary>
+    /// TrimOldLogLines 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void TrimOldLogLines()
     {
         if (logLineCount <= MaximumVisibleLogLines)
@@ -921,6 +1125,10 @@ public partial class CommandWindow : Window
         logLineCount -= linesToRemove;
     }
 
+    /// <summary>
+    /// TryPair 처리 가능 여부 확인
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static bool TryPair(string answer, string currentFirst, string currentSecond,
         out string first, out string second)
     {
@@ -941,15 +1149,27 @@ public partial class CommandWindow : Window
         return false;
     }
 
+    /// <summary>
+    /// TrySingle 처리 가능 여부 확인
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static bool TrySingle(string answer, string current, out string value)
     {
         value = string.IsNullOrWhiteSpace(answer) ? current : answer;
         return TryParseFinite(value, out var parsed) && parsed is >= 0 and <= 1;
     }
 
+    /// <summary>
+    /// IsNumber 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static bool IsNumber(string value) =>
         TryParseFinite(value, out _);
 
+    /// <summary>
+    /// TryParseFinite 처리 가능 여부 확인
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static bool TryParseFinite(string value, out double result)
     {
         var parsed = double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out result) ||
@@ -957,6 +1177,10 @@ public partial class CommandWindow : Window
         return parsed && double.IsFinite(result);
     }
 
+    /// <summary>
+    /// TryYesNo 처리 가능 여부 확인
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static bool TryYesNo(string answer, bool current, out bool value)
     {
         if (string.IsNullOrWhiteSpace(answer))
@@ -978,6 +1202,10 @@ public partial class CommandWindow : Window
         return false;
     }
 
+    /// <summary>
+    /// WizardStep 상태 선택지 정의
+    /// 허용 상태를 제한해 분기 기준의 일관성 확보
+    /// </summary>
     private enum WizardStep
     {
         ScanFile,

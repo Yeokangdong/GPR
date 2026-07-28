@@ -9,6 +9,7 @@ namespace GprPrediction.Wpf.Services;
 
 /// <summary>
 /// Julia 준비 상태 점검 결과를 담는 값 객체
+/// 관련 책임을 한곳에 모아 구조와 수명 경계 명확화
 /// </summary>
 public sealed record JuliaCheckResult(bool IsFound, string? ExecutablePath, Version? Version);
 
@@ -24,6 +25,7 @@ public static class JuliaProvisioner
 
     /// <summary>
     /// 번들 Julia 실행 파일을 찾고, 실제 실행 가능 여부까지 확인
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     public static async Task<JuliaCheckResult> CheckAsync(CancellationToken ct)
     {
@@ -40,6 +42,7 @@ public static class JuliaProvisioner
 
     /// <summary>
     /// julia --version 출력을 읽어 실제 실행 가능 여부와 버전을 확인
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     public static async Task<Version?> TryGetVersionAsync(string juliaExecutable, CancellationToken ct)
     {
@@ -94,6 +97,10 @@ public static class JuliaProvisioner
         }
     }
 
+    /// <summary>
+    /// CheckTdaPackagesAsync 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     public static async Task<bool> CheckTdaPackagesAsync(string juliaExecutable, CancellationToken ct)
     {
         var usingExpression = string.Join("; ", TdaPackages.Select(packageName => $"using {packageName}"));
@@ -106,6 +113,10 @@ public static class JuliaProvisioner
         return result.ExitCode == 0;
     }
 
+    /// <summary>
+    /// EnsureTdaPackagesAsync 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     public static async Task EnsureTdaPackagesAsync(
         string juliaExecutable,
         IProgress<(string Message, double Percent)>? progress,
@@ -147,6 +158,7 @@ public static class JuliaProvisioner
 
     /// <summary>
     /// Julia portable zip을 내려받아 runtime/julia 폴더에 압축 해제
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     public static async Task DownloadAndInstallAsync(
         IProgress<(string Message, double Percent)>? progress,
@@ -215,6 +227,10 @@ public static class JuliaProvisioner
         }
     }
 
+    /// <summary>
+    /// RunJuliaAsync 작업 실행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static async Task<JuliaProcessResult> RunJuliaAsync(
         string juliaExecutable,
         string arguments,
@@ -273,18 +289,30 @@ public static class JuliaProvisioner
             await stderrTask);
     }
 
+    /// <summary>
+    /// BuildJuliaEvalArguments 결과 구성
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static string BuildJuliaEvalArguments(string expression)
     {
         var escapedExpression = expression.Replace("\\", "\\\\").Replace("\"", "\\\"");
         return $"--startup-file=no --history-file=no -e \"{escapedExpression}\"";
     }
 
+    /// <summary>
+    /// ShortenProcessOutput 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static string ShortenProcessOutput(string output)
     {
         output = output.Trim();
         return output.Length <= 2000 ? output : output[^2000..];
     }
 
+    /// <summary>
+    /// TryReadProcessOutputAsync 처리 가능 여부 확인
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static async Task<string> TryReadProcessOutputAsync(Task<string> outputTask)
     {
         try
@@ -297,5 +325,9 @@ public static class JuliaProvisioner
         }
     }
 
+    /// <summary>
+    /// JuliaProcessResult 관련 상태와 동작 관리
+    /// 관련 책임을 한곳에 모아 구조와 수명 경계 명확화
+    /// </summary>
     private sealed record JuliaProcessResult(int ExitCode, string StandardOutput, string StandardError);
 }

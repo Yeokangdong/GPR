@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
@@ -15,7 +15,8 @@ using Microsoft.Win32;
 namespace GprPrediction.Wpf.Windows;
 
 /// <summary>
-//
+/// MergeWindow 관련 상태와 동작 관리
+/// 관련 책임을 한곳에 모아 구조와 수명 경계 명확화
 /// </summary>
 public partial class MergeWindow : Window
 {
@@ -30,7 +31,8 @@ public partial class MergeWindow : Window
     private bool applying;
 
     /// <summary>
-//
+    /// MergeWindow 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     public MergeWindow(MainViewModel viewModel)
     {
@@ -55,13 +57,15 @@ public partial class MergeWindow : Window
     }
 
     /// <summary>
-//
+    /// MinimizeWindow 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void MinimizeWindow(object sender, ExecutedRoutedEventArgs e)
         => WindowState = WindowState.Minimized;
 
     /// <summary>
-//
+    /// MaximizeRestoreWindow 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void MaximizeRestoreWindow(object sender, ExecutedRoutedEventArgs e)
         => WindowState = WindowState == WindowState.Maximized
@@ -69,19 +73,22 @@ public partial class MergeWindow : Window
             : WindowState.Maximized;
 
     /// <summary>
-//
+    /// CloseWindow 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void CloseWindow(object sender, ExecutedRoutedEventArgs e)
         => Close();
 
     /// <summary>
-//
+    /// Close_Click 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void Close_Click(object sender, RoutedEventArgs e)
         => Close();
 
     /// <summary>
-//
+    /// LoadBundledFilesAsync 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private async Task LoadBundledFilesAsync()
     {
@@ -93,7 +100,8 @@ public partial class MergeWindow : Window
     }
 
     /// <summary>
-//
+    /// LoadFilesAsync 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private async Task LoadFilesAsync(IEnumerable<string> filePaths)
     {
@@ -136,7 +144,8 @@ public partial class MergeWindow : Window
     }
 
     /// <summary>
-//
+    /// AddBrowsedFilesAsync 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private async Task AddBrowsedFilesAsync(IEnumerable<string> filePaths)
     {
@@ -176,7 +185,8 @@ public partial class MergeWindow : Window
     }
 
     /// <summary>
-//
+    /// AddFileColumnAsync 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private async Task AddFileColumnAsync(string filePath)
     {
@@ -209,7 +219,8 @@ public partial class MergeWindow : Window
     }
 
     /// <summary>
-//
+    /// RebuildGridColumns 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void RebuildGridColumns()
     {
@@ -231,7 +242,8 @@ public partial class MergeWindow : Window
     }
 
     /// <summary>
-//
+    /// CreateSelectionColumn 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private DataGridTemplateColumn CreateSelectionColumn()
     {
@@ -266,7 +278,8 @@ public partial class MergeWindow : Window
     }
 
     /// <summary>
-//
+    /// CreateFileColumn 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private DataGridTemplateColumn CreateFileColumn(int index, string fileName)
     {
@@ -296,7 +309,8 @@ public partial class MergeWindow : Window
     }
 
     /// <summary>
-//
+    /// RebuildRows 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void RebuildRows()
     {
@@ -340,7 +354,8 @@ public partial class MergeWindow : Window
     }
 
     /// <summary>
-//
+    /// Browse_Click 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private async void Browse_Click(object sender, RoutedEventArgs e)
     {
@@ -364,7 +379,8 @@ public partial class MergeWindow : Window
     }
 
     /// <summary>
-//
+    /// OpenFolder_Click 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void OpenFolder_Click(object sender, RoutedEventArgs e)
     {
@@ -384,7 +400,8 @@ public partial class MergeWindow : Window
     }
 
     /// <summary>
-//
+    /// Apply_Click 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private async void Apply_Click(object sender, RoutedEventArgs e)
     {
@@ -422,7 +439,8 @@ public partial class MergeWindow : Window
     }
 
     /// <summary>
-//
+    /// UpdateSelectionSummary 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void UpdateSelectionSummary()
     {
@@ -431,7 +449,8 @@ public partial class MergeWindow : Window
     }
 
     /// <summary>
-//
+    /// ShowLoadErrorsIfNeeded 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void ShowLoadErrorsIfNeeded()
     {
@@ -455,25 +474,29 @@ public partial class MergeWindow : Window
     }
 
     /// <summary>
-//
+    /// MergeGrid_CurrentCellChanged 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void MergeGrid_CurrentCellChanged(object? sender, EventArgs e)
         => UpdateSelectionSummary();
 
     /// <summary>
-//
+    /// MergeGrid_CellEditEnding 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void MergeGrid_CellEditEnding(object? sender, DataGridCellEditEndingEventArgs e)
         => Dispatcher.BeginInvoke(UpdateSelectionSummary);
 
     /// <summary>
-//
+    /// SelectionToggle_Click 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void SelectionToggle_Click(object sender, RoutedEventArgs e)
         => Dispatcher.BeginInvoke(UpdateSelectionSummary);
 
     /// <summary>
-//
+    /// MergeFileColumn 관련 상태와 동작 관리
+    /// 관련 책임을 한곳에 모아 구조와 수명 경계 명확화
     /// </summary>
     private sealed record MergeFileColumn(
         string FileName,

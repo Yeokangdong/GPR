@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -15,7 +15,9 @@ using GprPrediction.Wpf.Services;
 namespace GprPrediction.Wpf.ViewModels;
 
 /// <summary>
-//
+/// MainViewModel 관련 상태와 동작 관리
+/// 관련 책임을 한곳에 모아 구조와 수명 경계 명확화
+/// </summary>
 public sealed class MainViewModel : ObservableObject, IDisposable
 {
     private const int MaximumLogCharacters = 2 * 1024 * 1024;
@@ -112,7 +114,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     private string analysisConfidence = "0.00";
 
     /// <summary>
-//
+    /// MainViewModel 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     public MainViewModel(
         AlgorithmRunner algorithmRunner,
         PredictionResultReader resultReader,
@@ -172,6 +176,10 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         isSessionStateReady = true;
     }
 
+    /// <summary>
+    /// HandleCommandException 이벤트 처리
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void HandleCommandException(Exception exception)
     {
         AppendLog(exception.ToString());
@@ -182,7 +190,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// OnViewModelPropertyChanged 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void OnViewModelPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
@@ -212,7 +221,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// RestoreSessionScalars 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void RestoreSessionScalars(AppSessionState? state)
     {
@@ -260,7 +270,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// ClearStartupVisualResults 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void ClearStartupVisualResults()
     {
@@ -283,7 +294,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// ResetAnalysisState 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void ResetAnalysisState()
     {
@@ -310,7 +322,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// ScheduleSessionStateSave 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void ScheduleSessionStateSave()
     {
@@ -324,7 +337,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// FlushSessionState 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void FlushSessionState()
     {
@@ -346,7 +360,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// BuildSessionState 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private AppSessionState BuildSessionState()
     {
         return new AppSessionState
@@ -379,72 +395,200 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         };
     }
 
+    /// <summary>
+    /// BrowseScanFileCommand 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public RelayCommand BrowseScanFileCommand { get; }
 
+    /// <summary>
+    /// BrowseAlgorithmDirectoryCommand 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public RelayCommand BrowseAlgorithmDirectoryCommand { get; }
 
+    /// <summary>
+    /// BrowsePythonExecutableCommand 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public RelayCommand BrowsePythonExecutableCommand { get; }
 
+    /// <summary>
+    /// SelectMapCommand 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public RelayCommand SelectMapCommand { get; }
 
+    /// <summary>
+    /// AddMapCommand 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public RelayCommand AddMapCommand { get; }
 
+    /// <summary>
+    /// BrowseResultCsvCommand 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public RelayCommand BrowseResultCsvCommand { get; }
 
+    /// <summary>
+    /// RunAlgorithmCommand 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public RelayCommand RunAlgorithmCommand { get; }
 
+    /// <summary>
+    /// CancelAlgorithmCommand 상태 노출
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public RelayCommand CancelAlgorithmCommand { get; }
 
+    /// <summary>
+    /// ResetAnalysisCommand 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public RelayCommand ResetAnalysisCommand { get; }
 
+    /// <summary>
+    /// OpenMapCommand 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public RelayCommand OpenMapCommand { get; }
 
+    /// <summary>
+    /// OpenPrintCommand 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public RelayCommand OpenPrintCommand { get; }
 
+    /// <summary>
+    /// OpenCommandCommand 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public RelayCommand OpenCommandCommand { get; }
 
+    /// <summary>
+    /// OpenInputCommand 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public RelayCommand OpenInputCommand { get; }
 
+    /// <summary>
+    /// OpenManualCommand 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public RelayCommand OpenManualCommand { get; }
 
+    /// <summary>
+    /// OpenResultFolderCommand 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public RelayCommand OpenResultFolderCommand { get; }
 
+    /// <summary>
+    /// SelectResultCommand 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public RelayCommand SelectResultCommand { get; }
 
+    /// <summary>
+    /// SuppressAlgorithmResultDialogs 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public bool SuppressAlgorithmResultDialogs { get; set; }
 
+    /// <summary>
+    /// Results 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public ObservableCollection<PredictionResult> Results { get; private set; } = new();
 
+    /// <summary>
+    /// MapPoints 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public ObservableCollection<MapPoint> MapPoints { get; private set; } = new();
 
+    /// <summary>
+    /// SavedResultPoints 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public ObservableCollection<SavedResultPoint> SavedResultPoints { get; private set; } = new();
 
+    /// <summary>
+    /// SavedResultPolylinePoints 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public PointCollection SavedResultPolylinePoints { get; private set; } = new();
 
+    /// <summary>
+    /// SavedResultPolylineGroups 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public ObservableCollection<PointCollection> SavedResultPolylineGroups { get; private set; } = [];
 
+    /// <summary>
+    /// SavedResultLineSegments 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public ObservableCollection<SavedResultLineSegment> SavedResultLineSegments { get; private set; } = [];
 
+    /// <summary>
+    /// MapEntries 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public ObservableCollection<MapEntry> MapEntries { get; } = new();
 
+    /// <summary>
+    /// SurveyLineX1 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public double SurveyLineX1 { get; private set; }
 
+    /// <summary>
+    /// SurveyLineY1 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public double SurveyLineY1 { get; private set; }
 
+    /// <summary>
+    /// SurveyLineX2 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public double SurveyLineX2 { get; private set; }
 
+    /// <summary>
+    /// SurveyLineY2 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public double SurveyLineY2 { get; private set; }
 
+    /// <summary>
+    /// DirectionPreviewX 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public double DirectionPreviewX { get; private set; }
 
+    /// <summary>
+    /// DirectionPreviewY 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public double DirectionPreviewY { get; private set; }
 
+    /// <summary>
+    /// MapBackgroundImage 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public ImageSource? MapBackgroundImage
     {
         get => mapBackgroundImage;
         private set => SetProperty(ref mapBackgroundImage, value);
     }
 
+    /// <summary>
+    /// MapDwgPath 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public string MapDwgPath
     {
         get => mapDwgPath;
@@ -457,18 +601,30 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         }
     }
 
+    /// <summary>
+    /// IsMapLoading 상태 노출
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public bool IsMapLoading
     {
         get => isMapLoading;
         private set => SetProperty(ref isMapLoading, value);
     }
 
+    /// <summary>
+    /// MapLoadingText 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public string MapLoadingText
     {
         get => mapLoadingText;
         private set => SetProperty(ref mapLoadingText, value);
     }
 
+    /// <summary>
+    /// ScanFilePath 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public string ScanFilePath
     {
         get => scanFilePath;
@@ -482,11 +638,19 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         }
     }
 
+    /// <summary>
+    /// ScanFileDisplayName 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public string ScanFileDisplayName
         => string.IsNullOrWhiteSpace(scanFilePath)
             ? string.Empty
             : Path.GetFileName(scanFilePath);
 
+    /// <summary>
+    /// AlgorithmDirectory 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public string AlgorithmDirectory
     {
         get => algorithmDirectory;
@@ -499,6 +663,10 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         }
     }
 
+    /// <summary>
+    /// PythonExecutable 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public string PythonExecutable
     {
         get => pythonExecutable;
@@ -511,6 +679,10 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         }
     }
 
+    /// <summary>
+    /// ScanRangeX 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public string ScanRangeX
     {
         get => scanRangeX;
@@ -523,42 +695,70 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         }
     }
 
+    /// <summary>
+    /// ScanRangeY 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public string ScanRangeY
     {
         get => scanRangeY;
         set => SetProperty(ref scanRangeY, value);
     }
 
+    /// <summary>
+    /// XScale 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public string XScale
     {
         get => xScale;
         set => SetProperty(ref xScale, value);
     }
 
+    /// <summary>
+    /// YScale 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public string YScale
     {
         get => yScale;
         set => SetProperty(ref yScale, value);
     }
 
+    /// <summary>
+    /// Threshold 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public string Threshold
     {
         get => threshold;
         set => SetProperty(ref threshold, value);
     }
 
+    /// <summary>
+    /// UseTda 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public bool UseTda
     {
         get => useTda;
         set => SetProperty(ref useTda, value);
     }
 
+    /// <summary>
+    /// TdaThreshold 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public string TdaThreshold
     {
         get => tdaThreshold;
         set => SetProperty(ref tdaThreshold, value);
     }
 
+    /// <summary>
+    /// StartPointX 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public string StartPointX
     {
         get => startPointX;
@@ -571,6 +771,10 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         }
     }
 
+    /// <summary>
+    /// StartPointY 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public string StartPointY
     {
         get => startPointY;
@@ -583,6 +787,10 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         }
     }
 
+    /// <summary>
+    /// DirectionPointX 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public string DirectionPointX
     {
         get => directionPointX;
@@ -595,6 +803,10 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         }
     }
 
+    /// <summary>
+    /// DirectionPointY 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public string DirectionPointY
     {
         get => directionPointY;
@@ -607,18 +819,30 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         }
     }
 
+    /// <summary>
+    /// StatusText 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public string StatusText
     {
         get => statusText;
         set => SetProperty(ref statusText, value);
     }
 
+    /// <summary>
+    /// LogText 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public string LogText
     {
         get => logText;
         set => SetProperty(ref logText, value);
     }
 
+    /// <summary>
+    /// IsAlgorithmRunning 상태 노출
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public bool IsAlgorithmRunning
     {
         get => isAlgorithmRunning;
@@ -633,6 +857,10 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         }
     }
 
+    /// <summary>
+    /// AlgorithmRunMessage 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public string AlgorithmRunMessage
     {
         get => algorithmRunMessage;
@@ -641,6 +869,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
 
     /// <summary>
     /// 명령 창에서 원문 진행 로그를 누락 없이 표시하기 위한 최신 로그와 순번
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
     /// </summary>
     public string AlgorithmLogLine
     {
@@ -648,64 +877,112 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         private set => SetProperty(ref algorithmLogLine, value);
     }
 
+    /// <summary>
+    /// AlgorithmLogSequence 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public long AlgorithmLogSequence
     {
         get => algorithmLogSequence;
         private set => SetProperty(ref algorithmLogSequence, value);
     }
 
+    /// <summary>
+    /// LastAlgorithmResultText 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public string LastAlgorithmResultText
     {
         get => lastAlgorithmResultText;
         private set => SetProperty(ref lastAlgorithmResultText, value);
     }
 
+    /// <summary>
+    /// IsLastAlgorithmResultVisible 상태 노출
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public bool IsLastAlgorithmResultVisible
     {
         get => isLastAlgorithmResultVisible;
         private set => SetProperty(ref isLastAlgorithmResultVisible, value);
     }
 
+    /// <summary>
+    /// DigitalClockText 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public string DigitalClockText
     {
         get => digitalClockText;
         set => SetProperty(ref digitalClockText, value);
     }
 
+    /// <summary>
+    /// TodayText 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public string TodayText
     {
         get => todayText;
         set => SetProperty(ref todayText, value);
     }
 
+    /// <summary>
+    /// BuildInfoText 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public string BuildInfoText => buildInfoText;
 
+    /// <summary>
+    /// CoordinateReferenceText 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public string CoordinateReferenceText => CoordinateTransformService.CoordinateReferenceText;
 
+    /// <summary>
+    /// LoadedSavedResultText 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public string LoadedSavedResultText
     {
         get => loadedSavedResultText;
         private set => SetProperty(ref loadedSavedResultText, value);
     }
 
+    /// <summary>
+    /// AnalysisDistance 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public string AnalysisDistance
     {
         get => analysisDistance;
         set => SetProperty(ref analysisDistance, value);
     }
 
+    /// <summary>
+    /// AnalysisDepth 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public string AnalysisDepth
     {
         get => analysisDepth;
         set => SetProperty(ref analysisDepth, value);
     }
 
+    /// <summary>
+    /// AnalysisConfidence 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public string AnalysisConfidence
     {
         get => analysisConfidence;
         set => SetProperty(ref analysisConfidence, value);
     }
 
+    /// <summary>
+    /// AnalysisImage 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public ImageSource? AnalysisImage
     {
         get => analysisImage;
@@ -718,10 +995,16 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         }
     }
 
+    /// <summary>
+    /// HasAnalysisImage 상태 노출
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public bool HasAnalysisImage => analysisImage is not null;
 
     /// <summary>
-//
+    /// PersistSessionState 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     public void PersistSessionState()
     {
         if (!isSessionStateReady)
@@ -733,7 +1016,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// ShowTransientMapLoading 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     public void ShowTransientMapLoading(string text = "캐싱 중...")
     {
@@ -743,7 +1027,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// HideTransientMapLoading 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     public void HideTransientMapLoading()
     {
         isTransientMapLoading = false;
@@ -752,7 +1038,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// RefreshMapBitmapForViewportAsync 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     public async Task RefreshMapBitmapForViewportAsync(
         double zoomScale,
@@ -792,7 +1079,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// RefreshMapLoadingOverlay 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void RefreshMapLoadingOverlay()
     {
@@ -805,7 +1093,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// CreateBuildInfoText 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static string CreateBuildInfoText()
     {
@@ -822,7 +1111,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// GetBundledSavedResultFiles 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     public IReadOnlyList<string> GetBundledSavedResultFiles()
     {
@@ -859,13 +1149,15 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// GetOpenedSavedResultFiles 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     public IReadOnlyList<string> GetOpenedSavedResultFiles()
         => openedSavedResultFiles;
 
     /// <summary>
-//
+    /// GetPreferredAnalysisImagePath 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     public string? GetPreferredAnalysisImagePath()
     {
@@ -885,7 +1177,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// GetPreferredResultCsvPath 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     public string? GetPreferredResultCsvPath()
     {
@@ -893,7 +1186,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// FindExistingResultCsvCandidates 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private IEnumerable<string> FindExistingResultCsvCandidates()
     {
@@ -932,7 +1226,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// LoadMergedSavedResultsAsync 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     public async Task LoadMergedSavedResultsAsync(IEnumerable<string> senPaths)
     {
@@ -940,7 +1235,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         var loadedNames = new List<string>();
         var loadedPaths = new List<string>();
 
-//
+        // 손상된 SEN 하나가 전체 병합을 중단하지 않도록 파일별 읽기 격리
         foreach (var senPath in senPaths.Where(File.Exists))
         {
             IReadOnlyList<SavedResultPoint> points;
@@ -979,7 +1274,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// LoadSelectedSavedResultPointsAsync 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     public Task LoadSelectedSavedResultPointsAsync(IEnumerable<SavedResultPoint> points)
     {
@@ -1006,7 +1302,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// LoadMergedSelectionRowsAsync 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     public Task LoadMergedSelectionRowsAsync(IEnumerable<IReadOnlyList<SavedResultPoint>> rows)
     {
         var rowList = rows
@@ -1014,7 +1312,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
             .Select(row => (IReadOnlyList<SavedResultPoint>)row.ToList())
             .ToList();
 
-//
+        // 선택 행의 그룹 경계를 보존해 서로 다른 측선을 개별 폴리라인으로 유지
         mergedPolylineGroupsSourcePoints = rowList;
         loadedSavedResultPoints = rowList
             .SelectMany(row => row)
@@ -1041,7 +1339,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// RefreshMapEntries 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void RefreshMapEntries()
     {
@@ -1106,13 +1405,16 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// GetMapSortGroup 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static int GetMapSortGroup(string path)
         => int.TryParse(Path.GetFileNameWithoutExtension(path), out _) ? 0 : 1;
 
     /// <summary>
-//
+    /// IsBundledMapPath 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static bool IsBundledMapPath(string path)
     {
         var mapsDirectory = Path.Combine(AppContext.BaseDirectory, "maps");
@@ -1135,7 +1437,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// GetMapSortNumber 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static int GetMapSortNumber(string path)
     {
@@ -1151,7 +1454,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// BrowseScanFileAsync 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private Task BrowseScanFileAsync()
     {
         var initialDirectory = !string.IsNullOrWhiteSpace(ScanFilePath) && File.Exists(ScanFilePath)
@@ -1175,7 +1480,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// BrowseAlgorithmDirectoryAsync 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private Task BrowseAlgorithmDirectoryAsync()
     {
@@ -1189,7 +1495,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// BrowsePythonExecutableAsync 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private Task BrowsePythonExecutableAsync()
     {
@@ -1203,7 +1510,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// SelectMapAsync 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private Task SelectMapAsync(object? parameter)
     {
@@ -1216,7 +1524,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// AddMapAsync 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private Task AddMapAsync()
     {
@@ -1243,7 +1552,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// SelectMap 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void SelectMap(MapEntry entry)
     {
@@ -1264,7 +1574,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// BrowseResultCsvAsync 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private async Task BrowseResultCsvAsync()
     {
@@ -1295,7 +1606,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// RunAlgorithmAsync 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private async Task RunAlgorithmAsync()
     {
@@ -1459,6 +1771,10 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         }
     }
 
+    /// <summary>
+    /// ShowAlgorithmResultDialog 화면 표시
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void ShowAlgorithmResultDialog(
         string message,
         string caption,
@@ -1473,6 +1789,10 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         userDialogService.ShowMessage(message, caption, kind);
     }
 
+    /// <summary>
+    /// CancelAlgorithmAsync 실행 가능 여부 확인
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private Task CancelAlgorithmAsync()
     {
         if (!IsAlgorithmRunning)
@@ -1485,6 +1805,10 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         return Task.CompletedTask;
     }
 
+    /// <summary>
+    /// NormalizeAlgorithmProgress 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private string NormalizeAlgorithmProgress(string message)
     {
         if (string.IsNullOrWhiteSpace(message))
@@ -1525,6 +1849,10 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         return message;
     }
 
+    /// <summary>
+    /// PublishAlgorithmProgress 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void PublishAlgorithmProgress(string message)
     {
         if (string.IsNullOrWhiteSpace(message))
@@ -1537,6 +1865,10 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         AlgorithmRunMessage = NormalizeAlgorithmProgress(message);
     }
 
+    /// <summary>
+    /// FormatAlgorithmStageMessage 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static string FormatAlgorithmStageMessage(string stageName, string message, string fallbackDetail)
     {
         var colonIndex = message.IndexOf(':');
@@ -1553,7 +1885,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// LoadAnalysisImage 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void LoadAnalysisImage(string? preferredImagePath = null)
     {
@@ -1578,7 +1911,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// LoadResultsAsync 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private async Task LoadResultsAsync(string csvPath, int? preferredResultIndex = null)
     {
@@ -1593,7 +1927,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// LoadAnalysisImageFromPath 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private bool LoadAnalysisImageFromPath(string? imagePath)
     {
@@ -1623,7 +1958,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// SaveCurrentResultsAsSen 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void SaveCurrentResultsAsSen()
     {
         if (!TryParseDouble(StartPointX, out var startX) ||
@@ -1682,7 +2019,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// CopyCurrentOutputFile 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private string CopyCurrentOutputFile(string sourcePath, string resultDirectory, string outputFileName, string label)
     {
         if (string.IsNullOrWhiteSpace(sourcePath) || !File.Exists(sourcePath))
@@ -1706,6 +2045,10 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         }
     }
 
+    /// <summary>
+    /// BuildLastAnalysisReport 결과 구성
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     public IReadOnlyList<string> BuildLastAnalysisReport()
     {
         var lines = new List<string>
@@ -1781,6 +2124,10 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         return lines;
     }
 
+    /// <summary>
+    /// ClearCurrentRunReport 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void ClearCurrentRunReport()
     {
         currentSavedSenPath = string.Empty;
@@ -1790,6 +2137,10 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         currentRunTdaApplied = false;
     }
 
+    /// <summary>
+    /// AddReportPath 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static void AddReportPath(ICollection<string> lines, string label, string path)
     {
         if (string.IsNullOrWhiteSpace(path))
@@ -1802,6 +2153,10 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         lines.Add($"   {label}: {fullPath} [{(File.Exists(fullPath) ? "확인됨" : "파일 없음")}]");
     }
 
+    /// <summary>
+    /// DisplayPath 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static string DisplayPath(string path)
     {
         if (string.IsNullOrWhiteSpace(path))
@@ -1819,6 +2174,10 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         }
     }
 
+    /// <summary>
+    /// FirstExistingDirectory 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static string FirstExistingDirectory(params string[] paths)
     {
         foreach (var path in paths)
@@ -1838,6 +2197,10 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         return string.Empty;
     }
 
+    /// <summary>
+    /// RebuildMapBackgroundAsync 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private async Task RebuildMapBackgroundAsync()
     {
         var currentMapPath = MapDwgPath;
@@ -1859,7 +2222,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         {
             try
             {
-//
+                // DWG 파싱을 작업 스레드로 분리해 UI 렌더링 정지 방지
                 loadedPolylines = await Task.Run(() => DwgMapLoader.LoadPolylines(currentMapPath));
             }
             catch (Exception ex)
@@ -1998,7 +2361,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// EnsureMapBackgroundReadyAsync 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private async Task EnsureMapBackgroundReadyAsync()
     {
@@ -2023,7 +2387,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// BuildBackgroundFigures 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static IReadOnlyList<MapRenderFigure>? BuildBackgroundFigures(
         List<List<(double X, double Y)>>? polylines,
         double offsetX,
@@ -2102,7 +2468,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// GetBounds 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static Rect GetBounds(IReadOnlyList<Point> points)
     {
@@ -2124,7 +2491,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// BuildBackgroundBitmap 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static ImageSource? BuildBackgroundBitmap(
         IReadOnlyList<MapRenderFigure>? figures,
@@ -2154,7 +2522,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         using (var context = visual.RenderOpen())
         {
             context.PushClip(new RectangleGeometry(new Rect(0, 0, viewportWidth, viewportHeight)));
-//
+            // 현재 확대·이동 행렬을 먼저 적용해 화면 좌표와 지도 도형 일치
             context.PushTransform(new MatrixTransform(normalizedScale, 0, 0, normalizedScale, panX, panY));
 
             var pen = new Pen(new SolidColorBrush((Color)ColorConverter.ConvertFromString("#727A86")), 0.5)
@@ -2194,7 +2562,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// BuildRenderableFigures 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static List<List<Point>> BuildRenderableFigures(
         List<(double X, double Y)> polyline,
@@ -2265,7 +2634,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// RemoveConsecutiveDuplicates 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static List<Point> RemoveConsecutiveDuplicates(List<Point> points)
     {
@@ -2292,17 +2662,27 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// ToScreenX 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private double ToScreenX(double x) => transformOffsetX + (x - transformMinX) * transformScale;
 
     /// <summary>
-//
+    /// ToScreenY 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private double ToScreenY(double y) => transformOffsetY + transformContentHeight - (y - transformMinY) * transformScale;
 
+    /// <summary>
+    /// IsMapTransformReady 상태 노출
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public bool IsMapTransformReady => dwgPolylineCache is { Count: > 0 };
 
     /// <summary>
-//
+    /// public 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     public (double GisX, double GisY) ConvertCanvasToGis(double canvasX, double canvasY)
     {
         if (transformScale <= 0) return (0, 0);
@@ -2312,7 +2692,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// GetPreferredResultDirectory 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static string GetPreferredResultDirectory()
     {
@@ -2338,12 +2719,20 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         return Directory.Exists(sampleResultDirectory) ? sampleResultDirectory : string.Empty;
     }
 
+    /// <summary>
+    /// GetUserResultDirectory 데이터 조회
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static string GetUserResultDirectory()
         => Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             ProductFolderName,
             "result");
 
+    /// <summary>
+    /// GetLegacyUserResultDirectory 데이터 조회
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static string GetLegacyUserResultDirectory()
         => Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
@@ -2352,13 +2741,15 @@ public sealed class MainViewModel : ObservableObject, IDisposable
             "result");
 
     /// <summary>
-//
+    /// TryConvertToLatLon 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     public bool TryConvertToLatLon(double gisX, double gisY, out double latitude, out double longitude)
         => CoordinateTransformService.TryConvertProjectedToWgs84(gisX, gisY, out latitude, out longitude);
 
     /// <summary>
-//
+    /// RecomputeMapPoints 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void RecomputeMapPoints()
     {
@@ -2374,7 +2765,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         var (endX, endY) = SurveyLineProjector.ProjectAlongLine(startX, startY, directionX, directionY, parsedScanRangeX);
 
         var points = new ObservableCollection<MapPoint>();
-//
+        // 각 탐지 거리를 측선 방향 좌표로 투영해 지도 표시점 생성
         foreach (var result in Results)
         {
             var (x, y) = SurveyLineProjector.ProjectAlongLine(startX, startY, directionX, directionY, result.DistanceMeters);
@@ -2409,7 +2800,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// RefreshSavedResultPointProjection 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void RefreshSavedResultPointProjection()
     {
@@ -2427,7 +2819,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
             })
             .ToList();
 
-//
+        // 겹치는 저장 결과 라벨의 오프셋을 미리 계산해 가독성 확보
         var labelOffsets = BuildSavedResultLabelOffsets(projectedPoints);
 
         var points = projectedPoints
@@ -2473,7 +2865,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// BuildSavedResultLabelOffsets 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static Dictionary<string, (double OffsetX, double OffsetY)> BuildSavedResultLabelOffsets(IReadOnlyList<SavedResultProjection> projectedPoints)
     {
@@ -2531,28 +2924,63 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// BuildSavedResultPointKey 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static string BuildSavedResultPointKey(string sourceName, string label, double x, double y)
         => $"{sourceName}|{label}|{x:0.000000}|{y:0.000000}";
 
     /// <summary>
-//
+    /// SavedResultProjection 관련 상태와 동작 관리
+    /// 관련 책임을 한곳에 모아 구조와 수명 경계 명확화
     /// </summary>
     private sealed class SavedResultProjection
     {
+        /// <summary>
+        /// Key 값 제공
+        /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+        /// </summary>
         public string Key { get; init; } = string.Empty;
+        /// <summary>
+        /// SourceName 값 제공
+        /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+        /// </summary>
         public string SourceName { get; init; } = string.Empty;
+        /// <summary>
+        /// Label 값 제공
+        /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+        /// </summary>
         public string Label { get; init; } = string.Empty;
+        /// <summary>
+        /// X 값 제공
+        /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+        /// </summary>
         public double X { get; init; }
+        /// <summary>
+        /// Y 값 제공
+        /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+        /// </summary>
         public double Y { get; init; }
+        /// <summary>
+        /// DepthMeters 값 제공
+        /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+        /// </summary>
         public double DepthMeters { get; init; }
+        /// <summary>
+        /// ScreenX 값 제공
+        /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+        /// </summary>
         public double ScreenX { get; init; }
+        /// <summary>
+        /// ScreenY 값 제공
+        /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+        /// </summary>
         public double ScreenY { get; init; }
     }
 
     /// <summary>
-//
+    /// SelectResultAsync 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private Task SelectResultAsync(object? parameter)
     {
@@ -2565,7 +2993,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// SelectResult 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void SelectResult(int index)
     {
@@ -2588,7 +3017,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// OpenMapAsync 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private async Task OpenMapAsync()
     {
@@ -2598,7 +3028,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// OpenPrintAsync 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private Task OpenPrintAsync()
     {
@@ -2607,7 +3038,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// OpenInputAsync 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private async Task OpenInputAsync()
     {
@@ -2616,6 +3048,10 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         windowService.ShowInputDialog(this);
     }
 
+    /// <summary>
+    /// OpenCommandAsync 대상 열기
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private Task OpenCommandAsync()
     {
         RefreshMapEntries();
@@ -2624,7 +3060,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// OpenManualAsync 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private Task OpenManualAsync()
     {
@@ -2647,6 +3084,10 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         return Task.CompletedTask;
     }
 
+    /// <summary>
+    /// OpenResultFolderAsync 대상 열기
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private Task OpenResultFolderAsync()
     {
         var resultDirectory = GetUserResultDirectory();
@@ -2662,7 +3103,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// CanRunAlgorithm 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private bool CanRunAlgorithm()
         => !string.IsNullOrWhiteSpace(ScanFilePath) &&
            !string.IsNullOrWhiteSpace(AlgorithmDirectory) &&
@@ -2670,7 +3113,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
            !IsAlgorithmRunning;
 
     /// <summary>
-//
+    /// TryBuildRequest 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private bool TryBuildRequest(out AlgorithmRunRequest request)
     {
@@ -2762,6 +3206,10 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         return true;
     }
 
+    /// <summary>
+    /// TryResolveScanFilePath 처리 가능 여부 확인
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private bool TryResolveScanFilePath(out string resolvedPath)
     {
         resolvedPath = string.Empty;
@@ -2806,6 +3254,10 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         return true;
     }
 
+    /// <summary>
+    /// ApplyRecommendedXScale 설정 반영
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void ApplyRecommendedXScale(string scanFilePath)
     {
         if (!TryResolveRecommendedXScale(scanFilePath, out var recommendedXScale))
@@ -2823,6 +3275,10 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         AppendLog($"X Scale 자동 보정: {Path.GetFileName(scanFilePath)} -> {nextValue}");
     }
 
+    /// <summary>
+    /// ApplyRecommendedThreshold 설정 반영
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void ApplyRecommendedThreshold(string scanFilePath)
     {
         var nextValue = ResolveRecommendedThreshold(scanFilePath);
@@ -2835,6 +3291,10 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         AppendLog($"Threshold auto adjust: {Path.GetFileName(scanFilePath)} -> {nextValue}");
     }
 
+    /// <summary>
+    /// ResolveRecommendedThreshold 실행 값 결정
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static string ResolveRecommendedThreshold(string scanFilePath)
     {
         var name = Path.GetFileNameWithoutExtension(scanFilePath).ToUpperInvariant();
@@ -2842,6 +3302,10 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         return isHSeries ? "0.35" : "0.5";
     }
 
+    /// <summary>
+    /// TryResolveRecommendedXScale 처리 가능 여부 확인
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static bool TryResolveRecommendedXScale(string scanFilePath, out double xScale)
     {
         var name = Path.GetFileNameWithoutExtension(scanFilePath).ToUpperInvariant();
@@ -2890,16 +3354,28 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         return false;
     }
 
+    /// <summary>
+    /// ContainsToken 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static bool ContainsToken(string name, string token)
     {
         return Regex.IsMatch(name, $@"(^|[^A-Z0-9]){Regex.Escape(token)}([^A-Z0-9]|$)");
     }
 
+    /// <summary>
+    /// ContainsSeriesToken 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static bool ContainsSeriesToken(string name, string token)
     {
         return Regex.IsMatch(name, $@"(^|[^A-Z0-9]){Regex.Escape(token)}([0-9]|$|[^A-Z0-9])");
     }
 
+    /// <summary>
+    /// EnumerateScanFileSearchDirectories 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static IEnumerable<string> EnumerateScanFileSearchDirectories(string previousPath)
     {
         var directories = new List<string>();
@@ -2922,6 +3398,10 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         }
     }
 
+    /// <summary>
+    /// IsAlgorithmTransientPath 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static bool IsAlgorithmTransientPath(string path)
     {
         if (string.IsNullOrWhiteSpace(path))
@@ -2939,7 +3419,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// TryParseDouble 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static bool TryParseDouble(string value, out double result)
     {
@@ -2949,7 +3430,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-//
+    /// AppendLog 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void AppendLog(string? message)
     {
@@ -2974,6 +3456,10 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         LogText = builder.ToString();
     }
 
+    /// <summary>
+    /// Dispose 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     public void Dispose()
     {
         if (disposed)
@@ -2993,7 +3479,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
 }
 
     /// <summary>
-//
+    /// MapRenderFigure 관련 상태와 동작 관리
+    /// 관련 책임을 한곳에 모아 구조와 수명 경계 명확화
     /// </summary>
     internal sealed record MapRenderFigure(
     IReadOnlyList<Point> Points,

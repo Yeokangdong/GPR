@@ -4,6 +4,7 @@ namespace GprPrediction.Wpf.Services;
 
 /// <summary>
 /// Julia 실행 파일을 번들 폴더, PATH, 일반 설치 위치 순서로 탐색
+/// 관련 책임을 한곳에 모아 구조와 수명 경계 명확화
 /// </summary>
 public static class JuliaRuntimeLocator
 {
@@ -13,6 +14,7 @@ public static class JuliaRuntimeLocator
 
     /// <summary>
     /// runtime/julia 아래에서 버전 폴더를 찾아 번들 julia.exe 경로를 반환
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     public static string? GetBundledJuliaExecutable()
     {
@@ -29,6 +31,7 @@ public static class JuliaRuntimeLocator
 
     /// <summary>
     /// 설정값, 번들, PATH, 일반 설치 위치 순서로 실제 사용할 Julia 실행 파일을 찾기
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     public static string? Resolve(string? configuredJuliaExecutable)
     {
@@ -42,6 +45,7 @@ public static class JuliaRuntimeLocator
 
     /// <summary>
     /// PATH 환경 변수에 등록된 julia.exe를 검색
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static string? FindOnEnvironmentPath()
     {
@@ -71,6 +75,7 @@ public static class JuliaRuntimeLocator
 
     /// <summary>
     /// 사용자가 자주 설치하는 대표 위치를 순회해 Julia 설치본을 찾기
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static string? FindInCommonInstallLocations()
     {
@@ -118,6 +123,7 @@ public static class JuliaRuntimeLocator
 
     /// <summary>
     /// 사용자별 쓰기 가능한 Julia 런타임 루트 폴더 경로를 반환
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     public static string GetBundledJuliaBaseDirectory()
     {
@@ -130,6 +136,7 @@ public static class JuliaRuntimeLocator
 
     /// <summary>
     /// 지정한 루트 폴더 아래에서 사용 가능한 julia.exe를 탐색
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static string? FindBundledJuliaExecutable(string baseDir)
     {

@@ -4,6 +4,7 @@ namespace GprPrediction.Wpf.Services;
 
 /// <summary>
 /// 번들 Python 위치와 알고리즘 폴더 기본 경로를 찾아주는 도우미
+/// 관련 책임을 한곳에 모아 구조와 수명 경계 명확화
 /// </summary>
 public static class PythonRuntimeLocator
 {
@@ -16,6 +17,7 @@ public static class PythonRuntimeLocator
 
     /// <summary>
     /// 기본 Python 실행 경로를 반환하며, 번들이 없으면 시스템 python 명령으로 fallback
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     public static string GetDefaultPythonExecutable()
     {
@@ -25,6 +27,7 @@ public static class PythonRuntimeLocator
 
     /// <summary>
     /// 설정값, 번들 경로, 시스템 명령 순서로 실제 사용할 Python 실행 경로를 결정
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     public static string Resolve(string configuredPythonExecutable)
     {
@@ -52,6 +55,7 @@ public static class PythonRuntimeLocator
 
     /// <summary>
     /// 앱 설치/빌드 폴더에 같이 들어있던 예전 Python 경로인지 확인
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static bool IsLegacyBundledPythonPath(string pythonExecutable)
     {
@@ -69,6 +73,7 @@ public static class PythonRuntimeLocator
 
     /// <summary>
     /// 앱 기준 상대 경로에서 번들 Python 실행 파일의 절대 경로를 계산
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     public static string GetBundledPythonPath()
     {
@@ -121,6 +126,7 @@ public static class PythonRuntimeLocator
 
     /// <summary>
     /// 사용자별 쓰기 가능한 번들 Python 런타임 루트 폴더 경로를 반환
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     public static string GetBundledPythonRootDirectory()
     {
@@ -133,12 +139,17 @@ public static class PythonRuntimeLocator
 
     /// <summary>
     /// 기존 앱 설치 폴더 기준의 예전 Python 경로를 반환
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static string GetLegacyBundledPythonPath()
     {
         return Path.Combine(AppContext.BaseDirectory, BundledPythonRelativePath);
     }
 
+    /// <summary>
+    /// IsSafeRelativeDirectory 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static bool IsSafeRelativeDirectory(string value) =>
         !string.IsNullOrWhiteSpace(value) &&
         !Path.IsPathRooted(value) &&
@@ -146,6 +157,10 @@ public static class PythonRuntimeLocator
         !value.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
             .Any(static segment => segment is "." or "..");
 
+    /// <summary>
+    /// IsPathInside 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static bool IsPathInside(string candidate, string root)
     {
         var normalizedRoot = Path.GetFullPath(root)
@@ -156,6 +171,7 @@ public static class PythonRuntimeLocator
 
     /// <summary>
     /// 기본 알고리즘 폴더가 존재하면 그 경로를, 없으면 빈 문자열을 반환
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     public static string GetDefaultAlgorithmDirectory()
     {

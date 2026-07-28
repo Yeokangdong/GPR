@@ -13,11 +13,13 @@ namespace GprPrediction.Wpf.Windows;
 
 /// <summary>
 /// 스캔 파일, 측선 시작점/방향점, 범위 파라미터를 조정하는 자료 입력 창
+/// 관련 책임을 한곳에 모아 구조와 수명 경계 명확화
 /// </summary>
 public partial class InputWindow : Window
 {
     /// <summary>
     /// 지도 클릭으로 선택 중인 좌표 종류
+    /// 허용 상태를 제한해 분기 기준의 일관성 확보
     /// </summary>
     private enum PickMode { None, StartPoint, DirectionPoint }
 
@@ -51,12 +53,20 @@ public partial class InputWindow : Window
     private bool isConsoleTrackingAlgorithm;
     private string lastConsoleAlgorithmMessage = string.Empty;
 
+    /// <summary>
+    /// InverseMapScale 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public double InverseMapScale
     {
         get => (double)GetValue(InverseMapScaleProperty);
         private set => SetValue(InverseMapScaleProperty, value);
     }
 
+    /// <summary>
+    /// SurveyLineStrokeThickness 값 제공
+    /// UI 바인딩과 내부 상태가 같은 값을 공유하도록 유지
+    /// </summary>
     public double SurveyLineStrokeThickness
     {
         get => (double)GetValue(SurveyLineStrokeThicknessProperty);
@@ -65,6 +75,7 @@ public partial class InputWindow : Window
 
     /// <summary>
     /// 자료 입력 창을 초기화하고 맵 상호작용 및 타이머를 연결
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     public InputWindow()
     {
@@ -104,11 +115,19 @@ public partial class InputWindow : Window
         };
     }
 
+    /// <summary>
+    /// ExecuteCommand_Click 명령 실행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void ExecuteCommand_Click(object sender, RoutedEventArgs e)
     {
         ExecuteConsoleCommand();
     }
 
+    /// <summary>
+    /// CommandInputTextBox_KeyDown 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void CommandInputTextBox_KeyDown(object sender, KeyEventArgs e)
     {
         if (e.Key != Key.Enter)
@@ -120,6 +139,10 @@ public partial class InputWindow : Window
         ExecuteConsoleCommand();
     }
 
+    /// <summary>
+    /// ExecuteConsoleCommand 명령 실행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void ExecuteConsoleCommand()
     {
         var commandText = CommandInputTextBox.Text.Trim();
@@ -265,6 +288,10 @@ public partial class InputWindow : Window
         }
     }
 
+    /// <summary>
+    /// WriteCommandOutput 데이터 기록
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private void WriteCommandOutput(string message)
     {
         if (CommandOutputTextBox.Text.Length > 0)
@@ -276,6 +303,10 @@ public partial class InputWindow : Window
         CommandOutputTextBox.ScrollToEnd();
     }
 
+    /// <summary>
+    /// Require 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static void Require(IReadOnlyList<string> tokens, int count, string usage)
     {
         if (tokens.Count < count)
@@ -284,12 +315,20 @@ public partial class InputWindow : Window
         }
     }
 
+    /// <summary>
+    /// ParseSingle 입력 구문 분석
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static double ParseSingle(IReadOnlyList<string> tokens, string usage)
     {
         Require(tokens, 2, usage);
         return ParseNumber(tokens[1]);
     }
 
+    /// <summary>
+    /// SetPair 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static void SetPair(
         IReadOnlyList<string> tokens,
         string usage,
@@ -299,6 +338,10 @@ public partial class InputWindow : Window
         setter(ParseNumber(tokens[1]), ParseNumber(tokens[2]));
     }
 
+    /// <summary>
+    /// ParseNumber 입력 구문 분석
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static double ParseNumber(string value)
     {
         if ((double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var result) ||
@@ -311,11 +354,19 @@ public partial class InputWindow : Window
         throw new ArgumentException($"숫자 형식이 아닙니다: {value}");
     }
 
+    /// <summary>
+    /// FormatNumber 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static string FormatNumber(double value)
     {
         return value.ToString("G17", CultureInfo.InvariantCulture);
     }
 
+    /// <summary>
+    /// TokenizeCommand 처리 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
+    /// </summary>
     private static IReadOnlyList<string> TokenizeCommand(string text)
     {
         var tokens = new List<string>();
@@ -358,6 +409,7 @@ public partial class InputWindow : Window
 
     /// <summary>
     /// 타이머와 이벤트 구독을 해제해 창 종료 후 리소스가 남지 않게
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void OnClosed(object? sender, EventArgs e)
     {
@@ -372,6 +424,7 @@ public partial class InputWindow : Window
 
     /// <summary>
     /// 시작점과 방향점 선택 버튼의 표시 내용을 공통 형식으로 구성
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void ConfigurePickButtons()
     {
@@ -381,6 +434,7 @@ public partial class InputWindow : Window
 
     /// <summary>
     /// 원형 마커와 라벨을 묶은 버튼 내용을 생성
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static object BuildPickButtonContent(string label, Brush accentBrush)
     {
@@ -413,6 +467,7 @@ public partial class InputWindow : Window
 
     /// <summary>
     /// ViewModel 교체 시 속성 변경 이벤트를 다시 연결
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
     {
@@ -439,6 +494,7 @@ public partial class InputWindow : Window
 
     /// <summary>
     /// 지도나 좌표 관련 속성 변경 시 입력 창 오버레이를 갱신
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
@@ -507,6 +563,7 @@ public partial class InputWindow : Window
 
     /// <summary>
     /// 레이아웃 완료 뒤 입력 지도 뷰와 비트맵 캐시를 맞춤
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void QueueMapViewReset(bool showLoading)
     {
@@ -523,12 +580,14 @@ public partial class InputWindow : Window
 
     /// <summary>
     /// 사용자 정의 타이틀바의 최소화 명령을 처리
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void MinimizeWindow(object sender, ExecutedRoutedEventArgs e)
         => WindowState = WindowState.Minimized;
 
     /// <summary>
     /// 사용자 정의 타이틀바의 최대화 또는 복원 명령을 처리
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void MaximizeRestoreWindow(object sender, ExecutedRoutedEventArgs e)
         => WindowState = WindowState == WindowState.Maximized
@@ -537,12 +596,14 @@ public partial class InputWindow : Window
 
     /// <summary>
     /// 사용자 정의 타이틀바의 닫기 명령을 처리
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void CloseWindow(object sender, ExecutedRoutedEventArgs e)
         => Close();
 
     /// <summary>
     /// 지도 클릭으로 측정 시작점을 지정하는 모드로 전환
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void BtnPickStart_Click(object sender, RoutedEventArgs e)
     {
@@ -552,6 +613,7 @@ public partial class InputWindow : Window
 
     /// <summary>
     /// 지도 클릭으로 방향점을 지정하는 모드로 전환
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void BtnPickDirection_Click(object sender, RoutedEventArgs e)
     {
@@ -561,6 +623,7 @@ public partial class InputWindow : Window
 
     /// <summary>
     /// 자료 입력 지도 영역의 확대와 이동 상태를 초기화
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void ResetMapView_Click(object sender, RoutedEventArgs e)
     {
@@ -570,6 +633,7 @@ public partial class InputWindow : Window
 
     /// <summary>
     /// 점 선택 또는 패닝 시작 처리를 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void MapSurface_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
@@ -603,6 +667,7 @@ public partial class InputWindow : Window
 
     /// <summary>
     /// 우클릭으로 현재 점 선택 모드를 취소
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void MapSurface_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
     {
@@ -621,6 +686,7 @@ public partial class InputWindow : Window
 
     /// <summary>
     /// 패닝 또는 점 선택의 종료 처리를 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void MapSurface_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
@@ -631,6 +697,7 @@ public partial class InputWindow : Window
 
     /// <summary>
     /// 패닝을 적용하고 커서 좌표를 계속 갱신
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void MapSurface_MouseMove(object sender, MouseEventArgs e)
     {
@@ -668,6 +735,7 @@ public partial class InputWindow : Window
 
     /// <summary>
     /// 지도 영역을 벗어나면 커서와 드래그 상태를 정리
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void MapSurface_MouseLeave(object sender, MouseEventArgs e)
     {
@@ -682,6 +750,7 @@ public partial class InputWindow : Window
 
     /// <summary>
     /// 마우스 위치 기준으로 자료 입력 지도 뷰를 확대 또는 축소
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void MapSurface_MouseWheel(object sender, MouseWheelEventArgs e)
     {
@@ -712,6 +781,7 @@ public partial class InputWindow : Window
 
     /// <summary>
     /// 현재 뷰포트 기준 배경 비트맵 재생성을 지연 예약
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void ScheduleMapBitmapRefresh(bool showLoading = false)
     {
@@ -728,6 +798,7 @@ public partial class InputWindow : Window
 
     /// <summary>
     /// 예약된 비트맵 재생성 작업을 실제로 수행
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private async void MapBitmapRefreshTimer_Tick(object? sender, EventArgs e)
     {
@@ -764,6 +835,7 @@ public partial class InputWindow : Window
 
     /// <summary>
     /// 배경 비트맵 미리보기 변환을 현재 뷰 상태에 맞춤
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void UpdateBitmapPreviewTransform()
     {
@@ -784,6 +856,7 @@ public partial class InputWindow : Window
 
     /// <summary>
     /// 시작점/방향점 선택 모드와 버튼 강조 상태를 전환
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void SetPickMode(PickMode mode)
     {
@@ -812,6 +885,7 @@ public partial class InputWindow : Window
 
     /// <summary>
     /// 클릭한 지도 좌표를 시작점 또는 방향점 입력값으로 반영
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private bool TryApplyPickedPoint(MainViewModel vm, Point surfacePosition, Point canvasPosition)
     {
@@ -843,6 +917,7 @@ public partial class InputWindow : Window
 
     /// <summary>
     /// 캔버스 전체 또는 측선 초점 기준으로 입력 지도 뷰를 재배치
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void ResetMapView(bool showLoading = false)
     {
@@ -870,6 +945,7 @@ public partial class InputWindow : Window
 
     /// <summary>
     /// 측선 시작점과 방향점을 화면 중심으로 맞추는 배율과 위치를 계산
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private bool TryFitToSurveyFocus()
     {
@@ -907,6 +983,7 @@ public partial class InputWindow : Window
 
     /// <summary>
     /// 입력 지도 전체가 보이도록 기본 배율을 계산해 적용
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void FitToCanvasBounds()
     {
@@ -923,6 +1000,7 @@ public partial class InputWindow : Window
 
     /// <summary>
     /// 확대/이동 Transform과 오버레이 보정값을 함께 반영
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void ApplyViewTransform(double scale, double panX, double panY)
     {
@@ -935,6 +1013,7 @@ public partial class InputWindow : Window
 
     /// <summary>
     /// 줌 수준에 따라 측선과 라벨 표시 두께를 조정
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void UpdateOverlayScaleMetrics(double scale)
     {
@@ -945,6 +1024,7 @@ public partial class InputWindow : Window
 
     /// <summary>
     /// 화면 좌표를 내부 캔버스 좌표로 변환
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private Point ConvertSurfaceToCanvas(Point surfacePoint)
     {
@@ -956,12 +1036,14 @@ public partial class InputWindow : Window
 
     /// <summary>
     /// 좌표가 캔버스 범위 안에 있는지 검사
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static bool IsInsideCanvas(Point point)
         => point.X >= 0 && point.X <= PreviewWidth && point.Y >= 0 && point.Y <= PreviewHeight;
 
     /// <summary>
     /// 좌표가 렌더링 가능한 유효값인지 검사
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static bool IsCanvasPointValid(Point point)
         => !double.IsNaN(point.X) &&
@@ -972,6 +1054,7 @@ public partial class InputWindow : Window
 
     /// <summary>
     /// 마우스 위치의 투영 좌표와 위경도 표시를 갱신
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void UpdateCursorCoordinateText(Point surfacePosition)
     {
@@ -995,6 +1078,7 @@ public partial class InputWindow : Window
 
     /// <summary>
     /// 커서 좌표 표시 문자열을 기본 상태로 초기화
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void ResetCursorCoordinateTexts()
     {
@@ -1004,6 +1088,7 @@ public partial class InputWindow : Window
 
     /// <summary>
     /// 현재 시작점과 방향점의 좌표 문자열을 다시 계산
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private void RefreshPointCoordinateTexts()
     {
@@ -1030,6 +1115,7 @@ public partial class InputWindow : Window
 
     /// <summary>
     /// 문자열 X/Y 좌표를 숫자로 안전하게 파싱
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static bool TryParsePoint(string xText, string yText, out double x, out double y)
     {
@@ -1043,6 +1129,7 @@ public partial class InputWindow : Window
 
     /// <summary>
     /// 투영 좌표 한 줄을 화면 표시 형식으로 만들기
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static string FormatProjectedLine(string label, string xText, string yText)
         => TryParsePoint(xText, yText, out var x, out var y)
@@ -1051,6 +1138,7 @@ public partial class InputWindow : Window
 
     /// <summary>
     /// 투영 좌표를 위경도로 변환해 보조 문자열로 만들기
+    /// 호출 흐름을 분리해 변경 영향과 중복 처리 최소화
     /// </summary>
     private static string FormatLatLonLine(string label, MainViewModel vm, double x, double y)
         => vm.TryConvertToLatLon(x, y, out var latitude, out var longitude)
