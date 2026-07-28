@@ -121,6 +121,7 @@ public partial class CommandWindow : Window
         if (viewModel is not null)
         {
             viewModel.PropertyChanged -= ViewModel_PropertyChanged;
+            viewModel.SuppressAlgorithmResultDialogs = false;
         }
     }
 
@@ -413,6 +414,8 @@ public partial class CommandWindow : Window
         }
 
         trackingAnalysis = true;
+        viewModel.SuppressAlgorithmResultDialogs = true;
+        AnalysisResultOverlay.Visibility = Visibility.Collapsed;
         analysisStartedAt = DateTime.Now;
         lastProgress = string.Empty;
         lastDetailedStage = 0;
@@ -491,8 +494,47 @@ public partial class CommandWindow : Window
                 }
                 Write("============================================================");
                 Write("새 분석을 시작하려면 '다시', 창을 닫으려면 '종료'를 입력하세요.");
+                ShowAnalysisResultOverlay(viewModel.LastAlgorithmResultText);
             });
         }
+    }
+
+    private void ShowAnalysisResultOverlay(string resultText)
+    {
+        var message = string.IsNullOrWhiteSpace(resultText)
+            ? "분석이 종료되었습니다. 아래 Command 로그에서 상세 결과를 확인하세요."
+            : $"{resultText}\n\n아래 Command 로그에 실행 단계, 산출물 및 저장 경로가 기록되어 있습니다.";
+
+        if (HasErrorMeaning(resultText))
+        {
+            AnalysisResultTitle.Text = "분석 실패";
+            AnalysisResultIcon.Text = "!";
+            AnalysisResultIconBackground.Background = ErrorTextBrush;
+        }
+        else if (ContainsAny(resultText, "결과 없음", "취소"))
+        {
+            AnalysisResultTitle.Text = resultText.Contains("취소", StringComparison.OrdinalIgnoreCase)
+                ? "분석 취소"
+                : "탐지 결과 없음";
+            AnalysisResultIcon.Text = "!";
+            AnalysisResultIconBackground.Background = WarningTextBrush;
+        }
+        else
+        {
+            AnalysisResultTitle.Text = "분석 완료";
+            AnalysisResultIcon.Text = "✓";
+            AnalysisResultIconBackground.Background =
+                new SolidColorBrush(Color.FromRgb(33, 184, 166));
+        }
+
+        AnalysisResultMessage.Text = message;
+        AnalysisResultOverlay.Visibility = Visibility.Visible;
+    }
+
+    private void CloseAnalysisResultOverlay_Click(object sender, RoutedEventArgs e)
+    {
+        AnalysisResultOverlay.Visibility = Visibility.Collapsed;
+        InputTextBox.Focus();
     }
 
     private void Ask(string text, string? example = null)

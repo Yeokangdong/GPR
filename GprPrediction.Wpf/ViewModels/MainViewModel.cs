@@ -383,6 +383,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
 
     public RelayCommand SelectResultCommand { get; }
 
+    public bool SuppressAlgorithmResultDialogs { get; set; }
+
     public ObservableCollection<PredictionResult> Results { get; private set; } = new();
 
     public ObservableCollection<MapPoint> MapPoints { get; private set; } = new();
@@ -1344,7 +1346,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
                 IsLastAlgorithmResultVisible = true;
                 IsAlgorithmRunning = false;
                 AlgorithmRunMessage = string.Empty;
-                CustomMessageBox.Show(
+                ShowAlgorithmResultDialog(
                     string.IsNullOrWhiteSpace(failureDetail) ? "알고리즘 실행 중 오류가 발생했습니다." : failureDetail.Trim(),
                     "알고리즘 실행 오류",
                     MessageBoxButton.OK,
@@ -1371,7 +1373,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
                 IsLastAlgorithmResultVisible = true;
                 IsAlgorithmRunning = false;
                 AlgorithmRunMessage = string.Empty;
-                CustomMessageBox.Show(
+                ShowAlgorithmResultDialog(
                     $"분석이 완료되었습니다.\n결과 {Results.Count}건을 불러왔습니다.",
                     "분석 완료",
                     MessageBoxButton.OK,
@@ -1395,7 +1397,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
                 IsAlgorithmRunning = false;
                 AlgorithmRunMessage = string.Empty;
                 AppendLog("탐지 결과 CSV가 생성되지 않았습니다. 이전 결과를 표시하지 않고 화면을 비웠습니다.");
-                CustomMessageBox.Show(
+                ShowAlgorithmResultDialog(
                     "분석은 완료되었지만 탐지된 결과가 없습니다.\n이전 결과를 표시하지 않도록 화면을 비웠습니다.\n\n입력 파일, Threshold, 모델 설정을 확인해주세요.",
                     "탐지 결과 없음",
                     MessageBoxButton.OK,
@@ -1430,7 +1432,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
             IsAlgorithmRunning = false;
             AlgorithmRunMessage = string.Empty;
             AppendLog("분석이 사용자 요청으로 취소되었습니다.");
-            CustomMessageBox.Show("분석을 취소했습니다.", "분석 취소", MessageBoxButton.OK, MessageBoxImage.Information);
+            ShowAlgorithmResultDialog("분석을 취소했습니다.", "분석 취소", MessageBoxButton.OK, MessageBoxImage.Information);
         }
         catch (Exception ex)
         {
@@ -1440,7 +1442,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
             IsAlgorithmRunning = false;
             AlgorithmRunMessage = string.Empty;
             AppendLog(ex.ToString());
-            CustomMessageBox.Show(ex.Message, "알고리즘 실행 오류", MessageBoxButton.OK, MessageBoxImage.Warning);
+            ShowAlgorithmResultDialog(ex.Message, "알고리즘 실행 오류", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
         finally
         {
@@ -1455,6 +1457,21 @@ public sealed class MainViewModel : ObservableObject, IDisposable
                 AlgorithmRunMessage = string.Empty;
             }
         }
+    }
+
+    private void ShowAlgorithmResultDialog(
+        string message,
+        string caption,
+        MessageBoxButton buttons,
+        MessageBoxImage image)
+    {
+        if (SuppressAlgorithmResultDialogs)
+        {
+            SuppressAlgorithmResultDialogs = false;
+            return;
+        }
+
+        CustomMessageBox.Show(message, caption, buttons, image);
     }
 
     private Task CancelAlgorithmAsync()
