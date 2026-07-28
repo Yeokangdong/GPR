@@ -5,6 +5,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using System.ComponentModel;
+using GprPrediction.Wpf.Infrastructure;
 using GprPrediction.Wpf.Models;
 using GprPrediction.Wpf.ViewModels;
 
@@ -49,7 +50,7 @@ public partial class MainWindow : Window
         InitializeComponent();
         DataContextChanged += OnDataContextChanged;
         Closed += OnClosed;
-        DataContext = new MainViewModel();
+        DataContext = AppHost.Instance.MainViewModel;
         InitializeViewInteraction(TopViewSurface, TopViewCanvas);
         InitializeViewInteraction(FrontViewSurface, FrontViewCanvas);
     }
@@ -111,7 +112,6 @@ public partial class MainWindow : Window
         if (subscribedViewModel is not null)
         {
             subscribedViewModel.PropertyChanged -= ViewModel_PropertyChanged;
-            subscribedViewModel.Dispose();
             subscribedViewModel = null;
         }
     }

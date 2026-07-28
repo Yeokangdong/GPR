@@ -1,6 +1,7 @@
 using System.Configuration;
 using System.Data;
 using System.Windows;
+using GprPrediction.Wpf.Infrastructure;
 using GprPrediction.Wpf.ViewModels;
 
 namespace GprPrediction.Wpf;
@@ -16,6 +17,7 @@ public partial class App : Application
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+        _ = AppHost.Instance;
 
         // 메인 화면보다 먼저 런처를 띄워 Python/Julia 준비 상태를 확인
         var launcher = new LauncherWindow();
@@ -28,21 +30,8 @@ public partial class App : Application
     /// </summary>
     protected override void OnExit(ExitEventArgs e)
     {
-        if (Current?.MainWindow?.DataContext is MainViewModel mainWindowViewModel)
-        {
-            mainWindowViewModel.PersistSessionState();
-        }
-        else
-        {
-            foreach (Window window in Windows)
-            {
-                if (window.DataContext is MainViewModel viewModel)
-                {
-                    viewModel.PersistSessionState();
-                    break;
-                }
-            }
-        }
+        AppHost.Instance.MainViewModel.PersistSessionState();
+        AppHost.Instance.Dispose();
 
         base.OnExit(e);
     }

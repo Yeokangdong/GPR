@@ -8,10 +8,9 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using GprPrediction.Wpf.Contracts;
 using GprPrediction.Wpf.Models;
 using GprPrediction.Wpf.Services;
-using GprPrediction.Wpf.Windows;
-using Microsoft.Win32;
 
 namespace GprPrediction.Wpf.ViewModels;
 
@@ -32,11 +31,13 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     private const string VendorFolderName = "HBC";
     private const string ProductFolderName = "GPR";
 
-    private readonly AlgorithmRunner algorithmRunner = new();
-    private readonly PredictionResultReader resultReader = new();
-    private readonly SavedResultReader savedResultReader = new();
-    private readonly SavedResultWriter savedResultWriter = new();
-    private readonly AppSessionStateStore sessionStateStore = new();
+    private readonly AlgorithmRunner algorithmRunner;
+    private readonly PredictionResultReader resultReader;
+    private readonly SavedResultReader savedResultReader;
+    private readonly SavedResultWriter savedResultWriter;
+    private readonly AppSessionStateStore sessionStateStore;
+    private readonly IWindowService windowService;
+    private readonly IUserDialogService userDialogService;
     private readonly DispatcherTimer clockTimer = new();
     private readonly DispatcherTimer sessionSaveTimer = new();
     private CancellationTokenSource? algorithmRunCancellation;
@@ -112,28 +113,46 @@ public sealed class MainViewModel : ObservableObject, IDisposable
 
     /// <summary>
 //
-    public MainViewModel()
+    public MainViewModel(
+        AlgorithmRunner algorithmRunner,
+        PredictionResultReader resultReader,
+        SavedResultReader savedResultReader,
+        SavedResultWriter savedResultWriter,
+        AppSessionStateStore sessionStateStore,
+        IWindowService windowService,
+        IUserDialogService userDialogService)
     {
-        BrowseScanFileCommand = new RelayCommand(_ => BrowseScanFileAsync());
-        BrowseAlgorithmDirectoryCommand = new RelayCommand(_ => BrowseAlgorithmDirectoryAsync());
-        BrowsePythonExecutableCommand = new RelayCommand(_ => BrowsePythonExecutableAsync());
-        SelectMapCommand = new RelayCommand(SelectMapAsync);
-        AddMapCommand = new RelayCommand(_ => AddMapAsync());
-        BrowseResultCsvCommand = new RelayCommand(_ => BrowseResultCsvAsync());
-        RunAlgorithmCommand = new RelayCommand(_ => RunAlgorithmAsync(), _ => CanRunAlgorithm());
-        CancelAlgorithmCommand = new RelayCommand(_ => CancelAlgorithmAsync(), _ => IsAlgorithmRunning);
-        ResetAnalysisCommand = new RelayCommand(_ =>
+        this.algorithmRunner = algorithmRunner ?? throw new ArgumentNullException(nameof(algorithmRunner));
+        this.resultReader = resultReader ?? throw new ArgumentNullException(nameof(resultReader));
+        this.savedResultReader = savedResultReader ?? throw new ArgumentNullException(nameof(savedResultReader));
+        this.savedResultWriter = savedResultWriter ?? throw new ArgumentNullException(nameof(savedResultWriter));
+        this.sessionStateStore = sessionStateStore ?? throw new ArgumentNullException(nameof(sessionStateStore));
+        this.windowService = windowService ?? throw new ArgumentNullException(nameof(windowService));
+        this.userDialogService = userDialogService ?? throw new ArgumentNullException(nameof(userDialogService));
+
+        RelayCommand Command(Func<object?, Task> execute, Predicate<object?>? canExecute = null) =>
+            new(execute, canExecute, HandleCommandException);
+
+        BrowseScanFileCommand = Command(_ => BrowseScanFileAsync());
+        BrowseAlgorithmDirectoryCommand = Command(_ => BrowseAlgorithmDirectoryAsync());
+        BrowsePythonExecutableCommand = Command(_ => BrowsePythonExecutableAsync());
+        SelectMapCommand = Command(SelectMapAsync);
+        AddMapCommand = Command(_ => AddMapAsync());
+        BrowseResultCsvCommand = Command(_ => BrowseResultCsvAsync());
+        RunAlgorithmCommand = Command(_ => RunAlgorithmAsync(), _ => CanRunAlgorithm());
+        CancelAlgorithmCommand = Command(_ => CancelAlgorithmAsync(), _ => IsAlgorithmRunning);
+        ResetAnalysisCommand = Command(_ =>
         {
             ResetAnalysisState();
             return Task.CompletedTask;
         }, _ => !IsAlgorithmRunning);
-        OpenMapCommand = new RelayCommand(_ => OpenMapAsync());
-        OpenPrintCommand = new RelayCommand(_ => OpenPrintAsync());
-        OpenCommandCommand = new RelayCommand(_ => OpenCommandAsync());
-        OpenInputCommand = new RelayCommand(_ => OpenInputAsync());
-        OpenManualCommand = new RelayCommand(_ => OpenManualAsync());
-        OpenResultFolderCommand = new RelayCommand(_ => OpenResultFolderAsync());
-        SelectResultCommand = new RelayCommand(SelectResultAsync);
+        OpenMapCommand = Command(_ => OpenMapAsync());
+        OpenPrintCommand = Command(_ => OpenPrintAsync());
+        OpenCommandCommand = Command(_ => OpenCommandAsync());
+        OpenInputCommand = Command(_ => OpenInputAsync());
+        OpenManualCommand = Command(_ => OpenManualAsync());
+        OpenResultFolderCommand = Command(_ => OpenResultFolderAsync());
+        SelectResultCommand = Command(SelectResultAsync);
 
         clockTimer.Interval = TimeSpan.FromSeconds(1);
         clockTimer.Tick += (_, _) =>
@@ -151,6 +170,15 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         RefreshMapEntries();
         ClearStartupVisualResults();
         isSessionStateReady = true;
+    }
+
+    private void HandleCommandException(Exception exception)
+    {
+        AppendLog(exception.ToString());
+        userDialogService.ShowMessage(
+            exception.Message,
+            "실행 오류",
+            UserMessageKind.Warning);
     }
 
     /// <summary>
@@ -1135,18 +1163,12 @@ public sealed class MainViewModel : ObservableObject, IDisposable
             initialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
         }
 
-        var dialog = new OpenFileDialog
+        var selectedPath = userDialogService.SelectScanFile(initialDirectory);
+        if (!string.IsNullOrWhiteSpace(selectedPath))
         {
-            Filter = "GPR scan files (*.dzt;*.sgy;*.csv)|*.dzt;*.sgy;*.csv|All files (*.*)|*.*",
-            InitialDirectory = initialDirectory,
-            Title = "스캔 파일 선택"
-        };
-
-        if (dialog.ShowDialog() == true)
-        {
-            ScanFilePath = dialog.FileName;
-            ApplyRecommendedXScale(dialog.FileName);
-            ApplyRecommendedThreshold(dialog.FileName);
+            ScanFilePath = selectedPath;
+            ApplyRecommendedXScale(selectedPath);
+            ApplyRecommendedThreshold(selectedPath);
         }
 
         return Task.CompletedTask;
@@ -1157,14 +1179,10 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     /// </summary>
     private Task BrowseAlgorithmDirectoryAsync()
     {
-        var dialog = new OpenFolderDialog
+        var selectedDirectory = userDialogService.SelectAlgorithmDirectory();
+        if (!string.IsNullOrWhiteSpace(selectedDirectory))
         {
-            Title = "알고리즘 폴더 선택"
-        };
-
-        if (dialog.ShowDialog() == true)
-        {
-            AlgorithmDirectory = dialog.FolderName;
+            AlgorithmDirectory = selectedDirectory;
         }
 
         return Task.CompletedTask;
@@ -1175,15 +1193,10 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     /// </summary>
     private Task BrowsePythonExecutableAsync()
     {
-        var dialog = new OpenFileDialog
+        var selectedPath = userDialogService.SelectPythonExecutable();
+        if (!string.IsNullOrWhiteSpace(selectedPath))
         {
-            Filter = "Python executable (python.exe)|python.exe|Executable files (*.exe)|*.exe|All files (*.*)|*.*",
-            Title = "Python 실행 파일 선택"
-        };
-
-        if (dialog.ShowDialog() == true)
-        {
-            PythonExecutable = dialog.FileName;
+            PythonExecutable = selectedPath;
         }
 
         return Task.CompletedTask;
@@ -1207,23 +1220,18 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     /// </summary>
     private Task AddMapAsync()
     {
-        var dialog = new OpenFileDialog
+        var selectedPath = userDialogService.SelectMapFile();
+        if (!string.IsNullOrWhiteSpace(selectedPath))
         {
-            Filter = "DWG files (*.dwg)|*.dwg|All files (*.*)|*.*",
-            Title = "배경 지도 DWG 추가"
-        };
-
-        if (dialog.ShowDialog() == true)
-        {
-            if (!addedMapPaths.Contains(dialog.FileName, StringComparer.OrdinalIgnoreCase))
+            if (!addedMapPaths.Contains(selectedPath, StringComparer.OrdinalIgnoreCase))
             {
-                addedMapPaths.Add(dialog.FileName);
+                addedMapPaths.Add(selectedPath);
             }
 
             var entry = new MapEntry
             {
-                Name = Path.GetFileNameWithoutExtension(dialog.FileName),
-                FilePath = dialog.FileName
+                Name = Path.GetFileNameWithoutExtension(selectedPath),
+                FilePath = selectedPath
             };
 
             MapEntries.Add(entry);
@@ -1261,17 +1269,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     private async Task BrowseResultCsvAsync()
     {
         var resultDirectory = GetPreferredResultDirectory();
-        var dialog = new OpenFileDialog
+        var selectedPaths = userDialogService.SelectResultFiles(resultDirectory);
+        if (selectedPaths.Count > 0)
         {
-            Filter = "결과 파일 (*.sen;*.csv)|*.sen;*.csv|저장 결과 (*.sen)|*.sen|결과 CSV (*.csv)|*.csv|All files (*.*)|*.*",
-            Title = "결과 파일 선택",
-            InitialDirectory = resultDirectory,
-            Multiselect = true
-        };
-
-        if (dialog.ShowDialog() == true)
-        {
-            var selectedPaths = dialog.FileNames;
             var hasCsv = selectedPaths.Any(path => string.Equals(Path.GetExtension(path), ".csv", StringComparison.OrdinalIgnoreCase));
             if (!hasCsv)
             {
@@ -1280,9 +1280,12 @@ public sealed class MainViewModel : ObservableObject, IDisposable
             }
             else
             {
-                if (selectedPaths.Length > 1)
+                if (selectedPaths.Count > 1)
                 {
-                    CustomMessageBox.Show("CSV는 한 번에 하나만 열 수 있습니다. 첫 번째 CSV를 불러옵니다.", "결과 파일 선택", MessageBoxButton.OK, MessageBoxImage.Information);
+                    userDialogService.ShowMessage(
+                        "CSV는 한 번에 하나만 열 수 있습니다. 첫 번째 CSV를 불러옵니다.",
+                        "결과 파일 선택",
+                        UserMessageKind.Information);
                 }
 
                 var csvPath = selectedPaths.First(path => string.Equals(Path.GetExtension(path), ".csv", StringComparison.OrdinalIgnoreCase));
@@ -1349,8 +1352,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
                 ShowAlgorithmResultDialog(
                     string.IsNullOrWhiteSpace(failureDetail) ? "알고리즘 실행 중 오류가 발생했습니다." : failureDetail.Trim(),
                     "알고리즘 실행 오류",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
+                    UserMessageKind.Warning);
                 return;
             }
             AppendLog($"최종 exit code: {result.ExitCode}, TDA 적용: {(result.TdaApplied ? "예" : "아니오")}");
@@ -1376,8 +1378,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
                 ShowAlgorithmResultDialog(
                     $"분석이 완료되었습니다.\n결과 {Results.Count}건을 불러왔습니다.",
                     "분석 완료",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
+                    UserMessageKind.Information);
                 StatusText = $"준비됨";
             }
             else
@@ -1400,8 +1401,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
                 ShowAlgorithmResultDialog(
                     "분석은 완료되었지만 탐지된 결과가 없습니다.\n이전 결과를 표시하지 않도록 화면을 비웠습니다.\n\n입력 파일, Threshold, 모델 설정을 확인해주세요.",
                     "탐지 결과 없음",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
+                    UserMessageKind.Information);
                 StatusText = "준비됨";
                 AppendLog("결과 CSV를 찾지 못했습니다.");
             }
@@ -1432,7 +1432,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
             IsAlgorithmRunning = false;
             AlgorithmRunMessage = string.Empty;
             AppendLog("분석이 사용자 요청으로 취소되었습니다.");
-            ShowAlgorithmResultDialog("분석을 취소했습니다.", "분석 취소", MessageBoxButton.OK, MessageBoxImage.Information);
+            ShowAlgorithmResultDialog("분석을 취소했습니다.", "분석 취소", UserMessageKind.Information);
         }
         catch (Exception ex)
         {
@@ -1442,7 +1442,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
             IsAlgorithmRunning = false;
             AlgorithmRunMessage = string.Empty;
             AppendLog(ex.ToString());
-            ShowAlgorithmResultDialog(ex.Message, "알고리즘 실행 오류", MessageBoxButton.OK, MessageBoxImage.Warning);
+            ShowAlgorithmResultDialog(ex.Message, "알고리즘 실행 오류", UserMessageKind.Warning);
         }
         finally
         {
@@ -1462,8 +1462,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     private void ShowAlgorithmResultDialog(
         string message,
         string caption,
-        MessageBoxButton buttons,
-        MessageBoxImage image)
+        UserMessageKind kind)
     {
         if (SuppressAlgorithmResultDialogs)
         {
@@ -1471,7 +1470,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
             return;
         }
 
-        CustomMessageBox.Show(message, caption, buttons, image);
+        userDialogService.ShowMessage(message, caption, kind);
     }
 
     private Task CancelAlgorithmAsync()
@@ -2595,14 +2594,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     {
         RefreshMapEntries();
         await EnsureMapBackgroundReadyAsync();
-
-        var window = new MapViewWindow
-        {
-            Owner = Application.Current?.MainWindow,
-            DataContext = this
-        };
-
-        window.ShowDialog();
+        windowService.ShowMapDialog(this);
     }
 
     /// <summary>
@@ -2610,13 +2602,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     /// </summary>
     private Task OpenPrintAsync()
     {
-        var window = new PrintWindow
-        {
-            Owner = Application.Current?.MainWindow,
-            DataContext = this
-        };
-
-        window.ShowDialog();
+        windowService.ShowPrintDialog(this);
         return Task.CompletedTask;
     }
 
@@ -2627,27 +2613,13 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     {
         RefreshMapEntries();
         await EnsureMapBackgroundReadyAsync();
-
-        var window = new InputWindow
-        {
-            Owner = Application.Current?.MainWindow,
-            DataContext = this
-        };
-
-        window.ShowDialog();
+        windowService.ShowInputDialog(this);
     }
 
     private Task OpenCommandAsync()
     {
         RefreshMapEntries();
-
-        var window = new CommandWindow
-        {
-            Owner = Application.Current?.MainWindow,
-            DataContext = this
-        };
-
-        window.Show();
+        windowService.ShowCommand(this);
         return Task.CompletedTask;
     }
 
@@ -2659,7 +2631,10 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         var manualPath = Path.Combine(AppContext.BaseDirectory, "manual", "manual.pdf");
         if (!File.Exists(manualPath))
         {
-            CustomMessageBox.Show("manual/manual.pdf file was not found.", "Manual", MessageBoxButton.OK, MessageBoxImage.Information);
+            userDialogService.ShowMessage(
+                "manual/manual.pdf file was not found.",
+                "Manual",
+                UserMessageKind.Information);
             return Task.CompletedTask;
         }
 
@@ -2702,13 +2677,19 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         request = default!;
         if (!TryResolveScanFilePath(out var resolvedScanFilePath))
         {
-            CustomMessageBox.Show("스캔 파일을 찾을 수 없습니다. 원본 DZT/SGY/CSV 파일을 다시 선택해주세요.", "입력 확인", MessageBoxButton.OK, MessageBoxImage.Information);
+            userDialogService.ShowMessage(
+                "스캔 파일을 찾을 수 없습니다. 원본 DZT/SGY/CSV 파일을 다시 선택해주세요.",
+                "입력 확인",
+                UserMessageKind.Information);
             return false;
         }
 
         if (IsAlgorithmTransientPath(resolvedScanFilePath))
         {
-            CustomMessageBox.Show("알고리즘 작업 폴더의 data/results 파일은 실행 중 정리될 수 있습니다. 카카오톡 받은 파일, 문서, 바탕화면 등 원본 위치의 스캔 파일을 선택해주세요.", "입력 확인", MessageBoxButton.OK, MessageBoxImage.Information);
+            userDialogService.ShowMessage(
+                "알고리즘 작업 폴더의 data/results 파일은 실행 중 정리될 수 있습니다. 카카오톡 받은 파일, 문서, 바탕화면 등 원본 위치의 스캔 파일을 선택해주세요.",
+                "입력 확인",
+                UserMessageKind.Information);
             return false;
         }
 
@@ -2722,7 +2703,10 @@ public sealed class MainViewModel : ObservableObject, IDisposable
             !TryParseDouble(Threshold, out var parsedThreshold) ||
             !TryParseDouble(TdaThreshold, out var parsedTdaThreshold))
         {
-            CustomMessageBox.Show("스캔 범위, 스케일, 신뢰도 값을 숫자로 입력해야 합니다.", "입력 확인", MessageBoxButton.OK, MessageBoxImage.Information);
+            userDialogService.ShowMessage(
+                "스캔 범위, 스케일, 신뢰도 값을 숫자로 입력해야 합니다.",
+                "입력 확인",
+                UserMessageKind.Information);
             return false;
         }
 
@@ -2733,17 +2717,19 @@ public sealed class MainViewModel : ObservableObject, IDisposable
             parsedThreshold is < 0 or > 1 ||
             parsedTdaThreshold is < 0 or > 1)
         {
-            CustomMessageBox.Show(
+            userDialogService.ShowMessage(
                 "측정 범위와 스케일은 0보다 커야 하고, Threshold는 0~1 사이여야 합니다.",
                 "입력 확인",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
+                UserMessageKind.Information);
             return false;
         }
 
         if (!Directory.Exists(AlgorithmDirectory))
         {
-            CustomMessageBox.Show("알고리즘 폴더를 찾을 수 없습니다.", "입력 확인", MessageBoxButton.OK, MessageBoxImage.Information);
+            userDialogService.ShowMessage(
+                "알고리즘 폴더를 찾을 수 없습니다.",
+                "입력 확인",
+                UserMessageKind.Information);
             return false;
         }
 
@@ -2753,11 +2739,10 @@ public sealed class MainViewModel : ObservableObject, IDisposable
             !TryParseDouble(DirectionPointY, out var directionY) ||
             Math.Abs(directionX - startX) < 1e-9 && Math.Abs(directionY - startY) < 1e-9)
         {
-            CustomMessageBox.Show(
+            userDialogService.ShowMessage(
                 "측선 시작점과 방향점은 유효한 숫자이며 서로 다른 좌표여야 합니다.",
                 "입력 확인",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
+                UserMessageKind.Information);
             return false;
         }
 
