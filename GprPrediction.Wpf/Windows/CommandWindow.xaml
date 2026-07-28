@@ -231,6 +231,51 @@
                     </Setter.Value>
                 </Setter>
             </Style>
+            <Style x:Key="CommandPrimaryButton"
+                   TargetType="{x:Type Button}">
+                <Setter Property="Height" Value="36" />
+                <Setter Property="Padding" Value="16,0" />
+                <Setter Property="Background" Value="#3989E5" />
+                <Setter Property="Foreground" Value="White" />
+                <Setter Property="BorderBrush" Value="#5EA8F4" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="FontWeight" Value="Bold" />
+                <Setter Property="Cursor" Value="Hand" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type Button}">
+                            <Border x:Name="ButtonChrome"
+                                    Padding="{TemplateBinding Padding}"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="7"
+                                    SnapsToDevicePixels="True">
+                                <ContentPresenter HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"
+                                                  RecognizesAccessKey="True" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="ButtonChrome" Property="Background" Value="#56A4F4" />
+                                    <Setter TargetName="ButtonChrome" Property="BorderBrush" Value="#8BC5FF" />
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="ButtonChrome" Property="Background" Value="#236FBE" />
+                                    <Setter TargetName="ButtonChrome" Property="BorderBrush" Value="#63AEFA" />
+                                </Trigger>
+                                <Trigger Property="IsKeyboardFocused" Value="True">
+                                    <Setter TargetName="ButtonChrome" Property="BorderBrush" Value="#B7DCFF" />
+                                    <Setter TargetName="ButtonChrome" Property="BorderThickness" Value="2" />
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter TargetName="ButtonChrome" Property="Opacity" Value="0.42" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
             <Style x:Key="CommandContextMenuStyle"
                    TargetType="{x:Type ContextMenu}">
                 <Setter Property="Background" Value="#151D26" />
@@ -523,9 +568,9 @@
                          ContextMenu="{StaticResource InputContextMenu}"
                          KeyDown="InputTextBox_KeyDown" />
                 <Button Grid.Column="1" Content="입력"
-                        Margin="8,0,0,0" Click="Submit_Click"
-                        Background="#4F8DF7" Foreground="White"
-                        BorderThickness="0" FontWeight="Bold" />
+                        Margin="8,0,0,0"
+                        Click="Submit_Click"
+                        Style="{StaticResource CommandPrimaryButton}" />
             </Grid>
         </Grid>
 
@@ -593,15 +638,10 @@
 
                     <Button Grid.Row="2"
                             Width="110"
-                            Height="36"
                             HorizontalAlignment="Right"
                             Content="확인"
                             Click="CloseAnalysisResultOverlay_Click"
-                            Background="#3989E5"
-                            Foreground="White"
-                            BorderThickness="0"
-                            FontWeight="Bold"
-                            Cursor="Hand" />
+                            Style="{StaticResource CommandPrimaryButton}" />
                 </Grid>
             </Border>
         </Grid>
