@@ -35,7 +35,7 @@ public sealed class AlgorithmRunner
     {
         ArgumentNullException.ThrowIfNull(request);
         ValidateRequest(request);
-        progress?.Report("입력 파일과 알고리즘 폴더를 확인하는 중...");
+        progress?.Report("1/7단계 입력 파일과 알고리즘 폴더를 확인하는 중...");
         if (!File.Exists(request.ScanFilePath))
         {
             throw new FileNotFoundException("스캔 파일을 찾을 수 없습니다.", request.ScanFilePath);
@@ -46,10 +46,26 @@ public sealed class AlgorithmRunner
             throw new DirectoryNotFoundException($"알고리즘 폴더를 찾을 수 없습니다. {request.AlgorithmDirectory}");
         }
 
+        progress?.Report($"1/7단계 [입력] {DescribeFile(request.ScanFilePath)}");
+        progress?.Report($"1/7단계 [알고리즘 원본] \"{Path.GetFullPath(request.AlgorithmDirectory)}\"");
+        progress?.Report(
+            $"1/7단계 [요청 설정] 범위 X/Z={request.ScanRangeX:0.###}/{request.ScanRangeY:0.###}m, " +
+            $"Scale X/Z={request.XScale:0.###}/{request.YScale:0.###}, " +
+            $"Threshold={request.Threshold:0.###}, TDA={(request.UseTda ? $"사용({request.TdaThreshold:0.###})" : "미사용")}");
+
         var algorithmDirectory = PrepareWritableAlgorithmDirectory(request.AlgorithmDirectory);
-        progress?.Report("작업 폴더를 준비하는 중...");
+        progress?.Report($"2/7단계 [작업 폴더] \"{algorithmDirectory}\"");
+        progress?.Report(
+            $"2/7단계 [폴더 모드] " +
+            $"{(Path.GetFullPath(request.AlgorithmDirectory).Equals(algorithmDirectory, StringComparison.OrdinalIgnoreCase) ? "원본 폴더 직접 사용" : "사용자 쓰기 가능 폴더로 복사")}");
         var stagedScanFilePath = StageInputIfInsideWorkDirectory(request.ScanFilePath, algorithmDirectory);
         var sourceScanFilePath = stagedScanFilePath ?? request.ScanFilePath;
+        if (stagedScanFilePath is not null)
+        {
+            progress?.Report($"2/7단계 [입력 보호] 작업 폴더 내부 원본을 임시 위치로 보존: \"{stagedScanFilePath}\"");
+        }
+
+        progress?.Report("2/7단계 이전 실행의 data/results/TDA/진단 산출물을 정리하는 중...");
         CleanTransientWorkDirectories(algorithmDirectory);
         var tdaDirectory = PrepareTdaWorkDirectory(algorithmDirectory);
         var tdaImagePath = Path.Combine(tdaDirectory, "data.png");
@@ -59,7 +75,9 @@ public sealed class AlgorithmRunner
             ["GPR_STAGE_ARTIFACT_DIR"] = Path.Combine(algorithmDirectory, StageArtifactFolderName),
             ["GPR_PREPROCESSOR_MODE"] = request.UseTda ? "tda" : "normal"
         };
-        progress?.Report("이전 실행 임시 파일을 정리하는 중...");
+        progress?.Report(
+            $"2/7단계 [환경 변수] GPR_PREPROCESSOR_MODE={algorithmEnvironment["GPR_PREPROCESSOR_MODE"]}, " +
+            $"GPR_TDA_DIR=\"{algorithmEnvironment["GPR_TDA_DIR"]}\"");
 
         var mainStage1FileName = request.UseTda ? "main_1.py" : "main.py";
         var mainStage1 = Path.Combine(algorithmDirectory, mainStage1FileName);
@@ -95,11 +113,20 @@ public sealed class AlgorithmRunner
         await File.WriteAllTextAsync(Path.Combine(tdaDirectory, "input_info.txt"), BuildInputInfo(request, scanFileName, tdaDirectory), Utf8NoBom, cancellationToken);
         await File.WriteAllTextAsync(Path.Combine(tdaDirectory, "model_info.txt"), modelInfo, Utf8NoBom, cancellationToken);
         SnapshotStageArtifacts(algorithmDirectory, tdaDirectory, "after-input");
+        var selectedNormalWeights = ReadSettingValue(modelInfo, "normal_weights_file");
+        var selectedTdaWeights = ReadSettingValue(modelInfo, "tda_weights_file");
         progress?.Report(
             $"3/7단계 입력 준비 완료: 스캔=\"{algorithmInputPath}\", " +
             $"설정=\"{inputInfoPath}\", 모델설정=\"{modelInfoPath}\"");
+        progress?.Report(
+            $"3/7단계 [적용값] X Scale={ResolveXScale(request, scanFileName):0.###}, " +
+            $"Y Scale={request.YScale:0.###}, Threshold={request.Threshold:0.###}, " +
+            $"모델 모드={(request.UseTda ? "TDA" : "일반")}");
+        progress?.Report(
+            $"3/7단계 [모델] 일반=\"{selectedNormalWeights}\", TDA=\"{selectedTdaWeights}\"");
 
         var pythonExecutable = PythonRuntimeLocator.Resolve(request.PythonExecutable);
+        progress?.Report($"3/7단계 [Python] \"{pythonExecutable}\"");
         var log = new StringBuilder();
         var stageResults = new List<ProcessStageResult>();
 
@@ -118,6 +145,8 @@ public sealed class AlgorithmRunner
         WriteStageLog(algorithmDirectory, $"stage1-{Path.GetFileNameWithoutExtension(mainStage1FileName)}.log", stage1);
         SnapshotStageArtifacts(algorithmDirectory, tdaDirectory, $"after-{Path.GetFileNameWithoutExtension(mainStage1FileName)}");
         AppendStageLog(log, $"1단계 ({mainStage1FileName} - AGC 전처리)", stage1);
+        progress?.Report(
+            $"4/7단계 [산출물] 전처리 이미지: {DescribeFile(Path.Combine(algorithmDirectory, "data", "processed_data", "data.jpg"))}");
 
         if (stage1.ExitCode != 0)
         {
@@ -141,6 +170,8 @@ public sealed class AlgorithmRunner
             }
             else
             {
+                progress?.Report($"5/7단계 [Julia] \"{juliaExecutable}\"");
+                progress?.Report($"5/7단계 [스크립트] {DescribeFile(tdaScript)}");
                 progress?.Report("5/7단계 tda.jl: TDA 분석 중...");
                 var stage2 = await RunProcessAsync(juliaExecutable, $"\"{tdaScript}\"", algorithmDirectory, TdaTimeout, cancellationToken, progress, "5/7단계 tda.jl", algorithmEnvironment);
                 stageResults.Add(stage2);
@@ -148,6 +179,9 @@ public sealed class AlgorithmRunner
                 SnapshotStageArtifacts(algorithmDirectory, tdaDirectory, "after-tda");
                 AppendStageLog(log, "2단계 (tda.jl - TDA 분석)", stage2);
                 tdaApplied = stage2.ExitCode == 0 && File.Exists(tdaImagePath);
+                progress?.Report(
+                    $"5/7단계 [산출물] TDA 이미지: {DescribeFile(tdaImagePath)}, " +
+                    $"적용 결과={(tdaApplied ? "성공" : "미적용")}");
 
                 if (!tdaApplied)
                 {
@@ -178,8 +212,48 @@ public sealed class AlgorithmRunner
         AppendStageLog(log, "3단계 (main_2.py - YOLO 예측)", stage3);
 
         progress?.Report("7/7단계 결과 파일 확인 중...");
+        progress?.Report(
+            $"7/7단계 [결과 CSV] {DescribeFile(Path.Combine(algorithmDirectory, "results", "prediction_results.csv"))}");
+        progress?.Report(
+            $"7/7단계 [결과 이미지] {DescribeFile(Path.Combine(algorithmDirectory, "results", "data.jpg"))}");
+        progress?.Report(
+            $"7/7단계 [진단 로그] \"{Path.Combine(algorithmDirectory, StageArtifactFolderName, "logs")}\"");
         DeleteStagedInput(stagedScanFilePath);
         return BuildResult(stageResults, log, algorithmDirectory, tdaApplied);
+    }
+
+    private static string DescribeFile(string path)
+    {
+        if (!File.Exists(path))
+        {
+            return $"\"{path}\" [파일 없음]";
+        }
+
+        var info = new FileInfo(path);
+        return $"\"{info.FullName}\" [크기 {FormatFileSize(info.Length)}, 수정 {info.LastWriteTime:yyyy-MM-dd HH:mm:ss}]";
+    }
+
+    private static string FormatFileSize(long bytes)
+    {
+        string[] units = ["B", "KB", "MB", "GB"];
+        var value = (double)Math.Max(0, bytes);
+        var unitIndex = 0;
+        while (value >= 1024 && unitIndex < units.Length - 1)
+        {
+            value /= 1024;
+            unitIndex++;
+        }
+
+        return $"{value:0.##} {units[unitIndex]}";
+    }
+
+    private static string ReadSettingValue(string content, string key)
+    {
+        var prefix = key + ":";
+        var line = content
+            .Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries)
+            .FirstOrDefault(candidate => candidate.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
+        return line is null ? "확인 불가" : line[prefix.Length..].Trim();
     }
 
     /// <summary>
