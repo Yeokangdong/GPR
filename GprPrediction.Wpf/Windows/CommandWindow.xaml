@@ -72,6 +72,7 @@
                         BorderThickness="1,0,0,0">
                     <Grid Margin="1">
                         <Track x:Name="PART_Track"
+                               Orientation="{TemplateBinding Orientation}"
                                IsDirectionReversed="True"
                                Focusable="False">
                             <Track.DecreaseRepeatButton>
@@ -97,6 +98,7 @@
                         BorderThickness="0,1,0,0">
                     <Grid Margin="1">
                         <Track x:Name="PART_Track"
+                               Orientation="{TemplateBinding Orientation}"
                                IsDirectionReversed="False"
                                Focusable="False">
                             <Track.DecreaseRepeatButton>
@@ -115,15 +117,18 @@
                     </Grid>
                 </Border>
             </ControlTemplate>
-            <Style TargetType="{x:Type ScrollBar}">
+            <Style x:Key="CommandScrollBarStyle"
+                   TargetType="{x:Type ScrollBar}">
                 <Setter Property="Background" Value="#0A1017" />
                 <Setter Property="Foreground" Value="#526B84" />
                 <Setter Property="Width" Value="16" />
-                <Setter Property="Height" Value="16" />
+                <Setter Property="Height" Value="Auto" />
                 <Setter Property="Template"
                         Value="{StaticResource VerticalScrollBarTemplate}" />
                 <Style.Triggers>
                     <Trigger Property="Orientation" Value="Horizontal">
+                        <Setter Property="Width" Value="Auto" />
+                        <Setter Property="Height" Value="16" />
                         <Setter Property="Template"
                                 Value="{StaticResource HorizontalScrollBarTemplate}" />
                     </Trigger>
@@ -335,6 +340,10 @@
                          Cursor="IBeam"
                          IsReadOnlyCaretVisible="True"
                          ScrollViewer.ScrollChanged="OutputTextBox_ScrollChanged">
+                <RichTextBox.Resources>
+                    <Style TargetType="{x:Type ScrollBar}"
+                           BasedOn="{StaticResource CommandScrollBarStyle}" />
+                </RichTextBox.Resources>
                 <FlowDocument PagePadding="0">
                     <Paragraph x:Name="OutputParagraph"
                                Margin="0"

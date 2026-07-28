@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Threading;
 using GprPrediction.Wpf.ViewModels;
 
 namespace GprPrediction.Wpf.Windows;
@@ -88,6 +89,9 @@ public partial class CommandWindow : Window
         }
 
         viewModel.PropertyChanged += ViewModel_PropertyChanged;
+        Dispatcher.BeginInvoke(
+            DispatcherPriority.Loaded,
+            new Action(ApplyCommandScrollBarStyle));
         Write("=== GPR 대화형 분석 ===");
         Write($"버전: {GetApplicationVersion()}");
         Write($"실행 환경: .NET {Environment.Version} / {RuntimeInformation.OSDescription}");
@@ -114,6 +118,40 @@ public partial class CommandWindow : Window
         Write("- 언제든 '다시', '취소', '종료' 입력 가능");
         Write("- 이 창의 모든 출력은 마우스로 선택한 뒤 Ctrl+C로 복사 가능\n");
         RestartWizard();
+    }
+
+    private void ApplyCommandScrollBarStyle()
+    {
+        OutputTextBox.ApplyTemplate();
+        OutputTextBox.UpdateLayout();
+
+        if (TryFindResource("CommandScrollBarStyle") is not Style scrollBarStyle)
+        {
+            return;
+        }
+
+        foreach (var scrollBar in FindVisualChildren<System.Windows.Controls.Primitives.ScrollBar>(OutputTextBox))
+        {
+            scrollBar.Style = scrollBarStyle;
+        }
+    }
+
+    private static IEnumerable<T> FindVisualChildren<T>(DependencyObject root)
+        where T : DependencyObject
+    {
+        for (var index = 0; index < VisualTreeHelper.GetChildrenCount(root); index++)
+        {
+            var child = VisualTreeHelper.GetChild(root, index);
+            if (child is T match)
+            {
+                yield return match;
+            }
+
+            foreach (var descendant in FindVisualChildren<T>(child))
+            {
+                yield return descendant;
+            }
+        }
     }
 
     private void Window_Closed(object? sender, EventArgs e)
