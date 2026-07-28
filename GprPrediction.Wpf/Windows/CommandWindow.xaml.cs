@@ -174,6 +174,38 @@ public partial class CommandWindow : Window
         Submit();
     }
 
+    private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        var modifiers = Keyboard.Modifiers;
+        if (e.Key == Key.C && modifiers == (ModifierKeys.Control | ModifierKeys.Shift))
+        {
+            CopyAllLog();
+            e.Handled = true;
+            return;
+        }
+
+        if (e.Key == Key.End && modifiers == ModifierKeys.Control)
+        {
+            ScrollToLatest();
+            e.Handled = true;
+            return;
+        }
+
+        if (e.Key == Key.F && modifiers == (ModifierKeys.Control | ModifierKeys.Shift))
+        {
+            ToggleAutoFollow();
+            e.Handled = true;
+            return;
+        }
+
+        if (e.Key == Key.Escape && AnalysisResultOverlay.Visibility == Visibility.Visible)
+        {
+            AnalysisResultOverlay.Visibility = Visibility.Collapsed;
+            InputTextBox.Focus();
+            e.Handled = true;
+        }
+    }
+
     private void Submit_Click(object sender, RoutedEventArgs e) => Submit();
 
     private void Submit()
@@ -823,9 +855,42 @@ public partial class CommandWindow : Window
     }
 
     private void ScrollToLatest_Click(object sender, RoutedEventArgs e)
+        => ScrollToLatest();
+
+    private void ScrollToLatest()
     {
         AutoScrollCheckBox.IsChecked = true;
         OutputTextBox.ScrollToEnd();
+        UpdateLogStatus();
+    }
+
+    private void CopyAllLog_Click(object sender, RoutedEventArgs e)
+        => CopyAllLog();
+
+    private void CopyAllLog()
+    {
+        var range = new TextRange(
+            OutputTextBox.Document.ContentStart,
+            OutputTextBox.Document.ContentEnd);
+        var text = range.Text.TrimEnd('\r', '\n');
+        if (!string.IsNullOrEmpty(text))
+        {
+            Clipboard.SetText(text);
+            LogStatusText.Text = $"{logLineCount:N0}줄 · 전체 로그 복사됨";
+        }
+    }
+
+    private void ToggleAutoFollow_Click(object sender, RoutedEventArgs e)
+        => ToggleAutoFollow();
+
+    private void ToggleAutoFollow()
+    {
+        AutoScrollCheckBox.IsChecked = AutoScrollCheckBox.IsChecked != true;
+        if (AutoScrollCheckBox.IsChecked == true)
+        {
+            OutputTextBox.ScrollToEnd();
+        }
+
         UpdateLogStatus();
     }
 

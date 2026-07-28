@@ -9,7 +9,8 @@
         Background="{StaticResource BackgroundBrush}"
         Foreground="{StaticResource TextPrimaryBrush}"
         Loaded="Window_Loaded" Closed="Window_Closed"
-        StateChanged="Window_StateChanged">
+        StateChanged="Window_StateChanged"
+        PreviewKeyDown="Window_PreviewKeyDown">
 
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="46" ResizeBorderThickness="5"
@@ -230,6 +231,164 @@
                     </Setter.Value>
                 </Setter>
             </Style>
+            <Style x:Key="CommandContextMenuStyle"
+                   TargetType="{x:Type ContextMenu}">
+                <Setter Property="Background" Value="#151D26" />
+                <Setter Property="Foreground" Value="#E5EDF5" />
+                <Setter Property="BorderBrush" Value="#3B4A5B" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="Padding" Value="5" />
+                <Setter Property="FontFamily" Value="Malgun Gothic, Segoe UI" />
+                <Setter Property="FontSize" Value="13" />
+                <Setter Property="HasDropShadow" Value="True" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type ContextMenu}">
+                            <Border Padding="{TemplateBinding Padding}"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="8"
+                                    SnapsToDevicePixels="True">
+                                <Border.Effect>
+                                    <DropShadowEffect BlurRadius="22"
+                                                      ShadowDepth="7"
+                                                      Opacity="0.48"
+                                                      Color="#000000" />
+                                </Border.Effect>
+                                <ScrollViewer CanContentScroll="True"
+                                              VerticalScrollBarVisibility="Auto">
+                                    <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Cycle" />
+                                </ScrollViewer>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <Style x:Key="CommandMenuItemStyle"
+                   TargetType="{x:Type MenuItem}">
+                <Setter Property="Foreground" Value="#DCE7F2" />
+                <Setter Property="Height" Value="34" />
+                <Setter Property="Padding" Value="10,0" />
+                <Setter Property="Cursor" Value="Hand" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type MenuItem}">
+                            <Border x:Name="ItemBackground"
+                                    Margin="0,1"
+                                    Padding="{TemplateBinding Padding}"
+                                    Background="Transparent"
+                                    CornerRadius="5">
+                                <Grid MinWidth="230">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="24" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{TemplateBinding Tag}"
+                                               VerticalAlignment="Center"
+                                               Foreground="#75B4F4"
+                                               FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets"
+                                               FontSize="13" />
+                                    <ContentPresenter Grid.Column="1"
+                                                      Margin="4,0,18,0"
+                                                      VerticalAlignment="Center"
+                                                      ContentSource="Header"
+                                                      RecognizesAccessKey="True" />
+                                    <TextBlock Grid.Column="2"
+                                               VerticalAlignment="Center"
+                                               Foreground="#8292A5"
+                                               FontFamily="Consolas"
+                                               FontSize="12"
+                                               Text="{TemplateBinding InputGestureText}" />
+                                </Grid>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsHighlighted" Value="True">
+                                    <Setter TargetName="ItemBackground" Property="Background" Value="#243446" />
+                                    <Setter Property="Foreground" Value="White" />
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter TargetName="ItemBackground" Property="Opacity" Value="0.38" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <Style x:Key="CommandMenuSeparatorStyle"
+                   TargetType="{x:Type Separator}">
+                <Setter Property="Margin" Value="9,5" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type Separator}">
+                            <Border Height="1"
+                                    Background="#344253" />
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <ContextMenu x:Key="OutputContextMenu"
+                         x:Shared="False"
+                         Style="{StaticResource CommandContextMenuStyle}">
+                <MenuItem Header="복사"
+                          Tag="&#xE8C8;"
+                          InputGestureText="Ctrl+C"
+                          Command="{x:Static ApplicationCommands.Copy}"
+                          CommandTarget="{Binding PlacementTarget, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}"
+                          Style="{StaticResource CommandMenuItemStyle}" />
+                <MenuItem Header="전체 선택"
+                          Tag="&#xE8B3;"
+                          InputGestureText="Ctrl+A"
+                          Command="{x:Static ApplicationCommands.SelectAll}"
+                          CommandTarget="{Binding PlacementTarget, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}"
+                          Style="{StaticResource CommandMenuItemStyle}" />
+                <Separator Style="{StaticResource CommandMenuSeparatorStyle}" />
+                <MenuItem Header="전체 로그 복사"
+                          Tag="&#xE8A5;"
+                          InputGestureText="Ctrl+Shift+C"
+                          Click="CopyAllLog_Click"
+                          Style="{StaticResource CommandMenuItemStyle}" />
+                <MenuItem Header="최신 로그로 이동"
+                          Tag="&#xE74B;"
+                          InputGestureText="Ctrl+End"
+                          Click="ScrollToLatest_Click"
+                          Style="{StaticResource CommandMenuItemStyle}" />
+                <MenuItem Header="자동 따라가기 전환"
+                          Tag="&#xE72C;"
+                          InputGestureText="Ctrl+Shift+F"
+                          Click="ToggleAutoFollow_Click"
+                          Style="{StaticResource CommandMenuItemStyle}" />
+            </ContextMenu>
+            <ContextMenu x:Key="InputContextMenu"
+                         x:Shared="False"
+                         Style="{StaticResource CommandContextMenuStyle}">
+                <MenuItem Header="잘라내기"
+                          Tag="&#xE8C6;"
+                          InputGestureText="Ctrl+X"
+                          Command="{x:Static ApplicationCommands.Cut}"
+                          CommandTarget="{Binding PlacementTarget, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}"
+                          Style="{StaticResource CommandMenuItemStyle}" />
+                <MenuItem Header="복사"
+                          Tag="&#xE8C8;"
+                          InputGestureText="Ctrl+C"
+                          Command="{x:Static ApplicationCommands.Copy}"
+                          CommandTarget="{Binding PlacementTarget, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}"
+                          Style="{StaticResource CommandMenuItemStyle}" />
+                <MenuItem Header="붙여넣기"
+                          Tag="&#xE77F;"
+                          InputGestureText="Ctrl+V"
+                          Command="{x:Static ApplicationCommands.Paste}"
+                          CommandTarget="{Binding PlacementTarget, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}"
+                          Style="{StaticResource CommandMenuItemStyle}" />
+                <Separator Style="{StaticResource CommandMenuSeparatorStyle}" />
+                <MenuItem Header="전체 선택"
+                          Tag="&#xE8B3;"
+                          InputGestureText="Ctrl+A"
+                          Command="{x:Static ApplicationCommands.SelectAll}"
+                          CommandTarget="{Binding PlacementTarget, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}"
+                          Style="{StaticResource CommandMenuItemStyle}" />
+            </ContextMenu>
         </ResourceDictionary>
     </Window.Resources>
 
@@ -338,6 +497,7 @@
                          Background="#0D1117" Foreground="#DDE7F2"
                          BorderBrush="#39424E" Padding="12"
                          Cursor="IBeam"
+                         ContextMenu="{StaticResource OutputContextMenu}"
                          IsReadOnlyCaretVisible="True"
                          ScrollViewer.ScrollChanged="OutputTextBox_ScrollChanged">
                 <RichTextBox.Resources>
@@ -360,6 +520,7 @@
                          FontFamily="Consolas" FontSize="14"
                          Background="#252A31" Foreground="White"
                          BorderBrush="#526071" Padding="10,7"
+                         ContextMenu="{StaticResource InputContextMenu}"
                          KeyDown="InputTextBox_KeyDown" />
                 <Button Grid.Column="1" Content="입력"
                         Margin="8,0,0,0" Click="Submit_Click"
