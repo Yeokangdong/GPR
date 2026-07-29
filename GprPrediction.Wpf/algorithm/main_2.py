@@ -107,6 +107,7 @@ if __name__ == "__main__":
     if input_tda_override is not None:
         TDA = 1 if input_tda_override else 0
 
+    TDA_file_path = os.path.join(tda_dir, "data.png")
     print(
         "input info: "
         f"file_name={file_name}, "
@@ -115,11 +116,11 @@ if __name__ == "__main__":
         f"x_scale={x_scale}, "
         f"y_scale={y_scale}, "
         f"threshold={conf_thres}, "
-        f"tda_dir={tda_dir}"
+        f"tda_dir={tda_dir}, "
+        f"tda_image={TDA_file_path}"
     )
 
     # print(f"threshold value: {conf_thres}")
-    TDA_file_path = os.path.join(tda_dir, "data.png")
 
     if os.path.isfile(TDA_file_path) and TDA:
         dest_path = r".\data\processed_data"
@@ -145,6 +146,8 @@ if __name__ == "__main__":
     weights_file = tda_weights_file if TDA else normal_weights_file
 
     print(f"TDA: {TDA}")
+    print(f"analysis image: {os.path.abspath(image_path)}")
+    print(f"analysis image exists: {os.path.isfile(image_path)}")
     print(f"weights file: {weights_file}")
 
     if not os.path.isfile(image_path):
