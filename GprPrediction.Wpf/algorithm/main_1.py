@@ -20,7 +20,8 @@ if __name__ == "__main__":
     x_scale = 6
     y_scale = 1
     threshold = 0.5
-    tda_dir = os.environ.get("GPR_TDA_DIR", os.path.abspath(os.path.join(".", ".gpr-runtime", "tda")))
+    env_tda_dir = os.environ.get("GPR_TDA_DIR", "").strip()
+    tda_dir = os.path.abspath(os.path.join(".", ".gpr-runtime", "tda"))
 
     with open(input_info, 'r', encoding='utf-8-sig') as file:
         for line in file:
@@ -40,6 +41,11 @@ if __name__ == "__main__":
                 threshold = float(line.split(":", 1)[1].strip())
             elif line.startswith("tda_dir:"):
                 tda_dir = line.split(":", 1)[1].strip()
+
+    # 실행 관리자가 지정한 격리 작업 폴더를 설정 파일보다 우선 적용
+    # 이전 실행의 input_info.txt가 다른 TDA 폴더를 가리키는 문제 방지
+    if env_tda_dir:
+        tda_dir = env_tda_dir
 
     if not file_name:
         raise ValueError("file_name is missing in input_info.txt")
@@ -76,11 +82,13 @@ if __name__ == "__main__":
         shutil.copy(image_path, processed_data_image_path)
 
     TDA_folder_path = os.path.abspath(os.path.expandvars(os.path.expanduser(tda_dir)))
-    # 폴더가 이미 존재 하면 폴더 내용을 비움
-    if os.path.isdir(TDA_folder_path):
-        shutil.rmtree(TDA_folder_path)
-    # 폴더 생성
+    # TDA 작업 폴더는 유지하고 이번 실행에서 다시 생성하는 이미지만 정리
+    # input_info.txt와 model_info.txt 같은 실행 설정 및 진단 파일 삭제 방지
     os.makedirs(TDA_folder_path, exist_ok=True)
+    for artifact_name in ("data.jpg", "data.png"):
+        artifact_path = os.path.join(TDA_folder_path, artifact_name)
+        if os.path.isfile(artifact_path):
+            os.remove(artifact_path)
 
     print(f"base name: {os.path.basename(processed_data_image_path)}")
     destination_path = os.path.join(TDA_folder_path, "data.jpg")

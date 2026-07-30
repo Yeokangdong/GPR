@@ -407,6 +407,8 @@ public sealed class AlgorithmRunner
     /// </summary>
     private static void CopyDirectoryIfNeeded(string sourceDirectory, string targetDirectory)
     {
+        RemoveStaleTargetEntries(sourceDirectory, targetDirectory);
+
         foreach (var directory in Directory.EnumerateDirectories(sourceDirectory, "*", SearchOption.AllDirectories))
         {
             var relativeDirectory = Path.GetRelativePath(sourceDirectory, directory);
@@ -445,6 +447,55 @@ public sealed class AlgorithmRunner
             }
 
             File.Copy(sourceFile, targetFile, overwrite: true);
+        }
+    }
+
+    /// <summary>
+    /// 작업 캐시에만 남은 소스 미존재 항목 제거
+    /// 앱 업데이트 후 삭제된 스크립트와 모델 재사용 방지
+    /// </summary>
+    private static void RemoveStaleTargetEntries(string sourceDirectory, string targetDirectory)
+    {
+        if (!Directory.Exists(targetDirectory))
+        {
+            return;
+        }
+
+        // 실행 중 생성되는 입력·결과 폴더는 동기화 대상에서 제외
+        // 소스에서 제거된 정적 파일과 빈 디렉터리만 작업 캐시에서 정리
+        foreach (var targetFile in Directory.EnumerateFiles(targetDirectory, "*", SearchOption.AllDirectories))
+        {
+            var relativeFile = Path.GetRelativePath(targetDirectory, targetFile);
+            if (ShouldSkipRelativePath(relativeFile))
+            {
+                continue;
+            }
+
+            if (!File.Exists(Path.Combine(sourceDirectory, relativeFile)))
+            {
+                File.Delete(targetFile);
+            }
+        }
+
+        foreach (var targetSubdirectory in Directory
+                     .EnumerateDirectories(targetDirectory, "*", SearchOption.AllDirectories)
+                     .OrderByDescending(static path => path.Length))
+        {
+            if (!Directory.Exists(targetSubdirectory))
+            {
+                continue;
+            }
+
+            var relativeDirectory = Path.GetRelativePath(targetDirectory, targetSubdirectory);
+            if (ShouldSkipRelativePath(relativeDirectory))
+            {
+                continue;
+            }
+
+            if (!Directory.Exists(Path.Combine(sourceDirectory, relativeDirectory)))
+            {
+                Directory.Delete(targetSubdirectory, recursive: true);
+            }
         }
     }
 

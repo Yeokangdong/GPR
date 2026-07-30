@@ -45,6 +45,7 @@ public static class PythonProvisioner
         "thop==0.1.1.post2209072238",
         "gitpython==3.1.43",
         "setuptools==75.1.0",
+        "packaging==24.1",
         "obspy==1.4.1",
         "readgssi==0.0.22"
     ];
@@ -357,8 +358,27 @@ public static class PythonProvisioner
     /// </summary>
     private static Task<PythonCommandResult> CheckRequiredModulesAsync(string pythonExecutable, CancellationToken cancellationToken)
     {
-        var script = string.Join("; ", RequiredImportModules.Select(module =>
+        // 배포 패키지 버전과 실제 import 가능 여부를 함께 검사
+        // 다른 버전이 이미 설치된 경우 고정 패키지 재설치를 건너뛰는 문제 방지
+        var expectedVersions = string.Join(
+            ", ",
+            PinnedAlgorithmPackages.Select(package =>
+            {
+                var parts = package.Split("==", 2, StringSplitOptions.TrimEntries);
+                return $"'{parts[0]}': '{parts[1]}'";
+            }));
+        var importChecks = string.Join("; ", RequiredImportModules.Select(module =>
             $"print('checking {module}'); import {module}; print('ok {module}')"));
+        var script =
+            "import importlib.metadata as metadata; " +
+            "from packaging.version import Version; " +
+            $"expected = {{{expectedVersions}}}; " +
+            "mismatches = [" +
+            "f'{name}=={metadata.version(name)} (expected {version})' " +
+            "for name, version in expected.items() " +
+            "if Version(metadata.version(name)) != Version(version)]; " +
+            "assert not mismatches, 'package version mismatch: ' + ', '.join(mismatches); " +
+            importChecks;
         return RunPythonDetailedAsync(pythonExecutable, $"-c \"{script}\"", cancellationToken);
     }
 

@@ -21,7 +21,13 @@ public static class JuliaProvisioner
 {
     private const string DownloadUrl =
         "https://julialang-s3.julialang.org/bin/winnt/x64/1.10/julia-1.10.6-win64.zip";
-    private static readonly string[] TdaPackages = ["Images", "Ripserer", "FileIO", "Plots"];
+    private static readonly (string Name, string Version)[] TdaPackages =
+    [
+        ("Images", "0.26.2"),
+        ("Ripserer", "0.17.0"),
+        ("FileIO", "1.19.0"),
+        ("Plots", "1.41.6")
+    ];
 
     /// <summary>
     /// 번들 Julia 실행 파일을 찾고, 실제 실행 가능 여부까지 확인
@@ -103,7 +109,12 @@ public static class JuliaProvisioner
     /// </summary>
     public static async Task<bool> CheckTdaPackagesAsync(string juliaExecutable, CancellationToken ct)
     {
-        var usingExpression = string.Join("; ", TdaPackages.Select(packageName => $"using {packageName}"));
+        var usingExpression = string.Join(
+            "; ",
+            TdaPackages.Select(package =>
+                $"using {package.Name}; " +
+                $"pkgversion({package.Name}) == v\"{package.Version}\" || " +
+                $"error(\"{package.Name} version mismatch\")"));
         var result = await RunJuliaAsync(
             juliaExecutable,
             BuildJuliaEvalArguments(usingExpression),
@@ -129,11 +140,15 @@ public static class JuliaProvisioner
 
         progress?.Report(("Julia TDA 패키지 설치 준비 중...", -1));
 
-        var packageList = string.Join(", ", TdaPackages.Select(packageName => $"\"{packageName}\""));
+        var packageList = string.Join(
+            ", ",
+            TdaPackages.Select(package =>
+                $"Pkg.PackageSpec(name=\"{package.Name}\", version=\"{package.Version}\")"));
         var installScript =
             "import Pkg; " +
             $"pkgs = [{packageList}]; " +
-            "for pkg in pkgs; println(\"Installing \" * pkg); Pkg.add(pkg); end; " +
+            "for pkg in pkgs; println(\"Installing \" * pkg.name * \" \" * string(pkg.version)); end; " +
+            "Pkg.add(pkgs); " +
             "Pkg.precompile()";
 
         var installResult = await RunJuliaAsync(
