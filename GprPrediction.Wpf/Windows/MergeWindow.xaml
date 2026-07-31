@@ -11,7 +11,7 @@
         WindowStartupLocation="CenterOwner">
 
     <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="46" ResizeBorderThickness="5"
+        <WindowChrome CaptionHeight="44" ResizeBorderThickness="5"
                       GlassFrameThickness="0" UseAeroCaptionButtons="False" />
     </WindowChrome.WindowChrome>
 
@@ -24,32 +24,43 @@
 
     <Window.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../Styles/Theme.xaml" />
-            </ResourceDictionary.MergedDictionaries>
-
             <Style x:Key="MergeGridHeaderStyle" TargetType="DataGridColumnHeader">
-                <Setter Property="Background" Value="#20293A" />
+                <Setter Property="Background" Value="#172333" />
                 <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
                 <Setter Property="BorderBrush" Value="{StaticResource BorderBrush1}" />
                 <Setter Property="BorderThickness" Value="0,0,1,1" />
-                <Setter Property="Padding" Value="8,6" />
+                <Setter Property="Padding" Value="10,8" />
                 <Setter Property="FontWeight" Value="SemiBold" />
                 <Setter Property="HorizontalContentAlignment" Value="Center" />
             </Style>
 
             <Style x:Key="MergeGridCellStyle" TargetType="DataGridCell">
-                <Setter Property="Background" Value="#A9A9A9" />
-                <Setter Property="BorderBrush" Value="#8C8C8C" />
+                <Setter Property="Background" Value="#0F1824" />
+                <Setter Property="BorderBrush" Value="#26384D" />
                 <Setter Property="BorderThickness" Value="0,0,1,1" />
-                <Setter Property="Padding" Value="4" />
-                <Setter Property="Foreground" Value="#111111" />
+                <Setter Property="Padding" Value="6" />
+                <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+                <Style.Triggers>
+                    <Trigger Property="IsSelected" Value="True">
+                        <Setter Property="Background" Value="#193A61" />
+                        <Setter Property="Foreground" Value="#FFFFFF" />
+                        <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+                    </Trigger>
+                </Style.Triggers>
             </Style>
 
             <Style x:Key="MergeGridRowStyle" TargetType="DataGridRow">
-                <Setter Property="Background" Value="#A9A9A9" />
-                <Setter Property="Foreground" Value="#111111" />
-                <Setter Property="MinHeight" Value="30" />
+                <Setter Property="Background" Value="#0F1824" />
+                <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+                <Setter Property="MinHeight" Value="32" />
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="#152437" />
+                    </Trigger>
+                    <Trigger Property="IsSelected" Value="True">
+                        <Setter Property="Background" Value="#193A61" />
+                    </Trigger>
+                </Style.Triggers>
             </Style>
         </ResourceDictionary>
     </Window.Resources>
@@ -61,8 +72,9 @@
         </Grid.RowDefinitions>
 
         <Border Background="{StaticResource TitleBarBackgroundBrush}"
-                BorderThickness="0">
-            <Grid Height="46">
+                BorderBrush="{StaticResource BorderBrush1}"
+                BorderThickness="0,0,0,1">
+            <Grid Height="44">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
@@ -70,12 +82,12 @@
 
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="18,0,0,0">
                     <Image Source="pack://application:,,,/Assets/GprRadar.png"
-                           Width="24"
-                           Height="24"
+                           Width="22"
+                           Height="22"
                            Margin="0,-1,10,0"
                            VerticalAlignment="Center" />
                     <TextBlock Text="GPR"
-                               FontSize="17"
+                               FontSize="16"
                                FontWeight="Black"
                                Foreground="{StaticResource AccentBrush}"
                                Margin="0,-1,0,0"
@@ -145,7 +157,7 @@
                                     Margin="0,0,10,0"
                                     VerticalAlignment="Center" />
                             <TextBlock Text="GPR 병합"
-                                       FontSize="22"
+                                       FontSize="19"
                                        FontWeight="Bold"
                                        Foreground="{StaticResource TextPrimaryBrush}" />
                         </StackPanel>

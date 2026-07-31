@@ -382,7 +382,7 @@ public partial class PrintWindow : Window
             });
 
             AddPoint(ReportFrontViewCanvas, x, y, color, 7.6);
-            AddCanvasText(ReportFrontViewCanvas, $"{result.DepthMeters:0.0} m", x, (groundY + y) / 2, 6, -2, "#D8DDE8", 9.2, FontWeights.Normal);
+            AddCanvasText(ReportFrontViewCanvas, $"{result.DepthMeters:0.0} m", x, (groundY + y) / 2, 6, -2, GetThemeColor("ReportCanvasTextBrush", "#D8DDE8"), 9.2, FontWeights.Normal);
             AddCanvasText(ReportFrontViewCanvas, $"{result.Index:00}(#{result.SourceIndex:00})", x, y, -7, 10, color, 9.2, FontWeights.Bold);
         }
     }
@@ -599,7 +599,7 @@ public partial class PrintWindow : Window
 
         DrawBracketArrowHead(canvas, bracketStart, direction, normal, "#5EA0F2");
         DrawBracketArrowHead(canvas, bracketEnd, -direction, normal, "#5EA0F2");
-        AddCanvasText(canvas, text, (bracketStart.X + bracketEnd.X) / 2, (bracketStart.Y + bracketEnd.Y) / 2, -10, -8, "#D6E6FF", 9.2, FontWeights.SemiBold);
+        AddCanvasText(canvas, text, (bracketStart.X + bracketEnd.X) / 2, (bracketStart.Y + bracketEnd.Y) / 2, -10, -8, GetThemeColor("ReportCanvasTextBrush", "#D6E6FF"), 9.2, FontWeights.SemiBold);
     }
 
     /// <summary>
@@ -635,7 +635,7 @@ public partial class PrintWindow : Window
             Width = size,
             Height = size,
             Fill = new SolidColorBrush(color),
-            Stroke = Brushes.White,
+            Stroke = new SolidColorBrush(GetThemeColor("ReportCanvasTextBrush", "#FFFFFF")),
             StrokeThickness = 1.0
         };
         Canvas.SetLeft(dot, x - (size / 2));
@@ -678,7 +678,7 @@ public partial class PrintWindow : Window
         var tb = new TextBlock
         {
             Text = $"← {label} →",
-            Foreground = new SolidColorBrush(Color.FromArgb(0xD6, 0xC4, 0xCB, 0xD8)),
+            Foreground = new SolidColorBrush(GetThemeColor("ReportCanvasTextBrush", "#C4CBD8")),
             FontSize = 10,
             FontWeight = FontWeights.SemiBold
         };
@@ -716,6 +716,18 @@ public partial class PrintWindow : Window
     /// </summary>
     private static Color GetRankColor(int rank)
         => rank < RankColors.Length ? RankColors[rank] : Colors.White;
+
+    /// <summary>
+    /// 현재 테마에서 보고서용 색상 조회
+    /// 라이트와 다크 보고서의 가독성 유지
+    /// </summary>
+    private static Color GetThemeColor(string resourceKey, string fallback)
+    {
+        // 테마 리소스가 없을 때도 보고서 렌더링이 중단되지 않도록 기본 색상 사용
+        return Application.Current.TryFindResource(resourceKey) is SolidColorBrush brush
+            ? brush.Color
+            : (Color)ColorConverter.ConvertFromString(fallback)!;
+    }
 
     /// <summary>
     /// TryParseDouble 처리 가능 여부 확인

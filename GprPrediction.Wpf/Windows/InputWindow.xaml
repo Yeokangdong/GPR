@@ -11,7 +11,7 @@
         WindowStartupLocation="CenterOwner">
 
     <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="46" ResizeBorderThickness="5"
+        <WindowChrome CaptionHeight="44" ResizeBorderThickness="5"
                       GlassFrameThickness="0" UseAeroCaptionButtons="False" />
     </WindowChrome.WindowChrome>
 
@@ -24,10 +24,6 @@
 
     <Window.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../Styles/Theme.xaml" />
-            </ResourceDictionary.MergedDictionaries>
-
             <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
 
             <Style x:Key="SectionHeaderText" TargetType="TextBlock">
@@ -84,8 +80,9 @@
         </Grid.RowDefinitions>
 
         <Border Background="{StaticResource TitleBarBackgroundBrush}"
-                BorderThickness="0">
-            <Grid Height="46">
+                BorderBrush="{StaticResource BorderBrush1}"
+                BorderThickness="0,0,0,1">
+            <Grid Height="44">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
@@ -93,12 +90,12 @@
 
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="18,0,0,0">
                     <Image Source="pack://application:,,,/Assets/GprRadar.png"
-                           Width="24"
-                           Height="24"
+                           Width="22"
+                           Height="22"
                            Margin="0,-1,10,0"
                            VerticalAlignment="Center" />
                     <TextBlock Text="GPR"
-                               FontSize="17"
+                               FontSize="16"
                                FontWeight="Black"
                                Foreground="{StaticResource AccentBrush}"
                                Margin="0,-1,0,0"

@@ -7,6 +7,7 @@ using System.Windows.Shapes;
 using System.ComponentModel;
 using GprPrediction.Wpf.Infrastructure;
 using GprPrediction.Wpf.Models;
+using GprPrediction.Wpf.Services;
 using GprPrediction.Wpf.ViewModels;
 
 namespace GprPrediction.Wpf;
@@ -75,6 +76,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        UpdateThemeToggleIcon();
         DataContextChanged += OnDataContextChanged;
         Closed += OnClosed;
         DataContext = AppHost.Instance.MainViewModel;
@@ -175,6 +177,45 @@ public partial class MainWindow : Window
     /// </summary>
     private void CloseWindow(object sender, ExecutedRoutedEventArgs e)
         => Close();
+
+    /// <summary>
+    /// 라이트와 다크 테마를 전환하고 메인 창 재구성
+    /// 정적 XAML 리소스까지 새 팔레트로 즉시 다시 해석하도록 창 교체
+    /// </summary>
+    private void ToggleTheme_Click(object sender, RoutedEventArgs e)
+    {
+        var previousState = WindowState;
+        var previousBounds = RestoreBounds;
+        ThemeManager.Instance.Toggle();
+
+        var replacement = new MainWindow
+        {
+            WindowStartupLocation = WindowStartupLocation.Manual,
+            Left = previousBounds.Left,
+            Top = previousBounds.Top,
+            Width = previousBounds.Width,
+            Height = previousBounds.Height,
+            WindowState = previousState
+        };
+
+        Application.Current.MainWindow = replacement;
+        replacement.Show();
+        Close();
+    }
+
+    /// <summary>
+    /// 현재 테마에 맞는 전환 아이콘과 안내 문구 설정
+    /// 사용자가 전환될 테마를 아이콘만으로 구분할 수 있도록 제공
+    /// </summary>
+    private void UpdateThemeToggleIcon()
+    {
+        // 현재 다크 테마에서는 라이트 전환을 나타내는 해 아이콘 표시
+        var isDarkTheme = ThemeManager.Instance.CurrentTheme == AppTheme.Dark;
+        ThemeToggleIcon.Text = isDarkTheme ? "\uE706" : "\uE708";
+        ThemeToggleButton.ToolTip = isDarkTheme
+            ? "라이트 테마로 전환"
+            : "다크 테마로 전환";
+    }
 
     /// <summary>
     /// 캔버스 크기가 바뀌면 보조 뷰를 현재 크기에 맞춰 다시 그리기

@@ -2,6 +2,7 @@ using System.Configuration;
 using System.Data;
 using System.Windows;
 using GprPrediction.Wpf.Infrastructure;
+using GprPrediction.Wpf.Services;
 using GprPrediction.Wpf.ViewModels;
 
 namespace GprPrediction.Wpf;
@@ -19,6 +20,7 @@ public partial class App : Application
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+        ThemeManager.Instance.LoadAndApply();
         _ = AppHost.Instance;
 
         // 메인 화면보다 먼저 런처를 띄워 Python/Julia 준비 상태를 확인

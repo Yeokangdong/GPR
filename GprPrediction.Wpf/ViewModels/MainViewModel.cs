@@ -88,6 +88,25 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     private bool currentRunTdaApplied;
     private string loadedSavedResultText = "불러온 저장 결과 없음";
     private int selectedResultIndex = 1;
+
+    /// <summary>
+    /// 현재 선택된 분석 결과 번호 제공
+    /// 매설물 선택 버튼의 활성 상태 표시 지원
+    /// </summary>
+    public int SelectedResultIndex
+    {
+        get => selectedResultIndex;
+        private set
+        {
+            if (selectedResultIndex == value)
+            {
+                return;
+            }
+
+            selectedResultIndex = value;
+            OnPropertyChanged();
+        }
+    }
     private bool isRestoringSessionState;
     private bool isSessionStateReady;
 
@@ -261,7 +280,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
                 .Where(File.Exists)
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToList() ?? [];
-            selectedResultIndex = state.SelectedResultIndex > 0 ? state.SelectedResultIndex : 1;
+            SelectedResultIndex = state.SelectedResultIndex > 0 ? state.SelectedResultIndex : 1;
         }
         finally
         {
@@ -2000,34 +2019,16 @@ public sealed class MainViewModel : ObservableObject, IDisposable
                 directionX,
                 directionY);
 
-            var outputBaseName = Path.GetFileNameWithoutExtension(senPath);
             currentSavedSenPath = senPath;
             AppendLog($"Result folder: {resultDirectory}");
-            currentSavedCsvPath = CopyCurrentOutputFile(
-                currentResultCsvPath,
-                resultDirectory,
-                $"{outputBaseName}_prediction_results.csv",
-                "CSV");
+            currentSavedCsvPath = string.Empty;
+            currentSavedAnalysisImagePath = string.Empty;
+            currentSavedInputInfoPath = string.Empty;
 
-            var imageExtension = Path.GetExtension(currentAnalysisImagePath);
-            if (string.IsNullOrWhiteSpace(imageExtension))
-            {
-                imageExtension = ".jpg";
-            }
-
-            currentSavedAnalysisImagePath = CopyCurrentOutputFile(
-                currentAnalysisImagePath,
-                resultDirectory,
-                $"{outputBaseName}_analysis{imageExtension}",
-                "image");
-
-            currentSavedInputInfoPath = CopyCurrentOutputFile(
-                currentInputInfoPath,
-                resultDirectory,
-                $"{outputBaseName}_input_info.txt",
-                "input info");
-
+            // CSV와 이미지는 현재 실행 작업 폴더에서만 유지
+            // 사용자 결과 폴더에는 재사용 대상인 SEN 파일만 누적
             AppendLog($"저장 결과 SEN: {senPath}");
+            AppendLog("임시 CSV/이미지: 다음 분석 시작 시 자동 정리");
         }
         catch (Exception ex)
         {
@@ -3018,7 +3019,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         var result = Results.FirstOrDefault(item => item.Index == index);
         if (result is null)
         {
-            selectedResultIndex = 0;
+            SelectedResultIndex = 0;
             AnalysisDistance = "0.00";
             AnalysisDepth = "0.00";
             AnalysisConfidence = "0.00";
@@ -3026,7 +3027,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
             return;
         }
 
-        selectedResultIndex = result.Index;
+        SelectedResultIndex = result.Index;
         AnalysisDistance = result.Distance;
         AnalysisDepth = result.Depth;
         AnalysisConfidence = result.Confidence;

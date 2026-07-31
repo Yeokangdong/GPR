@@ -1,21 +1,18 @@
-﻿<Window x:Class="GprPrediction.Wpf.MainWindow"
+<Window x:Class="GprPrediction.Wpf.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:converters="clr-namespace:GprPrediction.Wpf.Converters"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
-        mc:Ignorable="d"
         Title="GPR"
         Height="800"
         Width="1280"
-        MinHeight="600"
-        MinWidth="860"
-        Background="{StaticResource BackgroundBrush}"
+        MinHeight="680"
+        MinWidth="1180"
+        Background="{DynamicResource DashboardBackground}"
         WindowStartupLocation="CenterScreen">
 
     <shell:WindowChrome.WindowChrome>
-        <shell:WindowChrome CaptionHeight="46"
+        <shell:WindowChrome CaptionHeight="48"
                             ResizeBorderThickness="5"
                             GlassFrameThickness="0"
                             UseAeroCaptionButtons="False" />
@@ -34,66 +31,93 @@
 
     <Window.Resources>
         <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibility" />
+        <converters:EqualityMultiValueConverter x:Key="EqualityMultiValue" />
 
-        <Style x:Key="NavButton" TargetType="Button" BasedOn="{StaticResource SecondaryButton}">
-            <Setter Property="Width" Value="96" />
-            <Setter Property="Height" Value="30" />
-            <Setter Property="Margin" Value="0,0,10,0" />
-            <Setter Property="FontSize" Value="12" />
+        <DrawingBrush x:Key="DashboardGrid"
+                      TileMode="Tile"
+                      Viewport="0,0,92,92"
+                      ViewportUnits="Absolute"
+                      Opacity="0.14">
+            <DrawingBrush.Drawing>
+                <GeometryDrawing Brush="Transparent">
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="{DynamicResource DashboardGridLine}" Thickness="0.7" />
+                    </GeometryDrawing.Pen>
+                    <GeometryDrawing.Geometry>
+                        <GeometryGroup>
+                            <LineGeometry StartPoint="0,0" EndPoint="92,0" />
+                            <LineGeometry StartPoint="0,0" EndPoint="0,92" />
+                        </GeometryGroup>
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+            </DrawingBrush.Drawing>
+        </DrawingBrush>
+
+        <Style x:Key="DashboardCard" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource DashboardPanel}" />
+            <Setter Property="BorderBrush" Value="{StaticResource DashboardBorder}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="ClipToBounds" Value="True" />
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="#000000"
+                                      Direction="270"
+                                      ShadowDepth="2"
+                                      BlurRadius="14"
+                                      Opacity="0.14" />
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <Style x:Key="PanelLabel" TargetType="TextBlock">
             <Setter Property="FontSize" Value="13" />
             <Setter Property="FontWeight" Value="Bold" />
-            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}" />
+            <Setter Property="Foreground" Value="{StaticResource DashboardText}" />
             <Setter Property="VerticalAlignment" Value="Center" />
         </Style>
 
-        <Style x:Key="MetricValueBox" TargetType="TextBox" BasedOn="{StaticResource ModernTextBox}">
+        <Style x:Key="ToolbarButton" TargetType="Button">
             <Setter Property="Height" Value="36" />
-            <Setter Property="FontFamily" Value="Consolas" />
-            <Setter Property="FontSize" Value="15" />
-            <Setter Property="FontWeight" Value="Bold" />
-            <Setter Property="HorizontalContentAlignment" Value="Right" />
-        </Style>
-
-        <Style x:Key="ResultSelectorButton" TargetType="Button" BasedOn="{StaticResource ChipButton}">
-            <Setter Property="Margin" Value="4" />
-            <Setter Property="Padding" Value="0" />
-            <Setter Property="FontSize" Value="16" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Height" Value="62" />
-            <Setter Property="MinWidth" Value="72" />
-        </Style>
-
-        <Style x:Key="ViewResetButton" TargetType="Button" BasedOn="{StaticResource SecondaryButton}">
-            <Setter Property="Height" Value="24" />
-            <Setter Property="MinWidth" Value="60" />
-            <Setter Property="Padding" Value="10,0" />
-            <Setter Property="FontSize" Value="11" />
-        </Style>
-
-        <Style x:Key="TitleBarButton" TargetType="Button">
-            <Setter Property="Width" Value="52" />
+            <Setter Property="MinWidth" Value="88" />
+            <Setter Property="Margin" Value="0,0,6,0" />
+            <Setter Property="Padding" Value="12,0" />
+            <Setter Property="Foreground" Value="{DynamicResource DashboardToolbarText}" />
             <Setter Property="Background" Value="Transparent" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
-            <Setter Property="FontFamily" Value="Segoe MDL2 Assets" />
-            <Setter Property="FontSize" Value="10" />
-            <Setter Property="Cursor" Value="Arrow" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Cursor" Value="Hand" />
             <Setter Property="shell:WindowChrome.IsHitTestVisibleInChrome" Value="True" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bg" Background="{TemplateBinding Background}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        <Border x:Name="Chrome"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="7">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              Margin="{TemplateBinding Padding}" />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bg" Property="Background" Value="{StaticResource SurfaceAltBrush}" />
+                                <Setter TargetName="Chrome"
+                                        Property="Background"
+                                        Value="{DynamicResource DashboardHover}" />
+                                <Setter TargetName="Chrome"
+                                        Property="BorderBrush"
+                                        Value="{StaticResource DashboardBorderHover}" />
+                                <Setter Property="Foreground" Value="{DynamicResource DashboardText}" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bg" Property="Background" Value="{StaticResource BorderBrush1}" />
+                                <Setter TargetName="Chrome"
+                                        Property="Background"
+                                        Value="{DynamicResource DashboardSelected}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.42" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -101,67 +125,194 @@
             </Setter>
         </Style>
 
-        <Style x:Key="TitleBarCloseButton" TargetType="Button" BasedOn="{StaticResource TitleBarButton}">
+        <Style x:Key="ActiveToolbarButton"
+               TargetType="Button"
+               BasedOn="{StaticResource ToolbarButton}">
+            <Setter Property="Foreground" Value="{DynamicResource DashboardText}" />
+            <Setter Property="Background" Value="{DynamicResource DashboardSelected}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource DashboardBlue}" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bg" Background="{TemplateBinding Background}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
+                        <Grid>
+                            <Border x:Name="Chrome"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="7">
+                                <ContentPresenter HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"
+                                                  Margin="{TemplateBinding Padding}" />
+                            </Border>
+                            <Border Height="2"
+                                    Margin="7,0"
+                                    Background="{StaticResource DashboardBlue}"
+                                    CornerRadius="1"
+                                    VerticalAlignment="Bottom" />
+                        </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bg" Property="Background" Value="#C42B1C" />
+                                <Setter TargetName="Chrome"
+                                        Property="Background"
+                                        Value="{DynamicResource DashboardSelected}" />
+                                <Setter TargetName="Chrome"
+                                        Property="BorderBrush"
+                                        Value="{StaticResource DashboardBlue}" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bg" Property="Background" Value="#A12018" />
+                                <Setter TargetName="Chrome"
+                                        Property="Opacity"
+                                        Value="0.78" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <Style x:Key="MetricValueBox"
+               TargetType="TextBox"
+               BasedOn="{StaticResource ModernTextBox}">
+            <Setter Property="Height" Value="30" />
+            <Setter Property="MinHeight" Value="0" />
+            <Setter Property="MinWidth" Value="74" />
+            <Setter Property="Padding" Value="8,3" />
+            <Setter Property="FontFamily" Value="Consolas" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="HorizontalContentAlignment" Value="Right" />
+            <Setter Property="Background" Value="{DynamicResource DashboardInset}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource DashboardInsetBorder}" />
+        </Style>
+
+        <Style x:Key="ResultSelectorButton" TargetType="Button">
+            <Setter Property="Margin" Value="3" />
+            <Setter Property="Height" Value="43" />
+            <Setter Property="MinWidth" Value="56" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="{StaticResource DashboardText}" />
+            <Setter Property="Background" Value="{DynamicResource DashboardInset}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource DashboardBorder}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Chrome"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="8">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Chrome"
+                                        Property="Background"
+                                        Value="{DynamicResource DashboardHover}" />
+                                <Setter TargetName="Chrome"
+                                        Property="BorderBrush"
+                                        Value="{DynamicResource DashboardBorderHover}" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Chrome"
+                                        Property="Opacity"
+                                        Value="0.72" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <DataTrigger Value="True">
+                    <DataTrigger.Binding>
+                        <MultiBinding Converter="{StaticResource EqualityMultiValue}">
+                            <Binding Path="SelectedResultIndex" />
+                            <Binding Path="CommandParameter"
+                                     RelativeSource="{RelativeSource Self}" />
+                        </MultiBinding>
+                    </DataTrigger.Binding>
+                    <Setter Property="Background" Value="{DynamicResource DashboardSelected}" />
+                    <Setter Property="BorderBrush" Value="{DynamicResource DashboardBlue}" />
+                    <Setter Property="BorderThickness" Value="1.5" />
+                    <Setter Property="Foreground" Value="{DynamicResource DashboardText}" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ViewResetButton" TargetType="Button">
+            <Setter Property="Height" Value="26" />
+            <Setter Property="Padding" Value="10,0" />
+            <Setter Property="Foreground" Value="{DynamicResource DashboardToolbarText}" />
+            <Setter Property="Background" Value="{DynamicResource DashboardInset}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource DashboardBorder}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Chrome"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              Margin="{TemplateBinding Padding}" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Chrome"
+                                        Property="BorderBrush"
+                                        Value="{StaticResource DashboardBlue}" />
+                                <Setter Property="Foreground" Value="#FFFFFF" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="RankOverlay" TargetType="Border">
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="VerticalAlignment" Value="Bottom" />
+            <Setter Property="Margin" Value="14" />
+            <Setter Property="Padding" Value="12,9" />
+            <Setter Property="Background" Value="{DynamicResource DashboardPanelRaised}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource DashboardBorder}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="7" />
+            <Setter Property="IsHitTestVisible" Value="False" />
+        </Style>
     </Window.Resources>
 
-    <Grid x:Name="RootLayout" Margin="10,0,10,0">
+    <Grid x:Name="RootLayout" Background="{StaticResource DashboardBackground}">
         <Grid.Style>
             <Style TargetType="Grid">
-                <Setter Property="Margin" Value="10,0,10,0" />
+                <Setter Property="Margin" Value="0" />
                 <Style.Triggers>
-                        <DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource AncestorType=Window}}"
-                                     Value="Maximized">
-                        <Setter Property="Margin" Value="10,8,10,0" />
+                    <DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource AncestorType=Window}}"
+                                 Value="Maximized">
+                        <Setter Property="Margin" Value="0,8,0,0" />
                     </DataTrigger>
                 </Style.Triggers>
             </Style>
         </Grid.Style>
-
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="8" />
+            <RowDefinition Height="48" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="8" />
-            <RowDefinition Height="18" />
+            <RowDefinition Height="26" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <Border Grid.Row="0"
-                Background="{StaticResource TitleBarBackgroundBrush}"
-                Margin="-10,0,-10,0"
-                Padding="0">
-            <Border.Style>
-                <Style TargetType="Border">
-                    <Setter Property="Padding" Value="0" />
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource AncestorType=Window}}"
-                                     Value="Maximized">
-                            <Setter Property="Padding" Value="0" />
-                            <Setter Property="Margin" Value="-10,4,-10,0" />
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Border.Style>
-
-            <Grid Height="46">
+                Background="{DynamicResource DashboardTitleBar}"
+                BorderBrush="{DynamicResource DashboardBorder}"
+                BorderThickness="0,0,0,1">
+            <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
@@ -170,76 +321,121 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Orientation="Horizontal"
+                            Margin="14,0,0,0"
                             VerticalAlignment="Center"
-                            Margin="16,3,0,0"
                             shell:WindowChrome.IsHitTestVisibleInChrome="True">
                     <Image Source="pack://application:,,,/Assets/GprRadar.png"
-                           Width="24"
-                           Height="24"
-                           Margin="0,-1,10,0"
-                           VerticalAlignment="Center" />
+                           Width="26"
+                           Height="26"
+                           Margin="0,0,8,0" />
                     <TextBlock Text="GPR"
                                FontSize="17"
                                FontWeight="Black"
-                               Foreground="{StaticResource AccentBrush}"
-                               Margin="0,-1,0,0"
+                               Foreground="{DynamicResource DashboardText}"
                                VerticalAlignment="Center" />
-                    <Rectangle Width="1"
-                               Height="18"
-                               Fill="{StaticResource BorderBrush1}"
-                               Margin="12,0"
-                               VerticalAlignment="Center"
-                               Opacity="0.5" />
-                    <StackPanel Orientation="Horizontal"
-                                VerticalAlignment="Center">
-                        <Button Content="Command"
-                                Command="{Binding OpenCommandCommand}"
-                                Style="{StaticResource NavButton}"
-                                ToolTip="질문형 분석 명령 창"
-                                shell:WindowChrome.IsHitTestVisibleInChrome="True" />
-                        <Button Content="Map"
-                                Command="{Binding OpenMapCommand}"
-                                Style="{StaticResource NavButton}"
-                                shell:WindowChrome.IsHitTestVisibleInChrome="True" />
-                        <Button Content="Print"
-                                Command="{Binding OpenPrintCommand}"
-                                Style="{StaticResource NavButton}"
-                                shell:WindowChrome.IsHitTestVisibleInChrome="True" />
-                        <Button Content="Manual"
-                                Command="{Binding OpenManualCommand}"
-                                Style="{StaticResource NavButton}"
-                                shell:WindowChrome.IsHitTestVisibleInChrome="True" />
-                        <Button Content="결과 폴더"
-                                Command="{Binding OpenResultFolderCommand}"
-                                Style="{StaticResource NavButton}"
-                                shell:WindowChrome.IsHitTestVisibleInChrome="True" />
-                        <Button Content="초기화"
-                                Command="{Binding ResetAnalysisCommand}"
-                                Style="{StaticResource NavButton}"
-                                shell:WindowChrome.IsHitTestVisibleInChrome="True" />
-                    </StackPanel>
+                    <Border Width="1"
+                            Height="24"
+                            Margin="14,0"
+                            Background="{DynamicResource DashboardBorder}" />
+
+                    <Button Command="{Binding OpenCommandCommand}"
+                            Style="{StaticResource ToolbarButton}"
+                            ToolTip="질문형 분석 명령 창">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE756;"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="15"
+                                       Margin="0,0,8,0" />
+                            <TextBlock Text="Command" />
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding OpenMapCommand}"
+                            Style="{StaticResource ToolbarButton}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE707;"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="15"
+                                       Margin="0,0,8,0" />
+                            <TextBlock Text="Map" />
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding OpenPrintCommand}"
+                            Style="{StaticResource ToolbarButton}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE749;"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="15"
+                                       Margin="0,0,8,0" />
+                            <TextBlock Text="Print" />
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding OpenManualCommand}"
+                            Style="{StaticResource ToolbarButton}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE82D;"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="15"
+                                       Margin="0,0,8,0" />
+                            <TextBlock Text="Manual" />
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding OpenResultFolderCommand}"
+                            Style="{StaticResource ToolbarButton}"
+                            MinWidth="106">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE8B7;"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="15"
+                                       Margin="0,0,8,0" />
+                            <TextBlock Text="결과 폴더" />
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding ResetAnalysisCommand}"
+                            Style="{StaticResource ToolbarButton}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE777;"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="15"
+                                       Margin="0,0,8,0" />
+                            <TextBlock Text="초기화" />
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2"
                             Orientation="Horizontal"
-                            VerticalAlignment="Center"
-                            Margin="0,0,16,0">
+                            Margin="14,0,16,0"
+                            VerticalAlignment="Center">
+                    <Button x:Name="ThemeToggleButton"
+                            Width="38"
+                            MinWidth="38"
+                            Margin="0,0,10,0"
+                            Padding="0"
+                            Style="{StaticResource ToolbarButton}"
+                            ToolTip="라이트·다크 테마 전환"
+                            Click="ToggleTheme_Click">
+                        <TextBlock x:Name="ThemeToggleIcon"
+                                   Text="&#xE706;"
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="15" />
+                    </Button>
                     <TextBlock Text="{Binding TodayText}"
-                               Margin="0,0,18,0"
-                               Foreground="{StaticResource TextSecondaryBrush}"
-                               FontSize="13"
+                               FontSize="12"
+                               Foreground="{DynamicResource DashboardText}"
                                VerticalAlignment="Center" />
+                    <Border Width="1"
+                            Height="20"
+                            Margin="14,0"
+                            Background="{DynamicResource DashboardBorder}" />
                     <TextBlock Text="{Binding DigitalClockText}"
                                FontFamily="Consolas"
-                               FontSize="22"
+                               FontSize="21"
                                FontWeight="Bold"
-                               Foreground="{StaticResource AccentBrush}"
+                               Foreground="{StaticResource DashboardBlue}"
                                VerticalAlignment="Center" />
                 </StackPanel>
 
-                <StackPanel Grid.Column="3"
-                            Orientation="Horizontal"
-                            VerticalAlignment="Stretch">
+                <StackPanel Grid.Column="3" Orientation="Horizontal">
                     <Button Command="{x:Static SystemCommands.MinimizeWindowCommand}"
                             Style="{StaticResource TitleBarButton}"
                             Content="&#xE921;" />
@@ -266,7 +462,7 @@
             </Grid>
         </Border>
 
-        <Grid Grid.Row="2">
+        <Grid Grid.Row="1" Margin="8">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
                 <RowDefinition Height="8" />
@@ -275,231 +471,309 @@
 
             <Grid Grid.Row="0">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="1.65*" />
                     <ColumnDefinition Width="8" />
-                    <ColumnDefinition Width="250" />
+                    <ColumnDefinition Width="300" />
                     <ColumnDefinition Width="8" />
-                    <ColumnDefinition Width="360" />
+                    <ColumnDefinition Width="330" />
                 </Grid.ColumnDefinitions>
 
-                <Border Grid.Column="0" Style="{StaticResource Card}" Padding="0">
-                    <Grid ClipToBounds="True">
-                        <Grid Margin="12">
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Top">
+                <Border Grid.Column="0" Style="{StaticResource DashboardCard}">
+                    <Grid>
+                        <Image Source="{Binding AnalysisImage}"
+                               Stretch="Uniform"
+                               Margin="14,50,14,14" />
+
+                        <Grid Margin="16,13,16,0"
+                              VerticalAlignment="Top">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Horizontal">
                                 <Border Width="3"
-                                        Height="14"
-                                        CornerRadius="2"
-                                        Background="{StaticResource AccentBrush}"
-                                        VerticalAlignment="Center"
-                                        Margin="0,0,8,0" />
-                                <TextBlock Text="GPR DATA LABELING" Style="{StaticResource PanelLabel}" />
+                                        Height="17"
+                                        Margin="0,0,9,0"
+                                        Background="{StaticResource DashboardCyan}"
+                                        CornerRadius="2" />
+                                <TextBlock Text="GPR DATA LABELING"
+                                           Style="{StaticResource PanelLabel}" />
                             </StackPanel>
-                            <Image Source="{Binding AnalysisImage}"
-                                   Stretch="Uniform"
-                                   Margin="0,24,0,0" />
-                            <TextBlock Margin="0,26,0,0"
-                                       HorizontalAlignment="Left"
-                                       VerticalAlignment="Top"
-                                       Text="{Binding ScanFileDisplayName}"
-                                       ToolTip="{Binding ScanFilePath}"
-                                       Foreground="{StaticResource TextSecondaryBrush}"
-                                       FontSize="13"
-                                       TextWrapping="Wrap"
-                                       Visibility="{Binding HasAnalysisImage, Converter={StaticResource InverseBoolToVisibility}}" />
+                            <Border Grid.Column="1"
+                                    Padding="9,4"
+                                    Background="{DynamicResource DashboardInset}"
+                                    BorderBrush="{DynamicResource DashboardInsetBorder}"
+                                    BorderThickness="1"
+                                    CornerRadius="6"
+                                    Visibility="{Binding HasAnalysisImage, Converter={StaticResource InverseBoolToVisibility}}">
+                                <TextBlock Text="{Binding ScanFileDisplayName}"
+                                           ToolTip="{Binding ScanFilePath}"
+                                           FontSize="10.5"
+                                           Foreground="{DynamicResource DashboardMuted}"
+                                           TextTrimming="CharacterEllipsis"
+                                           MaxWidth="250" />
+                            </Border>
+                        </Grid>
+
+                        <Grid Margin="14,50,14,14"
+                              Background="{StaticResource DashboardGrid}"
+                              IsHitTestVisible="False"
+                              Visibility="{Binding HasAnalysisImage, Converter={StaticResource InverseBoolToVisibility}}">
+                            <StackPanel HorizontalAlignment="Center"
+                                        VerticalAlignment="Center">
+                                <Grid Width="104" Height="104">
+                                    <Ellipse Stroke="#35516E"
+                                             StrokeThickness="1" />
+                                    <Ellipse Width="68"
+                                             Height="68"
+                                             Stroke="#3A5A7A"
+                                             StrokeThickness="1" />
+                                    <Ellipse Width="34"
+                                             Height="34"
+                                             Stroke="#47719A"
+                                             StrokeThickness="1" />
+                                    <TextBlock Text="&#xE81E;"
+                                               FontFamily="Segoe MDL2 Assets"
+                                               FontSize="29"
+                                               Foreground="#7890AA"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center" />
+                                </Grid>
+                                <TextBlock Text="데이터를 불러오면 레이더 이미지가 표시됩니다"
+                                           Margin="0,13,0,0"
+                                           FontSize="11"
+                                           Foreground="{StaticResource DashboardMuted}" />
+                            </StackPanel>
                         </Grid>
                     </Grid>
                 </Border>
 
-                <Border Grid.Column="2" Style="{StaticResource Card}" Padding="0">
-                    <Grid ClipToBounds="True">
-                        <Grid Margin="14">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="10" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="14" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
+                <Border Grid.Column="2" Style="{StaticResource DashboardCard}">
+                    <Grid Margin="13">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="10" />
+                            <RowDefinition Height="42" />
+                            <RowDefinition Height="12" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
 
-                            <StackPanel Grid.Row="0" Orientation="Horizontal">
-                                <Border Width="3"
-                                        Height="14"
-                                        CornerRadius="2"
-                                        Background="#7C4DFF"
-                                        VerticalAlignment="Center"
-                                        Margin="0,0,8,0" />
-                                <TextBlock Text="ANALYSIS RESULTS" Style="{StaticResource PanelLabel}" />
-                            </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Border Width="3"
+                                    Height="17"
+                                    Margin="0,0,9,0"
+                                    Background="{StaticResource DashboardViolet}"
+                                    CornerRadius="2" />
+                            <TextBlock Text="ANALYSIS RESULTS"
+                                       Style="{StaticResource PanelLabel}" />
+                        </StackPanel>
 
-                            <Button Grid.Row="2"
-                                    Height="44"
-                                    FontSize="16"
-                                    FontWeight="Bold"
-                                    Content="Analysis"
-                                    Command="{Binding OpenInputCommand}">
-                                <Button.Style>
-                                    <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
-                                        <Setter Property="Background">
-                                            <Setter.Value>
-                                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                                    <GradientStop Color="#5A98FF" Offset="0" />
-                                                    <GradientStop Color="#7C4DFF" Offset="1" />
-                                                </LinearGradientBrush>
-                                            </Setter.Value>
-                                        </Setter>
-                                        <Setter Property="BorderBrush">
-                                            <Setter.Value>
-                                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                                    <GradientStop Color="#5A98FF" Offset="0" />
-                                                    <GradientStop Color="#7C4DFF" Offset="1" />
-                                                </LinearGradientBrush>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                </Button.Style>
-                            </Button>
+                        <Button Grid.Row="2"
+                                Content="분석 실행"
+                                Command="{Binding OpenInputCommand}"
+                                FontSize="15"
+                                FontWeight="Bold"
+                                Foreground="#FFFFFF"
+                                BorderThickness="0"
+                                Cursor="Hand">
+                            <Button.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                    <GradientStop Color="#3796FF" Offset="0" />
+                                    <GradientStop Color="#6954FF" Offset="1" />
+                                </LinearGradientBrush>
+                            </Button.Background>
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="Chrome"
+                                            Background="{TemplateBinding Background}"
+                                            CornerRadius="8">
+                                        <ContentPresenter HorizontalAlignment="Center"
+                                                          VerticalAlignment="Center" />
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="Chrome" Property="Opacity" Value="0.9" />
+                                        </Trigger>
+                                        <Trigger Property="IsPressed" Value="True">
+                                            <Setter TargetName="Chrome" Property="Opacity" Value="0.72" />
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
 
-                            <Grid Grid.Row="4">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="10" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="10" />
-                                    <RowDefinition Height="Auto" />
-                                </Grid.RowDefinitions>
-
-                                <StackPanel Grid.Row="0">
-                                    <Grid Margin="0,0,0,6">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Text="X (측정방향 거리)"
-                                                   FontSize="15"
-                                                   FontWeight="Black"
+                        <StackPanel Grid.Row="4">
+                            <Border Margin="0,0,0,7"
+                                    Padding="8,5"
+                                    Background="{DynamicResource DashboardInset}"
+                                    BorderBrush="{DynamicResource DashboardInsetBorder}"
+                                    BorderThickness="1"
+                                    CornerRadius="7">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="28" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="86" />
+                                        <ColumnDefinition Width="25" />
+                                    </Grid.ColumnDefinitions>
+                                    <Border Width="22"
+                                            Height="22"
+                                            Background="#18365D"
+                                            CornerRadius="5">
+                                        <TextBlock Text="X"
                                                    FontFamily="Consolas"
-                                                   Foreground="{StaticResource AccentBrush}" />
-                                    </Grid>
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-                                        <TextBox Grid.Column="0"
-                                                 Text="{Binding AnalysisDistance, UpdateSourceTrigger=PropertyChanged}"
-                                                 Style="{StaticResource MetricValueBox}" />
-                                        <TextBlock Grid.Column="1"
-                                                   Text="(m)"
-                                                   FontSize="12"
-                                                   Foreground="{StaticResource TextSecondaryBrush}"
-                                                   VerticalAlignment="Center"
-                                                   Margin="8,0,0,0" />
-                                    </Grid>
-                                </StackPanel>
+                                                   FontSize="14"
+                                                   FontWeight="Bold"
+                                                   Foreground="{StaticResource DashboardBlue}"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center" />
+                                    </Border>
+                                    <TextBlock Grid.Column="1"
+                                               Text="측정방향 거리"
+                                               FontSize="11.5"
+                                               FontWeight="SemiBold"
+                                               Foreground="{DynamicResource DashboardText}"
+                                               VerticalAlignment="Center" />
+                                    <TextBox Grid.Column="2"
+                                             Text="{Binding AnalysisDistance, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource MetricValueBox}" />
+                                    <TextBlock Grid.Column="3"
+                                               Text="m"
+                                               Foreground="{StaticResource DashboardMuted}"
+                                               HorizontalAlignment="Right"
+                                               VerticalAlignment="Center" />
+                                </Grid>
+                            </Border>
 
-                                <StackPanel Grid.Row="2">
-                                    <Grid Margin="0,0,0,6">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Text="Z (심도)"
-                                                   FontSize="15"
-                                                   FontWeight="Black"
+                            <Border Margin="0,0,0,7"
+                                    Padding="8,5"
+                                    Background="{DynamicResource DashboardInset}"
+                                    BorderBrush="{DynamicResource DashboardInsetBorder}"
+                                    BorderThickness="1"
+                                    CornerRadius="7">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="28" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="86" />
+                                        <ColumnDefinition Width="25" />
+                                    </Grid.ColumnDefinitions>
+                                    <Border Width="22"
+                                            Height="22"
+                                            Background="#123B38"
+                                            CornerRadius="5">
+                                        <TextBlock Text="Z"
                                                    FontFamily="Consolas"
-                                                   Foreground="#00D4AA" />
-                                    </Grid>
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-                                        <TextBox Grid.Column="0"
-                                                 Text="{Binding AnalysisDepth, UpdateSourceTrigger=PropertyChanged}"
-                                                 Style="{StaticResource MetricValueBox}" />
-                                        <TextBlock Grid.Column="1"
-                                                   Text="(m)"
-                                                   FontSize="12"
-                                                   Foreground="{StaticResource TextSecondaryBrush}"
-                                                   VerticalAlignment="Center"
-                                                   Margin="8,0,0,0" />
-                                    </Grid>
-                                </StackPanel>
+                                                   FontSize="14"
+                                                   FontWeight="Bold"
+                                                   Foreground="{StaticResource DashboardCyan}"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center" />
+                                    </Border>
+                                    <TextBlock Grid.Column="1"
+                                               Text="깊이"
+                                               FontSize="11.5"
+                                               FontWeight="SemiBold"
+                                               Foreground="{DynamicResource DashboardText}"
+                                               VerticalAlignment="Center" />
+                                    <TextBox Grid.Column="2"
+                                             Text="{Binding AnalysisDepth, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource MetricValueBox}" />
+                                    <TextBlock Grid.Column="3"
+                                               Text="m"
+                                               Foreground="{StaticResource DashboardMuted}"
+                                               HorizontalAlignment="Right"
+                                               VerticalAlignment="Center" />
+                                </Grid>
+                            </Border>
 
-                                <StackPanel Grid.Row="4">
-                                    <Grid Margin="0,0,0,6">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Text="C (신뢰도)"
-                                                   FontSize="15"
-                                                   FontWeight="Black"
+                            <Border Padding="8,5"
+                                    Background="{DynamicResource DashboardInset}"
+                                    BorderBrush="{DynamicResource DashboardInsetBorder}"
+                                    BorderThickness="1"
+                                    CornerRadius="7">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="28" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="86" />
+                                        <ColumnDefinition Width="25" />
+                                    </Grid.ColumnDefinitions>
+                                    <Border Width="22"
+                                            Height="22"
+                                            Background="#3A3115"
+                                            CornerRadius="5">
+                                        <TextBlock Text="C"
                                                    FontFamily="Consolas"
-                                                   Foreground="#FFB300" />
-                                    </Grid>
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-                                        <TextBox Grid.Column="0"
-                                                 Text="{Binding AnalysisConfidence, UpdateSourceTrigger=PropertyChanged}"
-                                                 Style="{StaticResource MetricValueBox}" />
-                                        <TextBlock Grid.Column="1"
-                                                   Text="(%)"
-                                                   FontSize="12"
-                                                   Foreground="{StaticResource TextSecondaryBrush}"
-                                                   VerticalAlignment="Center"
-                                                   Margin="8,0,0,0" />
-                                    </Grid>
-                                </StackPanel>
-                            </Grid>
-                        </Grid>
+                                                   FontSize="14"
+                                                   FontWeight="Bold"
+                                                   Foreground="{StaticResource DashboardWarning}"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center" />
+                                    </Border>
+                                    <TextBlock Grid.Column="1"
+                                               Text="신뢰도"
+                                               FontSize="11.5"
+                                               FontWeight="SemiBold"
+                                               Foreground="{DynamicResource DashboardText}"
+                                               VerticalAlignment="Center" />
+                                    <TextBox Grid.Column="2"
+                                             Text="{Binding AnalysisConfidence, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource MetricValueBox}" />
+                                    <TextBlock Grid.Column="3"
+                                               Text="%"
+                                               Foreground="{StaticResource DashboardMuted}"
+                                               HorizontalAlignment="Right"
+                                               VerticalAlignment="Center" />
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+
                     </Grid>
                 </Border>
 
-                <Border Grid.Column="4" Style="{StaticResource Card}" Padding="0">
-                    <Grid ClipToBounds="True">
-                        <Grid Margin="12">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="10" />
-                                <RowDefinition Height="*" />
-                            </Grid.RowDefinitions>
+                <Border Grid.Column="4" Style="{StaticResource DashboardCard}">
+                    <Grid Margin="13">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="9" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
 
-                            <StackPanel Grid.Row="0" Orientation="Horizontal">
-                                <Border Width="3"
-                                        Height="14"
-                                        CornerRadius="2"
-                                        Background="{StaticResource AccentBrush}"
-                                        VerticalAlignment="Center"
-                                        Margin="0,0,8,0" />
-                                <TextBlock Text="매설물 선택 #1 ~ 16" Style="{StaticResource PanelLabel}" />
-                            </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Border Width="3"
+                                    Height="17"
+                                    Margin="0,0,9,0"
+                                    Background="{StaticResource DashboardBlue}"
+                                    CornerRadius="2" />
+                            <TextBlock Text="매설물 선택 #1 ~ 16"
+                                       Style="{StaticResource PanelLabel}" />
+                        </StackPanel>
 
-                            <UniformGrid Grid.Row="2"
-                                         Columns="4"
-                                         Rows="4"
-                                         VerticalAlignment="Top">
-                                <Button Content="1"  Command="{Binding SelectResultCommand}" CommandParameter="1"  Style="{StaticResource ResultSelectorButton}" />
-                                <Button Content="2"  Command="{Binding SelectResultCommand}" CommandParameter="2"  Style="{StaticResource ResultSelectorButton}" />
-                                <Button Content="3"  Command="{Binding SelectResultCommand}" CommandParameter="3"  Style="{StaticResource ResultSelectorButton}" />
-                                <Button Content="4"  Command="{Binding SelectResultCommand}" CommandParameter="4"  Style="{StaticResource ResultSelectorButton}" />
-                                <Button Content="5"  Command="{Binding SelectResultCommand}" CommandParameter="5"  Style="{StaticResource ResultSelectorButton}" />
-                                <Button Content="6"  Command="{Binding SelectResultCommand}" CommandParameter="6"  Style="{StaticResource ResultSelectorButton}" />
-                                <Button Content="7"  Command="{Binding SelectResultCommand}" CommandParameter="7"  Style="{StaticResource ResultSelectorButton}" />
-                                <Button Content="8"  Command="{Binding SelectResultCommand}" CommandParameter="8"  Style="{StaticResource ResultSelectorButton}" />
-                                <Button Content="9"  Command="{Binding SelectResultCommand}" CommandParameter="9"  Style="{StaticResource ResultSelectorButton}" />
-                                <Button Content="10" Command="{Binding SelectResultCommand}" CommandParameter="10" Style="{StaticResource ResultSelectorButton}" />
-                                <Button Content="11" Command="{Binding SelectResultCommand}" CommandParameter="11" Style="{StaticResource ResultSelectorButton}" />
-                                <Button Content="12" Command="{Binding SelectResultCommand}" CommandParameter="12" Style="{StaticResource ResultSelectorButton}" />
-                                <Button Content="13" Command="{Binding SelectResultCommand}" CommandParameter="13" Style="{StaticResource ResultSelectorButton}" />
-                                <Button Content="14" Command="{Binding SelectResultCommand}" CommandParameter="14" Style="{StaticResource ResultSelectorButton}" />
-                                <Button Content="15" Command="{Binding SelectResultCommand}" CommandParameter="15" Style="{StaticResource ResultSelectorButton}" />
-                                <Button Content="16" Command="{Binding SelectResultCommand}" CommandParameter="16" Style="{StaticResource ResultSelectorButton}" />
-                            </UniformGrid>
-                        </Grid>
+                        <UniformGrid Grid.Row="2"
+                                     Columns="4"
+                                     Rows="4"
+                                     Width="280"
+                                     Height="196"
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Top">
+                            <Button Content="1"  Command="{Binding SelectResultCommand}" CommandParameter="1"  Style="{StaticResource ResultSelectorButton}" />
+                            <Button Content="2"  Command="{Binding SelectResultCommand}" CommandParameter="2"  Style="{StaticResource ResultSelectorButton}" />
+                            <Button Content="3"  Command="{Binding SelectResultCommand}" CommandParameter="3"  Style="{StaticResource ResultSelectorButton}" />
+                            <Button Content="4"  Command="{Binding SelectResultCommand}" CommandParameter="4"  Style="{StaticResource ResultSelectorButton}" />
+                            <Button Content="5"  Command="{Binding SelectResultCommand}" CommandParameter="5"  Style="{StaticResource ResultSelectorButton}" />
+                            <Button Content="6"  Command="{Binding SelectResultCommand}" CommandParameter="6"  Style="{StaticResource ResultSelectorButton}" />
+                            <Button Content="7"  Command="{Binding SelectResultCommand}" CommandParameter="7"  Style="{StaticResource ResultSelectorButton}" />
+                            <Button Content="8"  Command="{Binding SelectResultCommand}" CommandParameter="8"  Style="{StaticResource ResultSelectorButton}" />
+                            <Button Content="9"  Command="{Binding SelectResultCommand}" CommandParameter="9"  Style="{StaticResource ResultSelectorButton}" />
+                            <Button Content="10" Command="{Binding SelectResultCommand}" CommandParameter="10" Style="{StaticResource ResultSelectorButton}" />
+                            <Button Content="11" Command="{Binding SelectResultCommand}" CommandParameter="11" Style="{StaticResource ResultSelectorButton}" />
+                            <Button Content="12" Command="{Binding SelectResultCommand}" CommandParameter="12" Style="{StaticResource ResultSelectorButton}" />
+                            <Button Content="13" Command="{Binding SelectResultCommand}" CommandParameter="13" Style="{StaticResource ResultSelectorButton}" />
+                            <Button Content="14" Command="{Binding SelectResultCommand}" CommandParameter="14" Style="{StaticResource ResultSelectorButton}" />
+                            <Button Content="15" Command="{Binding SelectResultCommand}" CommandParameter="15" Style="{StaticResource ResultSelectorButton}" />
+                            <Button Content="16" Command="{Binding SelectResultCommand}" CommandParameter="16" Style="{StaticResource ResultSelectorButton}" />
+                        </UniformGrid>
                     </Grid>
                 </Border>
             </Grid>
@@ -511,26 +785,38 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <Border Grid.Column="0" Style="{StaticResource Card}" Padding="0">
-                    <Grid ClipToBounds="True">
-                        <Grid VerticalAlignment="Top" Margin="12,12,12,0">
+                <Border Grid.Column="0" Style="{StaticResource DashboardCard}">
+                    <Grid>
+                        <Grid Margin="14,12,14,0"
+                              VerticalAlignment="Top">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <StackPanel Orientation="Horizontal">
-                                <Border Width="3" Height="14" CornerRadius="2"
-                                        Background="#00D4AA" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                <Border Width="3"
+                                        Height="17"
+                                        Margin="0,0,9,0"
+                                        Background="{StaticResource DashboardCyan}"
+                                        CornerRadius="2" />
                                 <TextBlock Text="TOP VIEW" Style="{StaticResource PanelLabel}" />
                             </StackPanel>
                             <Button Grid.Column="1"
-                                    Content="초기화"
                                     Style="{StaticResource ViewResetButton}"
-                                    Click="ResetTopView_Click" />
+                                    Click="ResetTopView_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xE777;"
+                                               FontFamily="Segoe MDL2 Assets"
+                                               FontSize="11"
+                                               Margin="0,0,6,0" />
+                                    <TextBlock Text="초기화" FontSize="10.5" />
+                                </StackPanel>
+                            </Button>
                         </Grid>
+
                         <Grid x:Name="TopViewSurface"
-                              Margin="0,30,0,0"
-                              Background="Transparent"
+                              Margin="0,40,0,0"
+                              Background="{StaticResource DashboardGrid}"
                               ClipToBounds="True"
                               Cursor="SizeAll"
                               MouseLeftButtonDown="ViewSurface_MouseLeftButtonDown"
@@ -538,44 +824,78 @@
                               MouseMove="ViewSurface_MouseMove"
                               MouseLeave="ViewSurface_MouseLeave"
                               MouseWheel="ViewSurface_MouseWheel">
+                            <Grid IsHitTestVisible="False">
+                                <Grid.Style>
+                                    <Style TargetType="Grid">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Results.Count}" Value="0">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Grid.Style>
+                                <StackPanel HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            Opacity="0.65">
+                                    <Grid Width="82" Height="82">
+                                        <Ellipse Stroke="#426383" StrokeThickness="1" />
+                                        <Path Data="M18,42 L41,29 L64,42 L41,55 Z M18,42 L18,50 L41,63 L64,50 L64,42"
+                                              Stroke="#7890AA"
+                                              StrokeThickness="1.5"
+                                              Fill="Transparent"
+                                              Stretch="Uniform"
+                                              Margin="12" />
+                                    </Grid>
+                                    <TextBlock Text="분석 결과가 여기에 표시됩니다"
+                                               Margin="0,9,0,0"
+                                               FontSize="10.5"
+                                               Foreground="{StaticResource DashboardMuted}" />
+                                </StackPanel>
+                            </Grid>
                             <Canvas x:Name="TopViewCanvas"
                                     Background="Transparent"
                                     SizeChanged="ViewCanvas_SizeChanged" />
                         </Grid>
-                        <Border HorizontalAlignment="Left"
-                                VerticalAlignment="Bottom"
-                                Margin="12"
-                                Padding="10,8"
-                                Background="#C4181D24"
-                                BorderBrush="{StaticResource BorderBrush1}"
-                                BorderThickness="1"
-                                CornerRadius="8"
-                                IsHitTestVisible="False">
+
+                        <Border Style="{StaticResource RankOverlay}">
                             <StackPanel x:Name="TopViewRankOverlay" />
                         </Border>
                     </Grid>
                 </Border>
 
-                <Border Grid.Column="2" Style="{StaticResource Card}" Padding="0">
-                    <Grid ClipToBounds="True">
-                        <Grid VerticalAlignment="Top" Margin="12,12,12,0">
+                <Border Grid.Column="2" Style="{StaticResource DashboardCard}">
+                    <Grid>
+                        <Grid Margin="14,12,14,0"
+                              VerticalAlignment="Top">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <StackPanel Orientation="Horizontal">
-                                <Border Width="3" Height="14" CornerRadius="2"
-                                        Background="#7C4DFF" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                <Border Width="3"
+                                        Height="17"
+                                        Margin="0,0,9,0"
+                                        Background="{StaticResource DashboardViolet}"
+                                        CornerRadius="2" />
                                 <TextBlock Text="FRONT VIEW" Style="{StaticResource PanelLabel}" />
                             </StackPanel>
                             <Button Grid.Column="1"
-                                    Content="초기화"
                                     Style="{StaticResource ViewResetButton}"
-                                    Click="ResetFrontView_Click" />
+                                    Click="ResetFrontView_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xE777;"
+                                               FontFamily="Segoe MDL2 Assets"
+                                               FontSize="11"
+                                               Margin="0,0,6,0" />
+                                    <TextBlock Text="초기화" FontSize="10.5" />
+                                </StackPanel>
+                            </Button>
                         </Grid>
+
                         <Grid x:Name="FrontViewSurface"
-                              Margin="0,30,0,0"
-                              Background="Transparent"
+                              Margin="0,40,0,0"
+                              Background="{StaticResource DashboardGrid}"
                               ClipToBounds="True"
                               Cursor="SizeAll"
                               MouseLeftButtonDown="ViewSurface_MouseLeftButtonDown"
@@ -583,19 +903,41 @@
                               MouseMove="ViewSurface_MouseMove"
                               MouseLeave="ViewSurface_MouseLeave"
                               MouseWheel="ViewSurface_MouseWheel">
+                            <Grid IsHitTestVisible="False">
+                                <Grid.Style>
+                                    <Style TargetType="Grid">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Results.Count}" Value="0">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Grid.Style>
+                                <StackPanel HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            Opacity="0.65">
+                                    <Grid Width="82" Height="82">
+                                        <Ellipse Stroke="#426383" StrokeThickness="1" />
+                                        <Path Data="M22,30 L41,20 L60,30 L60,53 L41,64 L22,53 Z M22,30 L41,41 L60,30 M41,41 L41,64"
+                                              Stroke="#7890AA"
+                                              StrokeThickness="1.5"
+                                              Fill="Transparent"
+                                              Stretch="Uniform"
+                                              Margin="12" />
+                                    </Grid>
+                                    <TextBlock Text="분석 결과가 여기에 표시됩니다"
+                                               Margin="0,9,0,0"
+                                               FontSize="10.5"
+                                               Foreground="{StaticResource DashboardMuted}" />
+                                </StackPanel>
+                            </Grid>
                             <Canvas x:Name="FrontViewCanvas"
                                     Background="Transparent"
                                     SizeChanged="ViewCanvas_SizeChanged" />
                         </Grid>
-                        <Border HorizontalAlignment="Left"
-                                VerticalAlignment="Bottom"
-                                Margin="12"
-                                Padding="10,8"
-                                Background="#C4181D24"
-                                BorderBrush="{StaticResource BorderBrush1}"
-                                BorderThickness="1"
-                                CornerRadius="8"
-                                IsHitTestVisible="False">
+
+                        <Border Style="{StaticResource RankOverlay}">
                             <StackPanel x:Name="FrontViewRankOverlay" />
                         </Border>
                     </Grid>
@@ -603,14 +945,11 @@
             </Grid>
         </Grid>
 
-        <Border Grid.Row="4"
-                Background="{StaticResource StatusBarBackgroundBrush}"
-                Padding="12,0">
-            <Border.Style>
-                <Style TargetType="Border">
-                    <Setter Property="Margin" Value="-10,0,-10,0" />
-                </Style>
-            </Border.Style>
+        <Border Grid.Row="2"
+                Background="{DynamicResource DashboardStatusBar}"
+                BorderBrush="{DynamicResource DashboardBorder}"
+                BorderThickness="0,1,0,0"
+                Padding="10,0">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -618,38 +957,38 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <StackPanel Orientation="Horizontal"
+                <StackPanel Margin="6,0,0,0"
+                            Orientation="Horizontal"
                             VerticalAlignment="Center">
-                    <Ellipse Width="6"
-                             Height="6"
-                             Fill="#5BC06A"
-                             VerticalAlignment="Center"
+                    <Ellipse Width="7"
+                             Height="7"
+                             Fill="#46C982"
                              Margin="0,0,8,0" />
                     <TextBlock Text="{Binding StatusText}"
-                               Foreground="{StaticResource TextPrimaryBrush}"
                                FontSize="10"
+                               Foreground="{DynamicResource DashboardText}"
                                VerticalAlignment="Center" />
                 </StackPanel>
 
                 <TextBlock Grid.Column="1"
                            Text="{Binding CoordinateReferenceText}"
-                           Foreground="{StaticResource TextSecondaryBrush}"
+                           Margin="12,0"
                            FontSize="9.5"
-                           VerticalAlignment="Center"
+                           Foreground="{DynamicResource DashboardMuted}"
                            HorizontalAlignment="Center"
-                           Margin="12,0" />
+                           VerticalAlignment="Center" />
 
                 <TextBlock Grid.Column="2"
                            Text="{Binding BuildInfoText}"
-                           Foreground="#E4ECF9"
+                           Margin="0,0,6,0"
                            FontSize="9.5"
-                           VerticalAlignment="Center"
-                           HorizontalAlignment="Right" />
+                           Foreground="{DynamicResource DashboardText}"
+                           VerticalAlignment="Center" />
             </Grid>
         </Border>
 
-        <Border Grid.Row="5"
-                Background="{StaticResource BackgroundBrush}">
+        <Border Grid.Row="3"
+                Background="{StaticResource DashboardBackground}">
             <Border.Style>
                 <Style TargetType="Border">
                     <Setter Property="Height" Value="0" />
@@ -664,4 +1003,3 @@
         </Border>
     </Grid>
 </Window>
-

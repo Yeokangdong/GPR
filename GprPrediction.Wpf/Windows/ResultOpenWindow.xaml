@@ -11,7 +11,7 @@
         WindowStartupLocation="CenterOwner">
 
     <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="46"
+        <WindowChrome CaptionHeight="44"
                       ResizeBorderThickness="5"
                       GlassFrameThickness="0"
                       UseAeroCaptionButtons="False" />
@@ -26,21 +26,17 @@
 
     <Window.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../Styles/Theme.xaml" />
-            </ResourceDictionary.MergedDictionaries>
-
             <Style x:Key="ResultItemCard" TargetType="Border">
-                <Setter Property="Background" Value="#13233C" />
+                <Setter Property="Background" Value="#101B29" />
                 <Setter Property="BorderBrush" Value="{StaticResource BorderBrush1}" />
                 <Setter Property="BorderThickness" Value="1" />
-                <Setter Property="CornerRadius" Value="12" />
-                <Setter Property="Padding" Value="14,12" />
-                <Setter Property="Margin" Value="0,0,0,10" />
+                <Setter Property="CornerRadius" Value="10" />
+                <Setter Property="Padding" Value="14,11" />
+                <Setter Property="Margin" Value="0,0,0,8" />
                 <Style.Triggers>
                     <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                        <Setter Property="Background" Value="#1C3458" />
-                        <Setter Property="BorderBrush" Value="#5B8CFF" />
+                        <Setter Property="Background" Value="#17375C" />
+                        <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}" />
                         <Setter Property="BorderThickness" Value="1.4" />
                     </DataTrigger>
                 </Style.Triggers>
@@ -79,8 +75,9 @@
         </Grid.RowDefinitions>
 
         <Border Background="{StaticResource TitleBarBackgroundBrush}"
-                BorderThickness="0">
-            <Grid Height="46">
+                BorderBrush="{StaticResource BorderBrush1}"
+                BorderThickness="0,0,0,1">
+            <Grid Height="44">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
@@ -88,12 +85,12 @@
 
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="18,0,0,0">
                     <Image Source="pack://application:,,,/Assets/GprRadar.png"
-                           Width="24"
-                           Height="24"
+                           Width="22"
+                           Height="22"
                            Margin="0,-1,10,0"
                            VerticalAlignment="Center" />
                     <TextBlock Text="GPR"
-                               FontSize="17"
+                               FontSize="16"
                                FontWeight="Black"
                                Foreground="{StaticResource AccentBrush}"
                                Margin="0,-1,0,0"
@@ -150,7 +147,7 @@
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <Border Width="4" Height="16" Background="{StaticResource AccentBrush}" CornerRadius="2" Margin="0,0,10,0" VerticalAlignment="Center" />
-                            <TextBlock Text="측정결과 열기" FontSize="22" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" />
+                            <TextBlock Text="측정결과 열기" FontSize="19" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" />
                         </StackPanel>
                         <TextBlock Margin="14,10,0,0"
                                    Text="불러온 SEN 결과를 고르면 지도 화면에서 바로 비교하고 병합할 수 있습니다."

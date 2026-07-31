@@ -13,7 +13,7 @@
         PreviewKeyDown="Window_PreviewKeyDown">
 
     <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="46" ResizeBorderThickness="5"
+        <WindowChrome CaptionHeight="44" ResizeBorderThickness="5"
                       GlassFrameThickness="0" UseAeroCaptionButtons="False" />
     </WindowChrome.WindowChrome>
 
@@ -24,9 +24,6 @@
 
     <Window.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../Styles/Theme.xaml" />
-            </ResourceDictionary.MergedDictionaries>
             <Style x:Key="ScrollPageButton" TargetType="{x:Type RepeatButton}">
                 <Setter Property="Focusable" Value="False" />
                 <Setter Property="IsTabStop" Value="False" />
@@ -439,13 +436,15 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="46" />
+            <RowDefinition Height="44" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <Border Background="{StaticResource TitleBarBackgroundBrush}"
+                BorderBrush="{StaticResource BorderBrush1}"
+                BorderThickness="0,0,0,1"
                 MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
-            <Grid Height="46">
+            <Grid Height="44">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
@@ -453,10 +452,10 @@
 
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="18,0,0,0">
                     <Image Source="pack://application:,,,/Assets/GprRadar.png"
-                           Width="24" Height="24"
+                           Width="22" Height="22"
                            Margin="0,-1,10,0" />
                     <TextBlock Text="GPR"
-                               FontSize="17"
+                               FontSize="16"
                                FontWeight="Black"
                                Foreground="{StaticResource AccentBrush}"
                                VerticalAlignment="Center" />
@@ -577,71 +576,104 @@
         <Grid x:Name="AnalysisResultOverlay"
               Grid.Row="1"
               Panel.ZIndex="100"
-              Background="#B300070D"
+              Background="#78030A12"
               Visibility="Collapsed">
-            <Border Width="520"
-                    MaxWidth="680"
-                    Margin="24"
-                    Padding="26"
+            <Border Width="440"
+                    MaxWidth="520"
+                    Margin="32"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
-                    Background="#151D26"
-                    BorderBrush="#426181"
+                    Background="{DynamicResource SurfaceBrush}"
+                    BorderBrush="{DynamicResource BorderBrush1}"
                     BorderThickness="1"
-                    CornerRadius="12">
+                    CornerRadius="22"
+                    SnapsToDevicePixels="True">
                 <Border.Effect>
-                    <DropShadowEffect BlurRadius="30"
-                                      ShadowDepth="8"
-                                      Opacity="0.5" />
+                    <DropShadowEffect Color="#000000"
+                                      BlurRadius="44"
+                                      ShadowDepth="12"
+                                      Opacity="0.38" />
                 </Border.Effect>
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="32" />
+                        <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <StackPanel Orientation="Horizontal">
-                        <Border x:Name="AnalysisResultIconBackground"
-                                Width="42"
-                                Height="42"
-                                Margin="0,0,14,0"
-                                Background="#21B8A6"
-                                CornerRadius="21">
-                            <TextBlock x:Name="AnalysisResultIcon"
-                                       Text="✓"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"
-                                       Foreground="White"
-                                       FontSize="21"
-                                       FontWeight="Bold" />
-                        </Border>
-                        <StackPanel VerticalAlignment="Center">
+
+                    <Border Width="38"
+                            Height="4"
+                            Margin="0,10,0,0"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Top"
+                            Background="{DynamicResource BorderBrush1}"
+                            CornerRadius="2"
+                            Opacity="0.9" />
+
+                    <Grid Grid.Row="1" Margin="30,8,30,26">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <StackPanel HorizontalAlignment="Center">
+                            <Border x:Name="AnalysisResultIconBackground"
+                                    Width="54"
+                                    Height="54"
+                                    Background="#21B8A6"
+                                    CornerRadius="27">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="#21B8A6"
+                                                      BlurRadius="18"
+                                                      ShadowDepth="0"
+                                                      Opacity="0.24" />
+                                </Border.Effect>
+                                <TextBlock x:Name="AnalysisResultIcon"
+                                           Text="✓"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           Foreground="White"
+                                           FontFamily="Segoe UI Symbol"
+                                           FontSize="25"
+                                           FontWeight="SemiBold" />
+                            </Border>
                             <TextBlock x:Name="AnalysisResultTitle"
+                                       Margin="0,14,0,0"
+                                       HorizontalAlignment="Center"
                                        Text="분석 완료"
-                                       Foreground="#F4F8FC"
-                                       FontSize="20"
-                                       FontWeight="Bold" />
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
+                                       FontSize="19"
+                                       FontWeight="SemiBold" />
                             <TextBlock Text="Command 실행 결과"
-                                       Margin="0,3,0,0"
-                                       Foreground="#8FA1B5"
-                                       FontSize="12" />
+                                       Margin="0,5,0,0"
+                                       HorizontalAlignment="Center"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                       FontSize="11.5" />
                         </StackPanel>
-                    </StackPanel>
 
-                    <TextBlock x:Name="AnalysisResultMessage"
-                               Grid.Row="1"
-                               Margin="0,22,0,24"
-                               TextWrapping="Wrap"
-                               Foreground="#D5E0EB"
-                               FontSize="14"
-                               LineHeight="22" />
+                        <Border Grid.Row="1"
+                                Margin="0,22,0,20"
+                                Padding="16,14"
+                                Background="{DynamicResource SurfaceAltBrush}"
+                                BorderBrush="{DynamicResource BorderBrush1}"
+                                BorderThickness="1"
+                                CornerRadius="12">
+                            <TextBlock x:Name="AnalysisResultMessage"
+                                       TextWrapping="Wrap"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
+                                       FontSize="12.5"
+                                       LineHeight="20" />
+                        </Border>
 
-                    <Button Grid.Row="2"
-                            Width="110"
-                            HorizontalAlignment="Right"
-                            Content="확인"
-                            Click="CloseAnalysisResultOverlay_Click"
-                            Style="{StaticResource CommandPrimaryButton}" />
+                        <Button Grid.Row="2"
+                                Width="96"
+                                Height="34"
+                                HorizontalAlignment="Center"
+                                Content="확인"
+                                IsDefault="True"
+                                Click="CloseAnalysisResultOverlay_Click"
+                                Style="{DynamicResource PrimaryButton}" />
+                    </Grid>
                 </Grid>
             </Border>
         </Grid>

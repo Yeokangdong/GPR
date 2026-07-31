@@ -75,11 +75,11 @@ public sealed class ComponentStatus : INotifyPropertyChanged
     /// </summary>
     public string Icon => _state switch
     {
-        ComponentState.Ok => "O",
+        ComponentState.Ok => "✓",
         ComponentState.Warning => "!",
-        ComponentState.Fail => "X",
-        ComponentState.Checking => "...",
-        _ => "-"
+        ComponentState.Fail => "×",
+        ComponentState.Checking => "•••",
+        _ => "–"
     };
 
     /// <summary>

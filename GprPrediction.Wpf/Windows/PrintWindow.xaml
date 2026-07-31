@@ -11,7 +11,7 @@
         WindowStartupLocation="CenterOwner">
 
     <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="46" ResizeBorderThickness="5"
+        <WindowChrome CaptionHeight="44" ResizeBorderThickness="5"
                       GlassFrameThickness="0" UseAeroCaptionButtons="False" />
     </WindowChrome.WindowChrome>
 
@@ -24,9 +24,6 @@
 
     <Window.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../Styles/Theme.xaml" />
-            </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
 
@@ -37,8 +34,9 @@
         </Grid.RowDefinitions>
 
         <Border Background="{StaticResource TitleBarBackgroundBrush}"
-                BorderThickness="0">
-            <Grid Height="46">
+                BorderBrush="{StaticResource BorderBrush1}"
+                BorderThickness="0,0,0,1">
+            <Grid Height="44">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
@@ -46,12 +44,12 @@
 
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="18,0,0,0">
                     <Image Source="pack://application:,,,/Assets/GprRadar.png"
-                           Width="24"
-                           Height="24"
+                           Width="22"
+                           Height="22"
                            Margin="0,-1,10,0"
                            VerticalAlignment="Center" />
                     <TextBlock Text="GPR"
-                               FontSize="17"
+                               FontSize="16"
                                FontWeight="Black"
                                Foreground="{StaticResource AccentBrush}"
                                Margin="0,-1,0,0"
@@ -119,7 +117,7 @@
                                     Margin="0,0,10,0"
                                     VerticalAlignment="Center" />
                             <TextBlock Text="출력 및 보고서"
-                                       FontSize="22"
+                                       FontSize="19"
                                        FontWeight="Bold"
                                        Foreground="{StaticResource TextPrimaryBrush}" />
                         </StackPanel>
@@ -208,8 +206,8 @@
 
                                         <Border Grid.Column="1"
                                                 Padding="0"
-                                                Background="#0E121A"
-                                                BorderBrush="#D6D9E0"
+                                                Background="{DynamicResource ReportCanvasBackgroundBrush}"
+                                                BorderBrush="{DynamicResource BorderBrush1}"
                                                 BorderThickness="1">
                                             <Image Source="{Binding AnalysisImage}"
                                                    Height="185"
@@ -230,13 +228,13 @@
                                                    VerticalAlignment="Top" />
 
                                         <Border Grid.Column="1"
-                                                Background="#0F1320"
-                                                BorderBrush="#D6D9E0"
+                                                Background="{DynamicResource ReportCanvasBackgroundBrush}"
+                                                BorderBrush="{DynamicResource BorderBrush1}"
                                                 BorderThickness="1"
                                                 Padding="0">
                                             <Canvas x:Name="ReportTopViewCanvas"
                                                     Height="200"
-                                                    Background="#0F1320"
+                                                    Background="{DynamicResource ReportCanvasBackgroundBrush}"
                                                     SizeChanged="ReportCanvas_SizeChanged" />
                                         </Border>
                                     </Grid>
@@ -254,13 +252,13 @@
                                                    VerticalAlignment="Top" />
 
                                         <Border Grid.Column="1"
-                                                Background="#0F1320"
-                                                BorderBrush="#D6D9E0"
+                                                Background="{DynamicResource ReportCanvasBackgroundBrush}"
+                                                BorderBrush="{DynamicResource BorderBrush1}"
                                                 BorderThickness="1"
                                                 Padding="0">
                                             <Canvas x:Name="ReportFrontViewCanvas"
                                                     Height="200"
-                                                    Background="#0F1320"
+                                                    Background="{DynamicResource ReportCanvasBackgroundBrush}"
                                                     SizeChanged="ReportCanvas_SizeChanged" />
                                         </Border>
                                     </Grid>
@@ -339,7 +337,7 @@
 
                             <Border Grid.Row="1"
                                     Margin="16"
-                                    Background="#0C1430"
+                                    Background="{DynamicResource ReportConsoleBackgroundBrush}"
                                     BorderBrush="{StaticResource BorderBrush1}"
                                     BorderThickness="1"
                                     CornerRadius="8"

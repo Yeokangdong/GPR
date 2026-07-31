@@ -1,0 +1,54 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Color x:Key="ColorBackground">#0B111A</Color>
+    <Color x:Key="ColorSurface">#121A25</Color>
+    <Color x:Key="ColorSurfaceAlt">#182332</Color>
+    <Color x:Key="ColorTitleBarBackground">#0D1521</Color>
+    <Color x:Key="ColorStatusBarBackground">#122033</Color>
+    <Color x:Key="ColorBorder">#2B3A4D</Color>
+    <Color x:Key="ColorAccent">#4C8DFF</Color>
+    <Color x:Key="ColorAccentHover">#67A2FF</Color>
+    <Color x:Key="ColorAccentPressed">#3478F6</Color>
+    <Color x:Key="ColorDanger">#FF5F57</Color>
+    <Color x:Key="ColorTextPrimary">#F5F7FA</Color>
+    <Color x:Key="ColorTextSecondary">#AAB6C5</Color>
+
+    <SolidColorBrush x:Key="BackgroundBrush" Color="{StaticResource ColorBackground}" />
+    <SolidColorBrush x:Key="SurfaceBrush" Color="{StaticResource ColorSurface}" />
+    <SolidColorBrush x:Key="SurfaceAltBrush" Color="{StaticResource ColorSurfaceAlt}" />
+    <SolidColorBrush x:Key="TitleBarBackgroundBrush" Color="{StaticResource ColorTitleBarBackground}" />
+    <SolidColorBrush x:Key="StatusBarBackgroundBrush" Color="{StaticResource ColorStatusBarBackground}" />
+    <SolidColorBrush x:Key="BorderBrush1" Color="{StaticResource ColorBorder}" />
+    <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource ColorAccent}" />
+    <SolidColorBrush x:Key="AccentHoverBrush" Color="{StaticResource ColorAccentHover}" />
+    <SolidColorBrush x:Key="AccentPressedBrush" Color="{StaticResource ColorAccentPressed}" />
+    <SolidColorBrush x:Key="DangerBrush" Color="{StaticResource ColorDanger}" />
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource ColorTextPrimary}" />
+    <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource ColorTextSecondary}" />
+    <SolidColorBrush x:Key="InputBackgroundBrush" Color="#0F1824" />
+    <SolidColorBrush x:Key="InputFocusedBackgroundBrush" Color="#111D2B" />
+    <SolidColorBrush x:Key="SecondaryControlBrush" Color="#172231" />
+    <SolidColorBrush x:Key="ReportCanvasBackgroundBrush" Color="#0F1320" />
+    <SolidColorBrush x:Key="ReportCanvasTextBrush" Color="#D8DDE8" />
+    <SolidColorBrush x:Key="ReportConsoleBackgroundBrush" Color="#0C1430" />
+
+    <SolidColorBrush x:Key="DashboardBackground" Color="#09111C" />
+    <SolidColorBrush x:Key="DashboardPanel" Color="#111C2A" />
+    <SolidColorBrush x:Key="DashboardPanelRaised" Color="#152335" />
+    <SolidColorBrush x:Key="DashboardBorder" Color="#2A3C53" />
+    <SolidColorBrush x:Key="DashboardBorderHover" Color="#3C5778" />
+    <SolidColorBrush x:Key="DashboardText" Color="#F5F8FC" />
+    <SolidColorBrush x:Key="DashboardMuted" Color="#93A4BA" />
+    <SolidColorBrush x:Key="DashboardBlue" Color="#4C8DFF" />
+    <SolidColorBrush x:Key="DashboardCyan" Color="#20D6C7" />
+    <SolidColorBrush x:Key="DashboardViolet" Color="#835CFF" />
+    <SolidColorBrush x:Key="DashboardWarning" Color="#F0B429" />
+    <SolidColorBrush x:Key="DashboardTitleBar" Color="#0C1623" />
+    <SolidColorBrush x:Key="DashboardInset" Color="#121F2F" />
+    <SolidColorBrush x:Key="DashboardInsetBorder" Color="#293D56" />
+    <SolidColorBrush x:Key="DashboardHover" Color="#17263A" />
+    <SolidColorBrush x:Key="DashboardSelected" Color="#17365A" />
+    <SolidColorBrush x:Key="DashboardGridLine" Color="#52749B" />
+    <SolidColorBrush x:Key="DashboardStatusBar" Color="#132337" />
+    <SolidColorBrush x:Key="DashboardToolbarText" Color="#C8D4E4" />
+</ResourceDictionary>
